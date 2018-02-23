@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="ru.avem.kspad.view.Experiment4Activity">
+
+    <TextView
+        android:id="@+id/status"
+        android:textSize="24sp"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <TextView
+        android:id="@+id/name_of_experiment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/experiment4"
+        android:textSize="48sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0"/>
+
+    <ToggleButton
+        android:id="@+id/experiment_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textOff="Запустить испытание"
+        android:textOn="Остановить испытание"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/name_of_experiment"/>
+
+    <TableLayout
+        android:id="@+id/table"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/experiment_switch">
+
+        <TableRow>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="U, V"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/u1"
+                android:background="@drawable/border_padding"
+                android:text="        "
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/u2"
+                android:background="@drawable/border_padding"
+                android:text="        "
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/u3"
+                android:background="@drawable/border_padding"
+                android:text="        "
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="Результат"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="Время"
+                android:textSize="28sp"/>
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="I, А"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/i1"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/i2"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/i3"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/result"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/t"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:background="@drawable/border_padding_light_red"
+                android:text="U ном."
+                android:textSize="28sp"/>
+
+            <TextView
+                android:text="380"
+                android:background="@drawable/border_padding_light_red"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:text="500"
+                android:background="@drawable/border_padding_light_red"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:text="380"
+                android:background="@drawable/border_padding_light_red"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_light_red"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/t_specified"
+                android:background="@drawable/border_padding_light_red"
+                android:textSize="28sp"/>
+        </TableRow>
+    </TableLayout>
+
+</android.support.constraint.ConstraintLayout>

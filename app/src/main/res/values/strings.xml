@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">КСПАД</string>
+    <string name="main_title">Автоматизированный комплексный стенд проверки асинхронных двигателей</string>
+
+    <string name="experiment1">Определение рабочих характеристик</string>
+    <string name="experiment2">Опыт перегрузки по моменту</string>
+    <string name="experiment3">Опыт перегрузки по току</string>
+    <string name="experiment4">Опыт проверки межвитковой изоляции</string>
+    <string name="experiment5">Определение сопротивления обмоток при постоянном токе в практически холодном состоянии</string>
+    <string name="experiment6">Опыт ВИУ</string>
+    <string name="experiment7">Определение токов и потерь холостого хода</string>
+    <string name="experiment8">Испытание при повышенной частоте вращения</string>
+    <string name="experiment9">Определение токов и потерь короткого замыкания</string>
+    <string name="experiment10">Опыт снятия максимального момента</string>
+    <string name="experiment11">Определение сопротивления изоляции обмоток относительно корпуса машины и между обмотками</string>
+    <string name="experiment12">Испытание на нагревание</string>
+    <string name="experiment13">Проверка работоспособности при изменении напряжения и частоты питающей сети</string>
+    <string name="experiment14">Определение минимального момента</string>
+    <string name="experiment15">Определение пускового момента и тока</string>
+    <string name="experiment16">Определение уровня шума и вибрации</string>
+</resources>

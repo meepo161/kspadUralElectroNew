@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/faboptions_devices"
+        android:icon="@drawable/ic_device_hub_white_48dp"
+        android:title="Состояние устройств"/>
+
+    <item
+        android:id="@+id/faboptions_subject"
+        android:icon="@drawable/ic_subject_white_48dp"
+        android:title="Объект испытания"/>
+
+    <item
+        android:id="@+id/faboptions_protections"
+        android:icon="@drawable/ic_lock_open_white_48dp"
+        android:title="Состояние защит"/>
+
+
+    <item
+        android:id="@+id/faboptions_events"
+        android:icon="@drawable/ic_event_note_white_48dp"
+        android:title="События"/>
+</menu>

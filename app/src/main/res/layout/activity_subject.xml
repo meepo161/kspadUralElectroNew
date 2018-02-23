@@ -1,0 +1,591 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TableLayout
+            android:id="@+id/table"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="parent">
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Тип объекта"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/name"
+                    android:background="@drawable/border_padding"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:maxWidth="576dp"
+                    android:minWidth="96dp"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Номинальная(выходная) мощность, Вт"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/p_n"
+                    android:background="@drawable/border_padding"
+                    android:inputType="numberDecimal"
+                    android:maxLines="1"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Номинальное напряжение, В"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/u_n"
+                    android:background="@drawable/border_padding"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Номинальный ток, А"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/i_n"
+                    android:background="@drawable/border_padding"
+                    android:inputType="numberDecimal"
+                    android:maxLines="1"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Номинальный момент, Н/м"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/m_n"
+                    android:background="@drawable/border_padding"
+                    android:inputType="numberDecimal"
+                    android:maxLines="1"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Номинальная частота вращения, об/мин"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/v_n"
+                    android:background="@drawable/border_padding"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Схема соединения обмоток(звезда или треугольник)"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:id="@+id/winding"
+                    android:background="@drawable/border_padding"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Номинальное скольжение, не более, %"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/s_n"
+                    android:background="@drawable/border_padding"
+                    android:inputType="numberDecimal"
+                    android:maxLines="1"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Номинальный КПД, не менее"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/efficiency_n"
+                    android:background="@drawable/border_padding"
+                    android:inputType="numberDecimal"
+                    android:maxLines="1"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Частота сети"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/f_n"
+                    android:background="@drawable/border_padding"
+                    android:inputType="numberDecimal"
+                    android:maxLines="1"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:layout_span="2"
+                    android:background="@drawable/border_padding"
+                    android:gravity="center"
+                    android:text="Измерение сопротивления изоляции обмоток в практически холодном состоянии"
+                    android:textSize="28sp"
+                    android:textStyle="bold"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Заданное напряжение, В(500-2500)"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/u_mgr"
+                    android:background="@drawable/border_padding"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Сопротивление, МΩ"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/r_mgr"
+                    android:background="@drawable/border_padding"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:layout_span="2"
+                    android:background="@drawable/border_padding"
+                    android:gravity="center"
+                    android:text="Измерение сопротивления обмоток при постоянном токе в практически холодном состоянии"
+                    android:textSize="28sp"
+                    android:textStyle="bold"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Среднее значение сопротивления, Ω"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/r_ikas"
+                    android:background="@drawable/border_padding"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:layout_span="2"
+                    android:background="@drawable/border_padding"
+                    android:gravity="center"
+                    android:text="Испытание изоляции обмоток переменным напряжением"
+                    android:textSize="28sp"
+                    android:textStyle="bold"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Напряжение, В(500-3000)"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/u_viu"
+                    android:background="@drawable/border_padding"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Время выдержки, с"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/t_viu"
+                    android:background="@drawable/border_padding"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Ток утечки, А(0,1-1)"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/i_viu"
+                    android:background="@drawable/border_padding"
+                    android:inputType="numberDecimal"
+                    android:maxLines="1"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:layout_span="2"
+                    android:background="@drawable/border_padding"
+                    android:gravity="center"
+                    android:text="Определение токов и потерь ХХ"
+                    android:textSize="28sp"
+                    android:textStyle="bold"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Время обкатки, с"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/t_break_in_idle"
+                    android:background="@drawable/border_padding"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Количество ступеней(1 или 9)"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/num_of_stages_idle"
+                    android:background="@drawable/border_padding"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Время нахождения на каждой ступени, с"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/t_on_stage_idle"
+                    android:background="@drawable/border_padding"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:layout_span="2"
+                    android:background="@drawable/border_padding"
+                    android:gravity="center"
+                    android:text="Определение токов и потерь КЗ"
+                    android:textSize="28sp"
+                    android:textStyle="bold"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Количество ступеней(1 или 5)"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/num_of_stages_sc"
+                    android:background="@drawable/border_padding"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Время нахождения на каждой ступени, с"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/t_on_stage_sc"
+                    android:background="@drawable/border_padding"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:layout_span="2"
+                    android:background="@drawable/border_padding"
+                    android:gravity="center"
+                    android:text="Испытание на нагревание"
+                    android:textSize="28sp"
+                    android:textStyle="bold"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Время работы, с"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/t_heating"
+                    android:background="@drawable/border_padding"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Температура, °C"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/temp_heating"
+                    android:background="@drawable/border_padding"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:layout_span="2"
+                    android:background="@drawable/border_padding"
+                    android:gravity="center"
+                    android:text="Определение рабочих характеристик"
+                    android:textSize="28sp"
+                    android:textStyle="bold"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Параметр шкива ОИ"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/z1_performance"
+                    android:background="@drawable/border_padding"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Параметр шкива НМ"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/z2_performance"
+                    android:background="@drawable/border_padding"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Время обкатки на ХХ, с"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/t_break_in_performance"
+                    android:background="@drawable/border_padding"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Время выдержки под номинальной нагрузкой, с"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/t_performance"
+                    android:background="@drawable/border_padding"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:layout_span="2"
+                    android:background="@drawable/border_padding"
+                    android:gravity="center"
+                    android:text="Перегрузка по току"
+                    android:textSize="28sp"
+                    android:textStyle="bold"/>
+            </TableRow>
+
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Коэффициент перегрузки(по ГОСТу 1,5)"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/k_overload_i"
+                    android:background="@drawable/border_padding"
+                    android:inputType="numberDecimal"
+                    android:maxLines="1"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:layout_span="2"
+                    android:background="@drawable/border_padding"
+                    android:gravity="center"
+                    android:text="Проверка уровня шума и вибрации"
+                    android:textSize="28sp"
+                    android:textStyle="bold"/>
+            </TableRow>
+
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Номинальный шум, не более, дБ"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/noise"
+                    android:background="@drawable/border_padding"
+                    android:inputType="numberDecimal"
+                    android:maxLines="1"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Номинальная вибрация, не более, мм/с"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/vibration"
+                    android:background="@drawable/border_padding"
+                    android:inputType="numberDecimal"
+                    android:maxLines="1"
+                    android:textSize="28sp"/>
+            </TableRow>
+        </TableLayout>
+
+        <Button
+            android:id="@+id/save"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Сохранить"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/delete"
+            app:layout_constraintTop_toBottomOf="@+id/table"/>
+
+        <Button
+            android:id="@+id/delete"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Удалить"
+            app:layout_constraintLeft_toRightOf="@+id/save"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/table"/>
+    </android.support.constraint.ConstraintLayout>
+</ScrollView>

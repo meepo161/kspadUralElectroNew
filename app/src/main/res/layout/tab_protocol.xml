@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tab_protocol"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <GridLayout
+        android:id="@+id/review_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:columnCount="2"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_columnSpan="2"
+            android:text="Просмотреть результаты испытаний"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"/>
+
+        <TextView
+            android:layout_columnSpan="2"
+            android:text="Выберите дату за которую следует отобразить протоколы:"/>
+
+        <Button
+            android:id="@+id/select_date"
+            android:layout_width="match_parent"
+            android:textSize="20sp"
+            android:layout_columnSpan="2"/>
+
+        <TextView
+            android:layout_columnSpan="2"
+            android:text="Выберите протокол испытания:"/>
+
+        <Spinner
+            android:id="@+id/protocols"
+            android:layout_width="match_parent"
+            android:layout_columnSpan="2"
+            android:layout_marginTop="4dp"/>
+
+        <Button
+            android:id="@+id/preview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:text="Просмотреть"/>
+
+        <Button
+            android:id="@+id/save_on_flash"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:text="Сохранить на USB-FLASH"/>
+    </GridLayout>
+
+    <GridLayout
+        android:id="@+id/save_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:columnCount="2"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_columnSpan="2"
+            android:text="Сохранить результаты испытания"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"/>
+
+        <TextView
+            android:layout_width="192dp"
+            android:layout_height="wrap_content"
+            android:text="Должность:"/>
+
+        <Spinner
+            android:id="@+id/position1"
+            android:layout_width="192dp"
+            android:layout_height="wrap_content"
+            android:entries="@array/positions"/>
+
+        <EditText
+            android:id="@+id/position1_number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_columnSpan="2"
+            android:hint="Табельный номер 1"
+            android:inputType="text"
+            android:maxLines="1"/>
+
+        <EditText
+            android:id="@+id/position1_full_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_columnSpan="2"
+            android:hint="ФИО 1"
+            android:inputType="text"
+            android:maxLines="1"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Должность:"/>
+
+        <Spinner
+            android:id="@+id/position2"
+            android:layout_width="192dp"
+            android:layout_height="wrap_content"
+            android:entries="@array/positions"/>
+
+        <EditText
+            android:id="@+id/position2_number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_columnSpan="2"
+            android:hint="Табельный номер 2"
+            android:inputType="text"
+            android:maxLines="1"/>
+
+        <EditText
+            android:id="@+id/position2_full_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_columnSpan="2"
+            android:hint="ФИО 2"
+            android:inputType="text"
+            android:maxLines="1"/>
+
+        <Button
+            android:id="@+id/save"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_columnSpan="2"
+            android:text="Сохранить"/>
+    </GridLayout>
+</FrameLayout>

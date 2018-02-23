@@ -1,0 +1,526 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="ru.avem.kspad.view.Experiment13Activity">
+
+    <TextView
+        android:id="@+id/status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <TextView
+        android:id="@+id/name_of_experiment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/experiment13"
+        android:textSize="48sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0"/>
+
+    <ToggleButton
+        android:id="@+id/experiment_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textOff="Запустить испытание"
+        android:textOn="Остановить испытание"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/name_of_experiment"/>
+
+    <TableLayout
+        android:id="@+id/table"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/experiment_switch">
+
+        <TableRow>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="Фаза"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="U, В"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="I, А"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="S, кВА"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="P, кВт"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="V об/мин"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="M, Н/м"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="f, Гц"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="t, °C"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="Время, с"
+                android:textSize="28sp"/>
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="U 80%"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="A"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/u_0_8_a"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/i_0_8_a"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="B"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/u_0_8_b"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/i_0_8_b"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/s_0_8"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/p_0_8"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/v_0_8"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/m_0_8"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/f_0_8"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/temp_0_8"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/t_0_8"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="f 94%"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="C"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/u_0_8_c"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/i_0_8_c"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_light_green"
+                android:text="Среднее"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/u_0_8_average"
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/i_0_8_average"
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="28sp"/>
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="U 110%"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="A"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/u_1_1_a"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/i_1_1_a"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="B"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/u_1_1_b"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/i_1_1_b"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/s_1_1"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/p_1_1"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/v_1_1"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/m_1_1"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/f_1_1"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/temp_1_1"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/t_1_1"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="f 103%"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="C"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/u_1_1_c"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/i_1_1_c"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_light_green"
+                android:text="Среднее"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/u_1_1_average"
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/i_1_1_average"
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="28sp"/>
+        </TableRow>
+    </TableLayout>
+</android.support.constraint.ConstraintLayout>

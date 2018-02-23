@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tab_subject"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:columnCount="2">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_columnSpan="2"
+        android:layout_marginTop="8dp"
+        android:text="Введите заводской номер:"/>
+
+    <EditText
+        android:id="@+id/serial_number"
+        android:layout_width="match_parent"
+        android:layout_columnSpan="2"
+        android:hint="Заводской №"
+        android:inputType="text"
+        android:maxLines="1"/>
+
+    <ToggleButton
+        android:id="@+id/serial_number_enter"
+        android:layout_width="match_parent"
+        android:layout_columnSpan="2"
+        android:layout_marginTop="4dp"
+        android:textOff="Ввод"
+        android:textOn="Отмена"/>
+
+    <TextView
+        android:id="@+id/subjects_selector_title"
+        android:layout_width="match_parent"
+        android:layout_columnSpan="2"
+        android:text="Выберите объект испытания:"/>
+
+    <Spinner
+        android:id="@+id/subjects_selector"
+        android:layout_width="match_parent"
+        android:layout_columnSpan="2"
+        android:layout_marginTop="4dp"/>
+
+    <TextView
+        android:id="@+id/platforms_selector_title"
+        android:layout_width="match_parent"
+        android:layout_columnSpan="2"
+        android:text="Выберите платформу:"/>
+
+    <Spinner
+        android:id="@+id/platforms_selector"
+        android:layout_width="match_parent"
+        android:layout_columnSpan="2"
+        android:layout_marginTop="4dp"/>
+
+    <Button
+        android:id="@+id/subject_enter"
+        android:layout_width="match_parent"
+        android:layout_columnSpan="2"
+        android:layout_marginTop="4dp"
+        android:text="Ввод"/>
+
+    <Button
+        android:id="@+id/subject_cancel"
+        android:text="Отмена"
+        android:visibility="gone"/>
+
+    <Button
+        android:id="@+id/subject_next"
+        android:text="Продолжить >>"
+        android:visibility="gone"/>
+</GridLayout>

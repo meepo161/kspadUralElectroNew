@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/tab_results"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Spinner
+        android:id="@+id/experiments_selector"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <FrameLayout
+        android:id="@+id/experiment1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/experiments_selector">
+
+        <include layout="@layout/result_experiment01"/>
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/experiment2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/experiments_selector">
+
+        <include layout="@layout/result_experiment02"/>
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/experiment3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/experiments_selector">
+
+        <include layout="@layout/result_experiment03"/>
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/experiment4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/experiments_selector">
+
+        <include layout="@layout/result_experiment04"/>
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/experiment5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/experiments_selector">
+
+        <include layout="@layout/result_experiment05"/>
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/experiment6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/experiments_selector">
+
+        <include layout="@layout/result_experiment06"/>
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/experiment7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/experiments_selector">
+
+        <include layout="@layout/result_experiment07"/>
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/experiment8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/experiments_selector">
+
+        <include layout="@layout/result_experiment08"/>
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/experiment9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/experiments_selector">
+
+        <include layout="@layout/result_experiment09"/>
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/experiment10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/experiments_selector">
+
+        <include layout="@layout/result_experiment10"/>
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/experiment11"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/experiments_selector">
+
+        <include layout="@layout/result_experiment11"/>
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/experiment12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/experiments_selector">
+
+        <include layout="@layout/result_experiment12"/>
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/experiment13"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/experiments_selector">
+
+        <include layout="@layout/result_experiment13"/>
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/experiment14"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/experiments_selector">
+
+        <include layout="@layout/result_experiment14"/>
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/experiment15"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/experiments_selector">
+
+        <include layout="@layout/result_experiment15"/>
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/experiment16"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/experiments_selector">
+
+        <include layout="@layout/result_experiment16"/>
+    </FrameLayout>
+
+
+</android.support.constraint.ConstraintLayout>

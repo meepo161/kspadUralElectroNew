@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            tools:context="ru.avem.kspad.view.DevicesStatusActivity"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TableLayout
+            android:id="@+id/table"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="parent">
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="ПЛК"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:text="OK"
+                    android:id="@+id/plc"
+                    android:background="@drawable/border_padding"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Меггер"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:text="OK"
+                    android:id="@+id/megger"
+                    android:background="@drawable/border_padding"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Частотный преобразователь ОИ"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:text="OK"
+                    android:id="@+id/fq_subject"
+                    android:background="@drawable/border_padding"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Частотный преобразователь генератора"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:text="OK"
+                    android:id="@+id/fq_generator"
+                    android:background="@drawable/border_padding"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="ИКАС"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:text="OK"
+                    android:id="@+id/ikas"
+                    android:background="@drawable/border_padding"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Датчик момента"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:text="OK"
+                    android:id="@+id/torque_sensor"
+                    android:background="@drawable/border_padding"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="PM130"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:text="OK"
+                    android:id="@+id/pm130"
+                    android:background="@drawable/border_padding"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="ТРМ"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:text="OK"
+                    android:id="@+id/trm"
+                    android:background="@drawable/border_padding"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Частотомер"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:text="OK"
+                    android:id="@+id/fq_counter"
+                    android:background="@drawable/border_padding"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Вольтметр АВЕМ"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:text="OK"
+                    android:id="@+id/avem"
+                    android:background="@drawable/border_padding"
+                    android:textSize="28sp"/>
+            </TableRow>
+        </TableLayout>
+    </android.support.constraint.ConstraintLayout>
+</ScrollView>

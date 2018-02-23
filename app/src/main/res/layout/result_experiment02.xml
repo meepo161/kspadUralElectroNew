@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TableLayout
+        android:id="@+id/e2_table"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TableRow>
+
+            <TextView
+                android:text="Изм. хар."
+                android:background="@drawable/border_padding_gray"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="I, А"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="U, В"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="S, кВА"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="P1, кВт"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="cos φ"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="M, Н/м"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="V, об/мин"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="P2, кВт"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="η"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="tокр.с., °C"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="tдвиг., °C"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="s, %"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="Время, с"
+                android:textSize="20sp"/>
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="Фаза A"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_i_a"
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_u_a"
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="Фаза B"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_i_b"
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_u_b"
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_s"
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_p1"
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_cos"
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_m"
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_v"
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_p2"
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_nu"
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_temp_ambient"
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_temp_engine"
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_sk"
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_t"
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="Фаза C"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_i_c"
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_u_c"
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding"
+                android:textSize="20sp"/>
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:background="@drawable/border_padding_light_green"
+                android:text="Среднее за 3τ"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_i_average"
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_u_average"
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_s_average"
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_p1_average"
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_cos_average"
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_m_average"
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_v_average"
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_p2_average"
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_nu_average"
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_temp_engine_average"
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_sk_average"
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_light_green"
+                android:textSize="20sp"/>
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:background="@drawable/border_padding_light_red"
+                android:text="Ном. хар."
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_i_specified"
+                android:background="@drawable/border_padding_light_red"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_u_specified"
+                android:background="@drawable/border_padding_light_red"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_s_specified"
+                android:background="@drawable/border_padding_light_red"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_p1_specified"
+                android:background="@drawable/border_padding_light_red"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_cos_specified"
+                android:background="@drawable/border_padding_light_red"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_m_specified"
+                android:background="@drawable/border_padding_light_red"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_v_specified"
+                android:background="@drawable/border_padding_light_red"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_p2_specified"
+                android:background="@drawable/border_padding_light_red"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_nu_specified"
+                android:background="@drawable/border_padding_light_red"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:background="@drawable/border_padding_light_red"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_temp_engine_specified"
+                android:background="@drawable/border_padding_light_red"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_sk_specified"
+                android:background="@drawable/border_padding_light_red"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/e2_t_specified"
+                android:background="@drawable/border_padding_light_red"
+                android:textSize="20sp"/>
+        </TableRow>
+    </TableLayout>
+</android.support.constraint.ConstraintLayout>

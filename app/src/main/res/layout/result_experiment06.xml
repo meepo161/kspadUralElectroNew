@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TableLayout
+        android:id="@+id/e6_table"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TableRow>
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="U, В"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:text="I, А"
+                android:background="@drawable/border_padding_gray"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:text="Время, с"
+                android:background="@drawable/border_padding_gray"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:text="Результат"
+                android:background="@drawable/border_padding_gray"
+                android:textSize="28sp"/>
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:id="@+id/e6_u"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/e6_i"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/e6_t"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+
+            <TextView
+                android:id="@+id/e6_result"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp"/>
+        </TableRow>
+    </TableLayout>
+
+</android.support.constraint.ConstraintLayout>

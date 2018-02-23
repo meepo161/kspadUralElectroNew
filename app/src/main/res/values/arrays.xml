@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="experiments">
+        <item>@string/experiment11</item>
+        <item>@string/experiment6</item>
+        <item>@string/experiment5</item>
+        <item>@string/experiment7</item>
+        <item>@string/experiment4</item>
+        <item>@string/experiment9</item>
+        <item>@string/experiment1</item>
+        <item>@string/experiment3</item>
+        <item>@string/experiment2</item>
+        <item>@string/experiment12</item>
+        <item>@string/experiment10</item>
+        <item>@string/experiment14</item>
+        <item>@string/experiment15</item>
+        <item>@string/experiment8</item>
+        <item>@string/experiment13</item>
+        <item>@string/experiment16</item>
+    </string-array>
+
+    <string-array name="positions">
+        <item>Контролёр 1</item>
+        <item>Контролёр 2</item>
+    </string-array>
+
+    <string-array name="platforms">
+        <item>Платформа 1</item>
+        <item>Платформа 2</item>
+    </string-array>
+</resources>
