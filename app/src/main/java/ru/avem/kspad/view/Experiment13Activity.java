@@ -37,6 +37,7 @@ import static ru.avem.kspad.communication.devices.DeviceController.PM130_ID;
 import static ru.avem.kspad.communication.devices.DeviceController.TRM201_ID;
 import static ru.avem.kspad.communication.devices.DeviceController.VEHA_T_ID;
 import static ru.avem.kspad.utils.Utils.formatRealNumber;
+import static ru.avem.kspad.utils.Utils.sleep;
 import static ru.avem.kspad.utils.Visibility.onFullscreenMode;
 
 public class Experiment13Activity extends AppCompatActivity implements Observer {
@@ -131,6 +132,8 @@ public class Experiment13Activity extends AppCompatActivity implements Observer 
     private float mSpecifiedU08;
 
     private int mSpecifiedT = 15;
+    private float mSpecifiedFrequency;
+    private int mIntSpecifiedFrequencyK100;
     private boolean mPlatformOneSelected;
 
     private boolean mBeckhoffResponding;
@@ -219,6 +222,12 @@ public class Experiment13Activity extends AppCompatActivity implements Observer 
             } else {
                 throw new NullPointerException("Не передано specifiedU");
             }
+            if (extras.getFloat(MainActivity.OUTPUT_PARAMETER.SPECIFIED_FREQUENCY) != 0) {
+                mSpecifiedFrequency = extras.getFloat(MainActivity.OUTPUT_PARAMETER.SPECIFIED_FREQUENCY);
+                mIntSpecifiedFrequencyK100 = (int) (mSpecifiedFrequency * 100);
+            } else {
+                throw new NullPointerException("Не передано specifiedFrequency");
+            }
             mPlatformOneSelected = extras.getBoolean(MainActivity.OUTPUT_PARAMETER.PLATFORM_ONE_SELECTED);
         } else {
             throw new NullPointerException("Не переданы параметры");
@@ -232,6 +241,7 @@ public class Experiment13Activity extends AppCompatActivity implements Observer 
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mBroadcastReceiver);
+        mDevicesController.setNeededToRunThreads(false);
     }
 
     @OnCheckedChanged(R.id.experiment_switch)
@@ -255,13 +265,6 @@ public class Experiment13Activity extends AppCompatActivity implements Observer 
         mExperimentStart = experimentStart;
         if (!experimentStart) {
             mStatus.setText("В ожидании начала испытания");
-        }
-    }
-
-    private void sleep(int mills) {
-        try {
-            Thread.sleep(mills);
-        } catch (InterruptedException ignored) {
         }
     }
 
@@ -301,7 +304,7 @@ public class Experiment13Activity extends AppCompatActivity implements Observer 
                 mDevicesController.onKMsFrom4And7And13Group();
                 m200to5State = true;
                 sleep(500);
-                mDevicesController.setObjectParams(100, 5000, 5000);
+                mDevicesController.setObjectParams(100, mIntSpecifiedFrequencyK100, mIntSpecifiedFrequencyK100);
             }
 
             if (isExperimentStart() && mStartState) {
@@ -454,7 +457,7 @@ public class Experiment13Activity extends AppCompatActivity implements Observer 
                 mDevicesController.setObjectUMax(start -= fineStep);
             }
             sleep(fineSleep);
-            changeTextOfView(mStatus, "Выводим значение для получения заданного значения тонко");
+            changeTextOfView(mStatus, "Выводим значение для получения заданного значения точно");
         }
         return start;
     }
@@ -986,6 +989,37 @@ public class Experiment13Activity extends AppCompatActivity implements Observer 
     }
 
     private void clearCells() {
+        changeTextOfView(mU11ACell, "");
+        changeTextOfView(mI11ACell, "");
+        changeTextOfView(mU11BCell, "");
+        changeTextOfView(mI11BCell, "");
+        changeTextOfView(mS11Cell, "");
+        changeTextOfView(mP11Cell, "");
+        changeTextOfView(mV11Cell, "");
+        changeTextOfView(mM11Cell, "");
+        changeTextOfView(mF11Cell, "");
+        changeTextOfView(mTemp11Cell, "");
+        changeTextOfView(mT11Cell, "");
+        changeTextOfView(mU11CCell, "");
+        changeTextOfView(mI11CCell, "");
+        changeTextOfView(mU11AverageCell, "");
+        changeTextOfView(mI11AverageCell, "");
+
+        changeTextOfView(mU08ACell, "");
+        changeTextOfView(mI08ACell, "");
+        changeTextOfView(mU08BCell, "");
+        changeTextOfView(mI08BCell, "");
+        changeTextOfView(mS08Cell, "");
+        changeTextOfView(mP08Cell, "");
+        changeTextOfView(mV08Cell, "");
+        changeTextOfView(mM08Cell, "");
+        changeTextOfView(mF08Cell, "");
+        changeTextOfView(mTemp08Cell, "");
+        changeTextOfView(mT08Cell, "");
+        changeTextOfView(mU08CCell, "");
+        changeTextOfView(mI08CCell, "");
+        changeTextOfView(mU08AverageCell, "");
+        changeTextOfView(mI08AverageCell, "");
     }
 
     @Override

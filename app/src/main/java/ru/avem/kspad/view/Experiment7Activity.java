@@ -35,6 +35,7 @@ import static ru.avem.kspad.communication.devices.DeviceController.PM130_ID;
 import static ru.avem.kspad.communication.devices.DeviceController.TRM201_ID;
 import static ru.avem.kspad.communication.devices.DeviceController.VEHA_T_ID;
 import static ru.avem.kspad.utils.Utils.formatRealNumber;
+import static ru.avem.kspad.utils.Utils.sleep;
 import static ru.avem.kspad.utils.Visibility.onFullscreenMode;
 
 public class Experiment7Activity extends AppCompatActivity implements Observer {
@@ -321,8 +322,9 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
 
     private boolean mExperimentStart;
 
-    private int mCurrentStage = 10;
+    private int mCurrentStage;
 
+    private int mNumOfStages;
     private float mSpecifiedU13;
     private float mSpecifiedU12;
     private float mSpecifiedU11;
@@ -335,6 +337,8 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
 
     private int mSpecifiedT1;
     private int mSpecifiedT2;
+    private float mSpecifiedFrequency;
+    private int mIntSpecifiedFrequencyK100;
     private boolean mPlatformOneSelected;
 
     private boolean mBeckhoffResponding;
@@ -516,6 +520,16 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
             } else {
                 throw new NullPointerException("Не передано " + MainActivity.OUTPUT_PARAMETER.EXPERIMENT_NAME);
             }
+            if (extras.getInt(MainActivity.OUTPUT_PARAMETER.NUM_OF_STAGES_IDLE) != 0) {
+                mNumOfStages = extras.getInt(MainActivity.OUTPUT_PARAMETER.NUM_OF_STAGES_IDLE);
+                if (mNumOfStages == 1) {
+//                    setViewAndChildrenVisibility(mGraphPanel, View.GONE);
+                } else if (mNumOfStages == 9) {
+//                    setViewAndChildrenVisibility(mGraphPanel, View.VISIBLE);
+                }
+            } else {
+                throw new NullPointerException("Не передано " + MainActivity.OUTPUT_PARAMETER.NUM_OF_STAGES_IDLE);
+            }
             if (extras.getFloat(MainActivity.OUTPUT_PARAMETER.SPECIFIED_U) != 0) {
                 mSpecifiedU10 = extras.getFloat(MainActivity.OUTPUT_PARAMETER.SPECIFIED_U);
                 mSpecifiedU13 = (float) (mSpecifiedU10 * 1.3);
@@ -539,6 +553,12 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
             } else {
                 throw new NullPointerException("Не передано specifiedT2");
             }
+            if (extras.getFloat(MainActivity.OUTPUT_PARAMETER.SPECIFIED_FREQUENCY) != 0) {
+                mSpecifiedFrequency = extras.getFloat(MainActivity.OUTPUT_PARAMETER.SPECIFIED_FREQUENCY);
+                mIntSpecifiedFrequencyK100 = (int) (mSpecifiedFrequency * 100);
+            } else {
+                throw new NullPointerException("Не передано specifiedFrequency");
+            }
             mPlatformOneSelected = extras.getBoolean(MainActivity.OUTPUT_PARAMETER.PLATFORM_ONE_SELECTED);
         } else {
             throw new NullPointerException("Не переданы параметры");
@@ -552,6 +572,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mBroadcastReceiver);
+        mDevicesController.setNeededToRunThreads(false);
     }
 
     @OnCheckedChanged(R.id.experiment_switch)
@@ -578,13 +599,6 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         }
     }
 
-    private void sleep(int mills) {
-        try {
-            Thread.sleep(mills);
-        } catch (InterruptedException ignored) {
-        }
-    }
-
     private class ExperimentTask extends AsyncTask<Void, Void, Void> {
 
         @Override
@@ -592,6 +606,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
             super.onPreExecute();
             clearCells();
             setExperimentStart(true);
+            mCurrentStage = 10;
         }
 
         @Override
@@ -607,7 +622,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
                 sleep(100);
                 changeTextOfView(mStatus, "Включите кнопочный пост");
             }
-// TODO: 03.01.2018 проверки
+
             changeTextOfView(mStatus, "Инициализация...");
             mDevicesController.initDevicesFrom7To8Group();
             while (isExperimentStart() && !isDevicesResponding() && mStartState) {
@@ -617,7 +632,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
             mDevicesController.onKMsFrom4And7And13Group();
             m200to5State = true;
             sleep(500);
-            mDevicesController.setObjectParams(100, 5000, 5000);
+            mDevicesController.setObjectParams(100, mIntSpecifiedFrequencyK100, mIntSpecifiedFrequencyK100);
 
             mDevicesController.startObject();
             sleep(2000);
@@ -638,88 +653,89 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
                 setT("" + experimentTime);
             }
 
-            if (isExperimentStart() && mStartState) {
-                stateToBack();
+            if (mNumOfStages > 1) {
+                if (isExperimentStart() && mStartState) {
+                    stateToBack();
+                }
+
+                if (isExperimentStart() && mStartState) {
+                    sleep(2000);
+                }
+
+                mCurrentStage = 13;
+
+                if (isExperimentStart() && mStartState) {
+                    stateToBack();
+                }
+
+                lastLevel = startStage(lastLevel, mSpecifiedU13);
+
+                mCurrentStage = 12;
+
+                if (isExperimentStart() && mStartState) {
+                    stateToBack();
+                }
+
+                lastLevel = startStage(lastLevel, mSpecifiedU12);
+
+                mCurrentStage = 11;
+
+                if (isExperimentStart() && mStartState) {
+                    stateToBack();
+                }
+
+                lastLevel = startStage(lastLevel, mSpecifiedU11);
+
+                mCurrentStage = 10;
+
+                if (isExperimentStart() && mStartState) {
+                    stateToBack();
+                }
+
+                lastLevel = startStage(lastLevel, mSpecifiedU10);
+
+                mCurrentStage = 9;
+
+                if (isExperimentStart() && mStartState) {
+                    stateToBack();
+                }
+
+                lastLevel = startStage(lastLevel, mSpecifiedU09);
+
+                mCurrentStage = 8;
+
+                if (isExperimentStart() && mStartState) {
+                    stateToBack();
+                }
+
+                lastLevel = startStage(lastLevel, mSpecifiedU08);
+
+                mCurrentStage = 7;
+
+                if (isExperimentStart() && mStartState) {
+                    stateToBack();
+                }
+
+                lastLevel = startStage(lastLevel, mSpecifiedU07);
+
+                mCurrentStage = 6;
+
+                if (isExperimentStart() && mStartState) {
+                    stateToBack();
+                }
+
+                lastLevel = startStage(lastLevel, mSpecifiedU06);
+
+                mCurrentStage = 5;
+
+                if (isExperimentStart() && mStartState) {
+                    stateToBack();
+                }
+
+                lastLevel = startStage(lastLevel, mSpecifiedU05);
+
+                mCurrentStage = 4;
             }
-
-            if (isExperimentStart() && mStartState) {
-                sleep(2000);
-            }
-
-            mCurrentStage = 13;
-
-            if (isExperimentStart() && mStartState) {
-                stateToBack();
-            }
-
-            lastLevel = startStage(lastLevel, mSpecifiedU13);
-
-            mCurrentStage = 12;
-
-            if (isExperimentStart() && mStartState) {
-                stateToBack();
-            }
-
-            lastLevel = startStage(lastLevel, mSpecifiedU12);
-
-            mCurrentStage = 11;
-
-            if (isExperimentStart() && mStartState) {
-                stateToBack();
-            }
-
-            lastLevel = startStage(lastLevel, mSpecifiedU11);
-
-            mCurrentStage = 10;
-
-            if (isExperimentStart() && mStartState) {
-                stateToBack();
-            }
-
-            lastLevel = startStage(lastLevel, mSpecifiedU10);
-
-            mCurrentStage = 9;
-
-            if (isExperimentStart() && mStartState) {
-                stateToBack();
-            }
-
-            lastLevel = startStage(lastLevel, mSpecifiedU09);
-
-            mCurrentStage = 8;
-
-            if (isExperimentStart() && mStartState) {
-                stateToBack();
-            }
-
-            lastLevel = startStage(lastLevel, mSpecifiedU08);
-
-            mCurrentStage = 7;
-
-            if (isExperimentStart() && mStartState) {
-                stateToBack();
-            }
-
-            lastLevel = startStage(lastLevel, mSpecifiedU07);
-
-            mCurrentStage = 6;
-
-            if (isExperimentStart() && mStartState) {
-                stateToBack();
-            }
-
-            lastLevel = startStage(lastLevel, mSpecifiedU06);
-
-            mCurrentStage = 5;
-
-            if (isExperimentStart() && mStartState) {
-                stateToBack();
-            }
-
-            lastLevel = startStage(lastLevel, mSpecifiedU05);
-
-            mCurrentStage = 4;
-
 
             if (isExperimentStart() && mStartState) {
                 for (int i = lastLevel; i > 0; i -= 40) {
@@ -821,7 +837,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
                 mDevicesController.setObjectUMax(start -= fineStep);
             }
             sleep(fineSleep);
-            changeTextOfView(mStatus, "Выводим значение для получения заданного значения тонко");
+            changeTextOfView(mStatus, "Выводим значение для получения заданного значения точно");
         }
         return start;
     }
@@ -2056,6 +2072,140 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     }
 
     private void clearCells() {
+        changeTextOfView(mU13ACell, "");
+        changeTextOfView(mI13ACell, "");
+        changeTextOfView(mU13BCell, "");
+        changeTextOfView(mI13BCell, "");
+        changeTextOfView(mP13Cell, "");
+        changeTextOfView(mCos13Cell, "");
+        changeTextOfView(mV13Cell, "");
+        changeTextOfView(mTemp13AmbientCell, "");
+        changeTextOfView(mTemp13EngineCell, "");
+        changeTextOfView(mT13Cell, "");
+        changeTextOfView(mU13CCell, "");
+        changeTextOfView(mI13CCell, "");
+        changeTextOfView(mU13AverageCell, "");
+        changeTextOfView(mI13AverageCell, "");
+
+        changeTextOfView(mU12ACell, "");
+        changeTextOfView(mI12ACell, "");
+        changeTextOfView(mU12BCell, "");
+        changeTextOfView(mI12BCell, "");
+        changeTextOfView(mP12Cell, "");
+        changeTextOfView(mCos12Cell, "");
+        changeTextOfView(mV12Cell, "");
+        changeTextOfView(mTemp12AmbientCell, "");
+        changeTextOfView(mTemp12EngineCell, "");
+        changeTextOfView(mT12Cell, "");
+        changeTextOfView(mU12CCell, "");
+        changeTextOfView(mI12CCell, "");
+        changeTextOfView(mU12AverageCell, "");
+        changeTextOfView(mI12AverageCell, "");
+
+        changeTextOfView(mU11ACell, "");
+        changeTextOfView(mI11ACell, "");
+        changeTextOfView(mU11BCell, "");
+        changeTextOfView(mI11BCell, "");
+        changeTextOfView(mP11Cell, "");
+        changeTextOfView(mCos11Cell, "");
+        changeTextOfView(mV11Cell, "");
+        changeTextOfView(mTemp11AmbientCell, "");
+        changeTextOfView(mTemp11EngineCell, "");
+        changeTextOfView(mT11Cell, "");
+        changeTextOfView(mU11CCell, "");
+        changeTextOfView(mI11CCell, "");
+        changeTextOfView(mU11AverageCell, "");
+        changeTextOfView(mI11AverageCell, "");
+
+        changeTextOfView(mU10ACell, "");
+        changeTextOfView(mI10ACell, "");
+        changeTextOfView(mU10BCell, "");
+        changeTextOfView(mI10BCell, "");
+        changeTextOfView(mP10Cell, "");
+        changeTextOfView(mCos10Cell, "");
+        changeTextOfView(mV10Cell, "");
+        changeTextOfView(mTemp10AmbientCell, "");
+        changeTextOfView(mTemp10EngineCell, "");
+        changeTextOfView(mT10Cell, "");
+        changeTextOfView(mU10CCell, "");
+        changeTextOfView(mI10CCell, "");
+        changeTextOfView(mU10AverageCell, "");
+        changeTextOfView(mI10AverageCell, "");
+
+        changeTextOfView(mU09ACell, "");
+        changeTextOfView(mI09ACell, "");
+        changeTextOfView(mU09BCell, "");
+        changeTextOfView(mI09BCell, "");
+        changeTextOfView(mP09Cell, "");
+        changeTextOfView(mCos09Cell, "");
+        changeTextOfView(mV09Cell, "");
+        changeTextOfView(mTemp09AmbientCell, "");
+        changeTextOfView(mTemp09EngineCell, "");
+        changeTextOfView(mT09Cell, "");
+        changeTextOfView(mU09CCell, "");
+        changeTextOfView(mI09CCell, "");
+        changeTextOfView(mU09AverageCell, "");
+        changeTextOfView(mI09AverageCell, "");
+
+        changeTextOfView(mU08ACell, "");
+        changeTextOfView(mI08ACell, "");
+        changeTextOfView(mU08BCell, "");
+        changeTextOfView(mI08BCell, "");
+        changeTextOfView(mP08Cell, "");
+        changeTextOfView(mCos08Cell, "");
+        changeTextOfView(mV08Cell, "");
+        changeTextOfView(mTemp08AmbientCell, "");
+        changeTextOfView(mTemp08EngineCell, "");
+        changeTextOfView(mT08Cell, "");
+        changeTextOfView(mU08CCell, "");
+        changeTextOfView(mI08CCell, "");
+        changeTextOfView(mU08AverageCell, "");
+        changeTextOfView(mI08AverageCell, "");
+
+        changeTextOfView(mU07ACell, "");
+        changeTextOfView(mI07ACell, "");
+        changeTextOfView(mU07BCell, "");
+        changeTextOfView(mI07BCell, "");
+        changeTextOfView(mP07Cell, "");
+        changeTextOfView(mCos07Cell, "");
+        changeTextOfView(mV07Cell, "");
+        changeTextOfView(mTemp07AmbientCell, "");
+        changeTextOfView(mTemp07EngineCell, "");
+        changeTextOfView(mT07Cell, "");
+        changeTextOfView(mU07CCell, "");
+        changeTextOfView(mI07CCell, "");
+        changeTextOfView(mU07AverageCell, "");
+        changeTextOfView(mI07AverageCell, "");
+
+        changeTextOfView(mU06ACell, "");
+        changeTextOfView(mI06ACell, "");
+        changeTextOfView(mU06BCell, "");
+        changeTextOfView(mI06BCell, "");
+        changeTextOfView(mP06Cell, "");
+        changeTextOfView(mCos06Cell, "");
+        changeTextOfView(mV06Cell, "");
+        changeTextOfView(mTemp06AmbientCell, "");
+        changeTextOfView(mTemp06EngineCell, "");
+        changeTextOfView(mT06Cell, "");
+        changeTextOfView(mU06CCell, "");
+        changeTextOfView(mI06CCell, "");
+        changeTextOfView(mU06AverageCell, "");
+        changeTextOfView(mI06AverageCell, "");
+
+        changeTextOfView(mU05ACell, "");
+        changeTextOfView(mI05ACell, "");
+        changeTextOfView(mU05BCell, "");
+        changeTextOfView(mI05BCell, "");
+        changeTextOfView(mP05Cell, "");
+        changeTextOfView(mCos05Cell, "");
+        changeTextOfView(mV05Cell, "");
+        changeTextOfView(mTemp05AmbientCell, "");
+        changeTextOfView(mTemp05EngineCell, "");
+        changeTextOfView(mT05Cell, "");
+        changeTextOfView(mU05CCell, "");
+        changeTextOfView(mI05CCell, "");
+        changeTextOfView(mU05AverageCell, "");
+        changeTextOfView(mI05AverageCell, "");
     }
 
     @Override

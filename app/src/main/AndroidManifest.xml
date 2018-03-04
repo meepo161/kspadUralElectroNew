@@ -87,6 +87,10 @@
             android:screenOrientation="locked">
         </activity>
         <activity
+            android:name=".view.Experiment17Activity"
+            android:screenOrientation="locked">
+        </activity>
+        <activity
             android:name=".database.view.DatabaseActivity"
             android:label="База данных к КСПАД"
             android:screenOrientation="locked"

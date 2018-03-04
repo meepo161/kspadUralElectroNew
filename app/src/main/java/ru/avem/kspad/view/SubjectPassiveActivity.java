@@ -69,6 +69,8 @@ public class SubjectPassiveActivity extends AppCompatActivity {
     @BindView(R.id.temp_heating)
     TextView mTempHeating;
 
+    @BindView(R.id.num_of_stages_performance)
+    TextView mNumOfStagesPerformance;
     @BindView(R.id.z1_performance)
     TextView mZ1Performance;
     @BindView(R.id.z2_performance)
@@ -125,14 +127,14 @@ public class SubjectPassiveActivity extends AppCompatActivity {
 
             mUMgr.setText(String.format("%s", subject.getUMgr()));
 
-            int ERMgr = subject.getRMgr();
+            float ERMgr = subject.getRMgr();
             if (ERMgr == -1) {
                 mRMgr.setText(String.format("%s", ""));
             } else {
                 mRMgr.setText(String.format("%s", ERMgr));
             }
 
-            int ERIkas = subject.getRIkas();
+            float ERIkas = subject.getRIkas();
             if (ERIkas == -1) {
                 mRIkas.setText(String.format("%s", ""));
             } else {
@@ -156,6 +158,7 @@ public class SubjectPassiveActivity extends AppCompatActivity {
                 mTempHeating.setText(String.format("%s", ETempHeating));
             }
 
+            mNumOfStagesPerformance.setText(String.format("%s", subject.getNumOfStagesPerformance()));
             mZ1Performance.setText(String.format("%s", subject.getZ1Performance()));
             mZ2Performance.setText(String.format("%s", subject.getZ2Performance()));
             mTBreakInPerformance.setText(String.format("%s", subject.getTBreakInPerformance()));

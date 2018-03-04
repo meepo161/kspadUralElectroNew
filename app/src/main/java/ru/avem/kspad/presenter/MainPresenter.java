@@ -21,6 +21,7 @@ import static ru.avem.kspad.view.MainActivity.EXPERIMENT_13;
 import static ru.avem.kspad.view.MainActivity.EXPERIMENT_14;
 import static ru.avem.kspad.view.MainActivity.EXPERIMENT_15;
 import static ru.avem.kspad.view.MainActivity.EXPERIMENT_16;
+import static ru.avem.kspad.view.MainActivity.EXPERIMENT_17;
 import static ru.avem.kspad.view.MainActivity.EXPERIMENT_2;
 import static ru.avem.kspad.view.MainActivity.EXPERIMENT_3;
 import static ru.avem.kspad.view.MainActivity.EXPERIMENT_4;
@@ -226,6 +227,9 @@ public class MainPresenter extends Observable {
                 break;
             case EXPERIMENT_16:
                 mView.show16Experiment();
+                break;
+            case EXPERIMENT_17:
+                mView.show17Experiment();
                 break;
         }
     }

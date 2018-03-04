@@ -35,22 +35,22 @@ import static ru.avem.kspad.utils.Utils.formatRealNumber;
 import static ru.avem.kspad.utils.Utils.sleep;
 import static ru.avem.kspad.utils.Visibility.onFullscreenMode;
 
-public class Experiment5Activity extends AppCompatActivity implements Observer {
-    private static final String EXPERIMENT_NAME = "Определение сопротивления обмоток при постоянном токе в практически холодном состоянии";
+public class Experiment17Activity extends AppCompatActivity implements Observer {
+    private static final String EXPERIMENT_NAME = "Определение сопротивления обмоток при постоянном токе в горячем состоянии";
 
     @BindView(R.id.status)
     TextView mStatus;
     @BindView(R.id.experiment_switch)
     ToggleButton mExperimentSwitch;
 
-    @BindView(R.id.ab)
-    TextView mABCell;
-    @BindView(R.id.bc)
-    TextView mBCCell;
-    @BindView(R.id.ac)
-    TextView mACCell;
-    @BindView(R.id.average_r)
-    TextView mAverageRCell;
+    @BindView(R.id.r1)
+    TextView mR1Cell;
+    @BindView(R.id.r2)
+    TextView mR2Cell;
+    @BindView(R.id.r3)
+    TextView mR3Cell;
+    @BindView(R.id.extrapolated_r)
+    TextView mExtrapolatedRCell;
     @BindView(R.id.temp)
     TextView mTempCell;
     @BindView(R.id.result)
@@ -70,6 +70,7 @@ public class Experiment5Activity extends AppCompatActivity implements Observer {
 
     private boolean mExperimentStart;
     private float mSpecifiedAverageR;
+    private int mSpecifiedRType;
     private boolean mPlatformOneSelected;
 
     private boolean mBeckhoffResponding;
@@ -78,12 +79,13 @@ public class Experiment5Activity extends AppCompatActivity implements Observer {
     private boolean mIKASResponding;
     private float mIKASReady;
     private float mMeasurable;
-    private float mAB;
-    private float mBC;
-    private float mAC;
-    private float mAverageR = -1f;
-    private float mR20 = -1f;
-    private int mType = 1;
+    private float mR1;
+    private float mR2;
+    private float mR3;
+    private double mR1Time;
+    private double mR2Time;
+    private double mR3Time;
+    private float mExtrapolatedR = -1f;
 
     private boolean mTRM201Responding;
     private float mTemp;
@@ -96,7 +98,7 @@ public class Experiment5Activity extends AppCompatActivity implements Observer {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         onFullscreenMode(this);
-        setContentView(R.layout.activity_experiment5);
+        setContentView(R.layout.activity_experiment17);
         ButterKnife.bind(this);
 
         Bundle extras = getIntent().getExtras();
@@ -114,6 +116,11 @@ public class Experiment5Activity extends AppCompatActivity implements Observer {
                 changeTextOfView(mAverageRSpecifiedCell, String.format("%s", mSpecifiedAverageR));
             } else {
                 throw new NullPointerException("Не передано specifiedR");
+            }
+            if (extras.getInt(MainActivity.OUTPUT_PARAMETER.SPECIFIED_R_TYPE) != 0) {
+                mSpecifiedRType = extras.getInt(MainActivity.OUTPUT_PARAMETER.SPECIFIED_R_TYPE);
+            } else {
+                throw new NullPointerException("Не передано specifiedRType");
             }
             mPlatformOneSelected = extras.getBoolean(MainActivity.OUTPUT_PARAMETER.PLATFORM_ONE_SELECTED);
         } else {
@@ -195,8 +202,8 @@ public class Experiment5Activity extends AppCompatActivity implements Observer {
 
             if (isExperimentStart() && mStartState) {
                 mFirstTime = System.currentTimeMillis();
-                showCurrentTime("Начало AB");
-                mDevicesController.startMeasuringAB(mSpecifiedAverageR);
+                showCurrentTime("Начало R1");
+                startMeasuring();
                 sleep(2000);
             }
 
@@ -207,11 +214,12 @@ public class Experiment5Activity extends AppCompatActivity implements Observer {
 
             if (isExperimentStart() && mStartState) {
                 sleep(500);
-                showCurrentTime("Конец AB");
-                setAB(mMeasurable);
+                mR1Time = showCurrentTime("Конец R1");
+                setR1(mMeasurable);
+//                setR1(22);
 
-                showCurrentTime("Начало BC");
-                mDevicesController.startMeasuringBC(mSpecifiedAverageR);
+                showCurrentTime("Начало R2");
+                startMeasuring();
                 sleep(2000);
             }
 
@@ -222,11 +230,13 @@ public class Experiment5Activity extends AppCompatActivity implements Observer {
 
             if (isExperimentStart() && mStartState) {
                 sleep(500);
-                showCurrentTime("Конец BC");
-                setBC(mMeasurable);
+                mR2Time = showCurrentTime("Конец R2");
+                setR2(mMeasurable);
+//                setR2(21);
 
-                showCurrentTime("Начало AC");
-                mDevicesController.startMeasuringAC(mSpecifiedAverageR);
+                showCurrentTime("Начало R3");
+                sleep(11500);
+                startMeasuring();
                 sleep(2000);
             }
 
@@ -237,33 +247,30 @@ public class Experiment5Activity extends AppCompatActivity implements Observer {
 
             if (isExperimentStart() && mStartState) {
                 sleep(500);
-                showCurrentTime("Конец AC");
-                setAC(mMeasurable);
+                mR3Time = showCurrentTime("Конец R3");
+                setR3(mMeasurable);
+//                setR3(20);
 
-                if ((mAB / mBC >= 0.98) && (mAB / mAC >= 0.98) && (mBC / mAC >= 0.98) && (mAB / mBC <= 1.02) && (mAB / mAC <= 1.02) && (mBC / mAC <= 1.02)) {
-                    setExperimentResult(true);
-                    float ABtoAverageR = Math.abs(mAB - mAverageR);
-                    float BCtoAverageR = Math.abs(mBC - mAverageR);
-                    float ACtoAverageR = Math.abs(mAC - mAverageR);
-                    if (ABtoAverageR <= BCtoAverageR && ABtoAverageR <= ACtoAverageR) {
-                        mType = 1;
-                    } else if (BCtoAverageR <= ABtoAverageR && BCtoAverageR <= ACtoAverageR) {
-                        mType = 2;
-                    } else {
-                        mType = 3;
-                    }
-
-                    float averageRHalf = mAverageR / 2f;
-                    mR20 = averageRHalf / (1 + 0.00393f * (mTemp - 20));
-                } else {
-                    setExperimentResult(false);
-                }
+                setExperimentResult(true);
             }
 
 
             mDevicesController.offKMsFrom5And17Group();
 
             return null;
+        }
+
+        private void startMeasuring() {
+            if (mSpecifiedRType == 1) {
+                Logger.withTag("currentTime").log("AB");
+                mDevicesController.startMeasuringAB(mSpecifiedAverageR);
+            } else if (mSpecifiedRType == 2) {
+                Logger.withTag("currentTime").log("BC");
+                mDevicesController.startMeasuringBC(mSpecifiedAverageR);
+            } else {
+                Logger.withTag("currentTime").log("AC");
+                mDevicesController.startMeasuringAC(mSpecifiedAverageR);
+            }
         }
 
         @Override
@@ -275,9 +282,11 @@ public class Experiment5Activity extends AppCompatActivity implements Observer {
         }
     }
 
-    private void showCurrentTime(String s) {
+    private int showCurrentTime(String s) {
         long lastTime = System.currentTimeMillis();
-        Logger.withTag("currentTime").log(String.format(RU_LOCALE, "%s: %d", s, (lastTime - mFirstTime) / 1000));
+        int diffInSec = (int) ((lastTime - mFirstTime)); //  / 1000
+        Logger.withTag("currentTime").log(String.format(RU_LOCALE, "%s: %d", s, diffInSec));
+        return diffInSec;
     }
 
     private void changeTextOfView(final TextView view, final String text) {
@@ -374,25 +383,28 @@ public class Experiment5Activity extends AppCompatActivity implements Observer {
         mMeasurable = measurable;
     }
 
-    public void setAB(float AB) {
-        mAB = AB;
-        changeTextOfView(mABCell, formatRealNumber(AB));
+    public void setR1(float r1) {
+        mR1 = r1;
+        changeTextOfView(mR1Cell, formatRealNumber(r1));
     }
 
-    public void setBC(float BC) {
-        mBC = BC;
-        changeTextOfView(mBCCell, formatRealNumber(BC));
+    public void setR2(float r2) {
+        mR2 = r2;
+        changeTextOfView(mR2Cell, formatRealNumber(r2));
     }
 
-    public void setAC(float AC) {
-        mAC = AC;
-        changeTextOfView(mACCell, formatRealNumber(AC));
-        setAverageR();
+    public void setR3(float r3) {
+        mR3 = r3;
+        changeTextOfView(mR3Cell, formatRealNumber(r3));
+        setExtrapolatedRCellR();
     }
 
-    public void setAverageR() {
-        mAverageR = (mAB + mBC + mAC) / 3f;
-        changeTextOfView(mAverageRCell, formatRealNumber(mAverageR));
+    public void setExtrapolatedRCellR() {
+        double mExtrapolatedRLog = (((0 - mR2Time) * (0 - mR3Time)) / ((mR1Time - mR2Time) * (mR1Time - mR3Time)) * Math.log10(mR1) +
+                ((0 - mR1Time) * (0 - mR3Time)) / ((mR2Time - mR1Time) * (mR2Time - mR3Time)) * Math.log10(mR2) +
+                ((0 - mR1Time) * (0 - mR2Time)) / ((mR3Time - mR1Time) * (mR3Time - mR2Time)) * Math.log10(mR3));
+        mExtrapolatedR = (float) Math.pow(10, mExtrapolatedRLog);
+        changeTextOfView(mExtrapolatedRCell, formatRealNumber(mExtrapolatedR));
     }
 
     public boolean isTRM201Responding() {
@@ -414,10 +426,10 @@ public class Experiment5Activity extends AppCompatActivity implements Observer {
     }
 
     private void clearCells() {
-        changeTextOfView(mABCell, "");
-        changeTextOfView(mBCCell, "");
-        changeTextOfView(mACCell, "");
-        changeTextOfView(mAverageRCell, "");
+        changeTextOfView(mR1Cell, "");
+        changeTextOfView(mR2Cell, "");
+        changeTextOfView(mR3Cell, "");
+        changeTextOfView(mExtrapolatedRCell, "");
         changeTextOfView(mTempCell, "");
         changeTextOfView(mResultCell, "");
     }
@@ -432,9 +444,7 @@ public class Experiment5Activity extends AppCompatActivity implements Observer {
 
     private void returnValues() {
         Intent data = new Intent();
-        data.putExtra(MainActivity.INPUT_PARAMETER.IKAS_R_COLD, mAverageR);
-        data.putExtra(MainActivity.INPUT_PARAMETER.IKAS_R_20, mR20);
-        data.putExtra(MainActivity.INPUT_PARAMETER.IKAS_R_TYPE, mType);
+        data.putExtra(MainActivity.INPUT_PARAMETER.IKAS_R_HOT, mExtrapolatedR);
         setResult(RESULT_OK, data);
     }
 
@@ -442,13 +452,13 @@ public class Experiment5Activity extends AppCompatActivity implements Observer {
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
         Experiments experiments = ExperimentsHolder.getExperiments();
-        experiments.setE5Ab(mABCell.getText().toString());
-        experiments.setE5Bc(mBCCell.getText().toString());
-        experiments.setE5Ac(mACCell.getText().toString());
-        experiments.setE5AverageR(mAverageRCell.getText().toString());
-        experiments.setE5Temp(mTempCell.getText().toString());
-        experiments.setE5Result(mResultCell.getText().toString());
-        experiments.setE5AverageRSpecified(mAverageRSpecifiedCell.getText().toString());
+        experiments.setE17Ab(mR1Cell.getText().toString());
+        experiments.setE17Bc(mR2Cell.getText().toString());
+        experiments.setE17Ac(mR3Cell.getText().toString());
+        experiments.setE17AverageR(mExtrapolatedRCell.getText().toString());
+        experiments.setE17Temp(mTempCell.getText().toString());
+        experiments.setE17Result(mResultCell.getText().toString());
+        experiments.setE17AverageRSpecified(mAverageRSpecifiedCell.getText().toString());
         realm.commitTransaction();
         realm.close();
     }

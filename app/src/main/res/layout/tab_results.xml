@@ -221,5 +221,18 @@
         <include layout="@layout/result_experiment16"/>
     </FrameLayout>
 
+    <FrameLayout
+        android:id="@+id/experiment17"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/experiments_selector">
+
+        <include layout="@layout/result_experiment17"/>
+    </FrameLayout>
+
 
 </android.support.constraint.ConstraintLayout>

@@ -45,6 +45,16 @@ import static ru.avem.kspad.communication.devices.beckhoff.BeckhoffController.MO
 import static ru.avem.kspad.communication.devices.beckhoff.BeckhoffController.RESET_CONNECTION_REGISTER;
 import static ru.avem.kspad.communication.devices.beckhoff.BeckhoffController.SOUND_REGISTER;
 import static ru.avem.kspad.communication.devices.beckhoff.BeckhoffController.WATCH_DOG_REGISTER;
+import static ru.avem.kspad.communication.devices.ikas.IKASController.MEASURABLE_TYPE_AB;
+import static ru.avem.kspad.communication.devices.ikas.IKASController.MEASURABLE_TYPE_AC;
+import static ru.avem.kspad.communication.devices.ikas.IKASController.MEASURABLE_TYPE_BC;
+import static ru.avem.kspad.communication.devices.ikas.IKASController.MEASURABLE_TYPE_REGISTER;
+import static ru.avem.kspad.communication.devices.ikas.IKASController.RANGE_R_REGISTER;
+import static ru.avem.kspad.communication.devices.ikas.IKASController.RANGE_TYPE_LESS_8;
+import static ru.avem.kspad.communication.devices.ikas.IKASController.RANGE_TYPE_MORE_200;
+import static ru.avem.kspad.communication.devices.ikas.IKASController.RANGE_TYPE_MORE_8_LESS_200;
+import static ru.avem.kspad.communication.devices.ikas.IKASController.TYPE_OF_RANGE_R_REGISTER;
+import static ru.avem.kspad.communication.devices.ikas.IKASController.START_MEASURABLE_REGISTER;
 import static ru.avem.kspad.communication.devices.m40.M40Controller.AVERAGING_REGISTER;
 
 public class DevicesController extends Observable implements Runnable {
@@ -84,6 +94,8 @@ public class DevicesController extends Observable implements Runnable {
 
     private boolean mLastOne;
     private boolean mPlatformOneSelected;
+
+    private boolean mNeededToRunThreads = true;
 
     public DevicesController(final Context context, Observer observer, OnBroadcastCallback onBroadcastCallback, boolean platformOneSelected) {
         addObserver(observer);
@@ -175,9 +187,17 @@ public class DevicesController extends Observable implements Runnable {
         mPlatformOneSelected = platformOneSelected;
     }
 
+    private boolean isNeededToRunThreads() {
+        return mNeededToRunThreads;
+    }
+
+    public void setNeededToRunThreads(boolean neededToRunThreads) {
+        mNeededToRunThreads = neededToRunThreads;
+    }
+
     @Override
     public void run() {
-        while (true) {
+        while (isNeededToRunThreads()) {
             for (DeviceController deviceController : mDevicesControllers) {
                 if (deviceController.needToRead() && deviceController.thereAreAttempts()) {
                     if (deviceController instanceof PM130Controller) {
@@ -211,6 +231,10 @@ public class DevicesController extends Observable implements Runnable {
     }
 
     private void resetTimer() {
+        mModule1 = 0;
+        mBeckhoffController.write(MOD_1_REGISTER, 1, mModule1);
+        mModule2 = 0;
+        mBeckhoffController.write(MOD_2_REGISTER, 1, mModule2);
         mLastOne = true;
         mBeckhoffController.write(WATCH_DOG_REGISTER, 1, 0);
         mBeckhoffController.write(WATCH_DOG_REGISTER, 1, 1);
@@ -460,7 +484,7 @@ public class DevicesController extends Observable implements Runnable {
         offRegisterInTheModule(5, 1);
     }
 
-    public void initDevicesFrom5Group() {
+    public void initDevicesFrom5And17Group() {
         connectMainBus();
         mBeckhoffController.setNeedToRead(true);
         mBeckhoffController.resetAttempts();
@@ -470,7 +494,7 @@ public class DevicesController extends Observable implements Runnable {
         mTRM201Controller.resetAttempts();
     }
 
-    public void onKMsFrom5Group() {
+    public void onKMsFrom5And17Group() {
         if (mPlatformOneSelected) {
             onRegisterInTheModule(9, 1);
         } else {
@@ -478,34 +502,52 @@ public class DevicesController extends Observable implements Runnable {
         }
     }
 
-    public void startMeasuringAB() {
-        mIKASController.write((short) 0x65, 0x46);
+    public void startMeasuringAB(float supposedValue) {
+        mIKASController.write(MEASURABLE_TYPE_REGISTER, MEASURABLE_TYPE_AB);
+        mIKASController.write(TYPE_OF_RANGE_R_REGISTER, getRangeType(supposedValue));
+        mIKASController.write(RANGE_R_REGISTER, supposedValue);
         try {
             Thread.sleep(1000);
         } catch (InterruptedException ignored) {
         }
-        mIKASController.write((short) 0x64, 0x01);
+        mIKASController.write(START_MEASURABLE_REGISTER, 0x01);
     }
 
-    public void startMeasuringBC() {
-        mIKASController.write((short) 0x65, 0x44);
+    private int getRangeType(float supposedValue) {
+        int rangeType = 1;
+        if (supposedValue < 8) {
+            rangeType = RANGE_TYPE_LESS_8;
+        } else if (supposedValue > 8 && supposedValue < 200) {
+            rangeType = RANGE_TYPE_MORE_8_LESS_200;
+        } else if (supposedValue > 200) {
+            rangeType = RANGE_TYPE_MORE_200;
+        }
+        return rangeType;
+    }
+
+    public void startMeasuringBC(float supposedValue) {
+        mIKASController.write(MEASURABLE_TYPE_REGISTER, MEASURABLE_TYPE_BC);
+        mIKASController.write(TYPE_OF_RANGE_R_REGISTER, getRangeType(supposedValue));
+        mIKASController.write(RANGE_R_REGISTER, supposedValue);
         try {
             Thread.sleep(1000);
         } catch (InterruptedException ignored) {
         }
-        mIKASController.write((short) 0x64, 0x01);
+        mIKASController.write(START_MEASURABLE_REGISTER, 0x01);
     }
 
-    public void startMeasuringAC() {
-        mIKASController.write((short) 0x65, 0x45);
+    public void startMeasuringAC(float supposedValue) {
+        mIKASController.write(MEASURABLE_TYPE_REGISTER, MEASURABLE_TYPE_AC);
+        mIKASController.write(TYPE_OF_RANGE_R_REGISTER, getRangeType(supposedValue));
+        mIKASController.write(RANGE_R_REGISTER, supposedValue);
         try {
             Thread.sleep(1000);
         } catch (InterruptedException ignored) {
         }
-        mIKASController.write((short) 0x64, 0x01);
+        mIKASController.write(START_MEASURABLE_REGISTER, 0x01);
     }
 
-    public void offKMsFrom5Group() {
+    public void offKMsFrom5And17Group() {
         if (mPlatformOneSelected) {
             offRegisterInTheModule(9, 1);
         } else {

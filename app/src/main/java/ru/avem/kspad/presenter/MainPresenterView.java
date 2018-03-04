@@ -85,6 +85,8 @@ public interface MainPresenterView {
 
     void show16Experiment();
 
+    void show17Experiment();
+
     void showFoundProtocolDialog(Protocol serialNumber);
 
     void showNames(String serialNumber, String subjectName);

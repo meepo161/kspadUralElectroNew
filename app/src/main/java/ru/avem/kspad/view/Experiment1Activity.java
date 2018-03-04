@@ -5,12 +5,23 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.jjoe64.graphview.DefaultLabelFormatter;
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
+
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Observable;
@@ -19,6 +30,8 @@ import java.util.Observer;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
+import butterknife.OnClick;
+import butterknife.OnItemSelected;
 import io.realm.Realm;
 import ru.avem.kspad.R;
 import ru.avem.kspad.communication.devices.DevicesController;
@@ -30,6 +43,7 @@ import ru.avem.kspad.communication.devices.trm201.TRM201Model;
 import ru.avem.kspad.communication.devices.veha_t.VEHATModel;
 import ru.avem.kspad.database.model.Experiments;
 import ru.avem.kspad.model.ExperimentsHolder;
+import ru.avem.kspad.utils.Logger;
 
 import static ru.avem.kspad.communication.devices.DeviceController.BECKHOFF_CONTROL_ID;
 import static ru.avem.kspad.communication.devices.DeviceController.FR_A800_GENERATOR_ID;
@@ -38,9 +52,24 @@ import static ru.avem.kspad.communication.devices.DeviceController.M40_ID;
 import static ru.avem.kspad.communication.devices.DeviceController.PM130_ID;
 import static ru.avem.kspad.communication.devices.DeviceController.TRM201_ID;
 import static ru.avem.kspad.communication.devices.DeviceController.VEHA_T_ID;
+import static ru.avem.kspad.utils.Utils.RU_LOCALE;
 import static ru.avem.kspad.utils.Utils.formatRealNumber;
 import static ru.avem.kspad.utils.Utils.getSyncV;
+import static ru.avem.kspad.utils.Utils.sleep;
 import static ru.avem.kspad.utils.Visibility.onFullscreenMode;
+import static ru.avem.kspad.utils.Visibility.setViewAndChildrenVisibility;
+import static ru.avem.kspad.view.Experiment1Activity.Characteristic.COS;
+import static ru.avem.kspad.view.Experiment1Activity.Characteristic.I;
+import static ru.avem.kspad.view.Experiment1Activity.Characteristic.M;
+import static ru.avem.kspad.view.Experiment1Activity.Characteristic.NU;
+import static ru.avem.kspad.view.Experiment1Activity.Characteristic.P1;
+import static ru.avem.kspad.view.Experiment1Activity.Characteristic.P2;
+import static ru.avem.kspad.view.Experiment1Activity.Characteristic.S;
+import static ru.avem.kspad.view.Experiment1Activity.Characteristic.SK;
+import static ru.avem.kspad.view.Experiment1Activity.Characteristic.TEMP_AMBIENT;
+import static ru.avem.kspad.view.Experiment1Activity.Characteristic.TEMP_ENGINE;
+import static ru.avem.kspad.view.Experiment1Activity.Characteristic.U;
+import static ru.avem.kspad.view.Experiment1Activity.Characteristic.V;
 
 public class Experiment1Activity extends AppCompatActivity implements Observer {
     //region Константы
@@ -53,10 +82,14 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
     //endregion
 
     //region Виджеты
+    @BindView(R.id.graph_panel)
+    ConstraintLayout mGraphPanel;
     @BindView(R.id.status)
     TextView mStatus;
     @BindView(R.id.experiment_switch)
     ToggleButton mExperimentSwitch;
+    @BindView(R.id.check)
+    Button mCheck;
 
     @BindView(R.id.i_a)
     TextView mIACell;
@@ -139,6 +172,8 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
     TextView mTempEngineSpecifiedCell;
     @BindView(R.id.t_specified)
     TextView mTSpecifiedCell;
+    @BindView(R.id.graph)
+    GraphView mGraph;
     //endregion
 
     //region Сервис
@@ -158,6 +193,7 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
     private boolean mExperimentStart;
     private boolean mNeededToSave;
 
+    private int mNumOfStages;
     private double mZ1;
     private double mZ2;
     private double mV1;
@@ -172,6 +208,7 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
     private int mSpecifiedU;
     private int mSpecifiedUK10;
     private float mSpecifiedP2;
+    private float mCurrentSpecifiedP2;
     private float mSpecifiedEff;
     private float mSpecifiedSk;
     private boolean mPlatformOneSelected;
@@ -256,6 +293,64 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
     private float mTempEngine;
     private List<Float> mSeveralTempEngine = new ArrayList<>();
     private float mTempEngineAverage;
+
+    double i = 7.5;
+
+    @OnClick(R.id.check)
+    public void onViewClicked() {
+        i -= 0.33;
+        mIAverageCharacteristics.add(i);
+        mUAverageCharacteristics.add(i);
+        mSCharacteristics.add(i);
+        mP1Characteristics.add(i);
+        mCosCharacteristics.add(i);
+        mMCharacteristics.add(i);
+        mVCharacteristics.add(i);
+        mP2Characteristics.add(i);
+        mNuCharacteristics.add(i);
+        mTempAmbientCharacteristics.add(i);
+        mTempEngineCharacteristics.add(i);
+        mSkCharacteristics.add(i);
+
+        changeSeriesAndLabel();
+    }
+
+    enum Characteristic {
+        I,
+        U,
+        S,
+        P1,
+        COS,
+        M,
+        V,
+        P2,
+        NU,
+        TEMP_AMBIENT,
+        TEMP_ENGINE,
+        SK
+    }
+
+    private List<DataPoint> mDataPoints;
+
+    private Characteristic mX;
+    private String mXLabel = "";
+    private Characteristic mY;
+    private String mYLabel = "";
+
+    private LineGraphSeries<DataPoint> mCurrentSeries = new LineGraphSeries<>();
+
+    private List<Double> mIAverageCharacteristics = new ArrayList<>();
+    private List<Double> mUAverageCharacteristics = new ArrayList<>();
+    private List<Double> mSCharacteristics = new ArrayList<>();
+    private List<Double> mP1Characteristics = new ArrayList<>();
+    private List<Double> mCosCharacteristics = new ArrayList<>();
+    private List<Double> mMCharacteristics = new ArrayList<>();
+    private List<Double> mVCharacteristics = new ArrayList<>();
+    private List<Double> mP2Characteristics = new ArrayList<>();
+    private List<Double> mNuCharacteristics = new ArrayList<>();
+    private List<Double> mTempAmbientCharacteristics = new ArrayList<>();
+    private List<Double> mTempEngineCharacteristics = new ArrayList<>();
+    private List<Double> mSkCharacteristics = new ArrayList<>();
     //endregion
 
     @Override
@@ -274,7 +369,17 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
                             experimentName, EXPERIMENT_NAME));
                 }
             } else {
-                throw new NullPointerException("Не передано " + MainActivity.OUTPUT_PARAMETER.EXPERIMENT_NAME);
+                throw new NullPointerException(String.format(RU_LOCALE, "Не передано %s", MainActivity.OUTPUT_PARAMETER.EXPERIMENT_NAME));// TODO: 28.02.2018 везде
+            }
+            if (extras.getInt(MainActivity.OUTPUT_PARAMETER.NUM_OF_STAGES_PERFORMANCE) != 0) {
+                mNumOfStages = extras.getInt(MainActivity.OUTPUT_PARAMETER.NUM_OF_STAGES_PERFORMANCE);
+                if (mNumOfStages == 1) {
+                    setViewAndChildrenVisibility(mGraphPanel, View.GONE);
+                } else if (mNumOfStages == 7) {
+                    setViewAndChildrenVisibility(mGraphPanel, View.VISIBLE);
+                }
+            } else {
+                throw new NullPointerException("Не передано " + MainActivity.OUTPUT_PARAMETER.NUM_OF_STAGES_PERFORMANCE);
             }
             if (extras.getInt(MainActivity.OUTPUT_PARAMETER.Z1) != 0) {
                 mZ1 = extras.getInt(MainActivity.OUTPUT_PARAMETER.Z1);
@@ -356,12 +461,268 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
 
         mDevicesController = new DevicesController(this, this, mOnBroadcastCallback, mPlatformOneSelected);
         mStatus.setText("В ожидании начала испытания");
+
+        mGraph.addSeries(mCurrentSeries);
+        mGraph.getViewport().setXAxisBoundsManual(true);
+//        mGraph.getViewport().setMinX(0);
+//        mGraph.getViewport().setMaxX(100);
+        mGraph.getViewport().setScalable(true);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mBroadcastReceiver);
+        mDevicesController.setNeededToRunThreads(false);
+    }
+
+    @OnItemSelected(R.id.x_selector)
+    public void onXSelected(Spinner view) {
+        setXCharacteristicForDisplay((String) view.getSelectedItem());
+    }
+
+    private void setXCharacteristicForDisplay(String selectedItem) {
+        switch (selectedItem) {
+            case "I":
+                mX = I;
+                mXLabel = "А";
+                break;
+            case "U":
+                mX = U;
+                mXLabel = "В";
+                break;
+            case "S":
+                mX = S;
+                mXLabel = "кВА";
+                break;
+            case "P1":
+                mX = P1;
+                mXLabel = "кВт";
+                break;
+            case "cos φ":
+                mX = COS;
+                mXLabel = "";
+                break;
+            case "M":
+                mX = M;
+                mXLabel = "Н/м";
+                break;
+            case "V":
+                mX = V;
+                mXLabel = "об/мин";
+                break;
+            case "P2":
+                mX = P2;
+                mXLabel = "кВт";
+                break;
+            case "η":
+                mX = NU;
+                mXLabel = "";
+                break;
+            case "tокр.с.":
+                mX = TEMP_AMBIENT;
+                mXLabel = "°C";
+                break;
+            case "tдвиг.с.":
+                mX = TEMP_ENGINE;
+                mXLabel = "°C";
+                break;
+            case "s":
+                mX = SK;
+                mXLabel = "%";
+                break;
+        }
+
+        changeSeriesAndLabel();
+    }
+
+    private void changeSeriesAndLabel() {
+        mGraph.removeAllSeries();
+        mCurrentSeries = new LineGraphSeries<>();
+        mGraph.addSeries(mCurrentSeries);
+        mDataPoints = new ArrayList<>();
+        for (int i = 0; i < mSkCharacteristics.size(); i++) {
+            double xValue = 0;
+            switch (mX) {
+                case I:
+                    xValue = mIAverageCharacteristics.get(i);
+                    break;
+                case U:
+                    xValue = mUAverageCharacteristics.get(i);
+                    break;
+                case S:
+                    xValue = mSCharacteristics.get(i);
+                    break;
+                case P1:
+                    xValue = mP1Characteristics.get(i);
+                    break;
+                case COS:
+                    xValue = mCosCharacteristics.get(i);
+                    break;
+                case M:
+                    xValue = mMCharacteristics.get(i);
+                    break;
+                case V:
+                    xValue = mVCharacteristics.get(i);
+                    break;
+                case P2:
+                    xValue = mP2Characteristics.get(i);
+                    break;
+                case NU:
+                    xValue = mNuCharacteristics.get(i);
+                    break;
+                case TEMP_AMBIENT:
+                    xValue = mTempAmbientCharacteristics.get(i);
+                    break;
+                case TEMP_ENGINE:
+                    xValue = mTempEngineCharacteristics.get(i);
+                    break;
+                case SK:
+                    xValue = mSkCharacteristics.get(i);
+                    break;
+            }
+
+            double yValue = 0;
+            switch (mY) {
+                case I:
+                    yValue = mIAverageCharacteristics.get(i);
+                    break;
+                case U:
+                    yValue = mUAverageCharacteristics.get(i);
+                    break;
+                case S:
+                    yValue = mSCharacteristics.get(i);
+                    break;
+                case P1:
+                    yValue = mP1Characteristics.get(i);
+                    break;
+                case COS:
+                    yValue = mCosCharacteristics.get(i);
+                    break;
+                case M:
+                    yValue = mMCharacteristics.get(i);
+                    break;
+                case V:
+                    yValue = mVCharacteristics.get(i);
+                    break;
+                case P2:
+                    yValue = mP2Characteristics.get(i);
+                    break;
+                case NU:
+                    yValue = mNuCharacteristics.get(i);
+                    break;
+                case TEMP_AMBIENT:
+                    yValue = mTempAmbientCharacteristics.get(i);
+                    break;
+                case TEMP_ENGINE:
+                    yValue = mTempEngineCharacteristics.get(i);
+                    break;
+                case SK:
+                    yValue = mSkCharacteristics.get(i);
+                    break;
+            }
+            mDataPoints.add(new DataPoint(xValue, yValue));
+//            mCurrentSeries.appendData(new DataPoint(xValue, yValue), true, 7);
+        }
+
+        Collections.sort(mDataPoints, new Comparator<DataPoint>() {
+            @Override
+            public int compare(DataPoint a, DataPoint b) {
+                if (a.getX() > b.getX()) {
+                    return 1;
+                } else if (a.getX() < b.getX()) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            }
+        });
+
+        Logger.withTag("Point").log("New series");
+        for (DataPoint dataPoint : mDataPoints) {
+            Logger.withTag("Point").log(dataPoint.getX());
+        }
+        Logger.withTag("Point").log("End series");
+
+//        mHandler.post(new Runnable() {
+//            @Override
+//            public void run() {
+                for (DataPoint dataPoint : mDataPoints) {
+                    mCurrentSeries.appendData(dataPoint, true, 7);
+                }
+//            }
+//        });
+
+        mGraph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter() {
+            @Override
+            public String formatLabel(double value, boolean isValueX) {
+                if (isValueX) {
+                    return super.formatLabel(value, isValueX) + " " + mXLabel;
+                } else {
+                    return super.formatLabel(value, isValueX) + " " + mYLabel;
+                }
+            }
+        });
+    }
+
+    @OnItemSelected(R.id.y_selector)
+    public void onYSelected(Spinner view) {
+        setYCharacteristicForDisplay((String) view.getSelectedItem());
+    }
+
+    private void setYCharacteristicForDisplay(String selectedItem) {
+        switch (selectedItem) {
+            case "I":
+                mY = I;
+                mYLabel = "А";
+                break;
+            case "U":
+                mY = U;
+                mYLabel = "В";
+                break;
+            case "S":
+                mY = S;
+                mYLabel = "кВА";
+                break;
+            case "P1":
+                mY = P1;
+                mYLabel = "кВт";
+                break;
+            case "cos φ":
+                mY = COS;
+                mYLabel = "";
+                break;
+            case "M":
+                mY = M;
+                mYLabel = "Н/м";
+                break;
+            case "V":
+                mY = V;
+                mYLabel = "об/мин";
+                break;
+            case "P2":
+                mY = P2;
+                mYLabel = "кВт";
+                break;
+            case "η":
+                mY = NU;
+                mYLabel = "";
+                break;
+            case "tокр.с.":
+                mY = TEMP_AMBIENT;
+                mYLabel = "°C";
+                break;
+            case "tдвиг.с.":
+                mY = TEMP_ENGINE;
+                mYLabel = "°C";
+                break;
+            case "s":
+                mY = SK;
+                mYLabel = "%";
+                break;
+        }
+
+        changeSeriesAndLabel();
     }
 
     @OnCheckedChanged(R.id.experiment_switch)
@@ -374,7 +735,11 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
     }
 
     private void initExperiment() {
-        new ExperimentTask().execute();
+        if (mNumOfStages == 1) {
+            new ExperimentTask1Stage().execute();
+        } else if (mNumOfStages == 7) {
+            new ExperimentTask7Stage().execute();
+        }
     }
 
     public boolean isExperimentStart() {
@@ -393,7 +758,7 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
         mNeededToSave = neededToSave;
     }
 
-    private class ExperimentTask extends AsyncTask<Void, Void, Void> {
+    private class ExperimentTask1Stage extends AsyncTask<Void, Void, Void> {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -430,10 +795,10 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
                 mDevicesController.onKMsFrom1To3And10And12Group();
                 m200to5State = true;
                 sleep(500);
-                mDevicesController.setObjectParams(mSpecifiedUK10, mIntSpecifiedFrequencyK100, mIntSpecifiedFrequencyK100);// TODO: 13.12.2017 заменить хардкод везде
+                mDevicesController.setObjectParams(mSpecifiedUK10, mIntSpecifiedFrequencyK100, mIntSpecifiedFrequencyK100);
                 mDevicesController.startObject();
             }
-            while (isExperimentStart() && !mFRA800ObjectReady && mStartState) {// TODO: 12.12.2017 добавить проверку на StartState везде
+            while (isExperimentStart() && !mFRA800ObjectReady && mStartState) {
                 sleep(100);
                 changeTextOfView(mStatus, "Ожидаем, пока частотный преобразователь ОИ выйдет к заданным характеристикам");
             }
@@ -442,7 +807,7 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
                 sleep(1000);
             }
             if (isExperimentStart() && mStartState) {
-                mDevicesController.setObjectUMax(mSpecifiedUK10 + (int) (mSpecifiedUK10 - mUA * 10) + 15);// TODO: 12.12.2017 дорегулировать напряжение везде
+                mDevicesController.setObjectUMax(mSpecifiedUK10 + (int) (mSpecifiedUK10 - mUA * 10) + 15);
             }
 
             double f2 = mV * mZ1 * mSpecifiedFrequency / mV2 / mZ2;
@@ -511,9 +876,9 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
 //                    mDevicesController.setGeneratorFCur(fCurGenerator++);
 //                }
 //                sleep(500);
-//                changeTextOfView(mStatus, "Выводим частоту генератора для получения номинального тока тонко");
+//                changeTextOfView(mStatus, "Выводим частоту генератора для получения номинального тока точно");
 //            }
-            
+
             double limit = 0.05;
             while (isExperimentStart() &&
                     ((mP2 < mSpecifiedP2 * 0.8) || (mP2 > mSpecifiedP2 * 1.2)) && mStartState) {
@@ -551,9 +916,9 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
                     mDevicesController.setGeneratorFCur(fCurGenerator++);
                 }
                 sleep(500);
-                changeTextOfView(mStatus, "Выводим частоту генератора для получения номинального P2 тонко");
+                changeTextOfView(mStatus, "Выводим частоту генератора для получения номинального P2 точно");
             }
-            
+
             experimentTime = mExperimentTime;
             while (isExperimentStart() && (experimentTime-- > 0) && mStartState) {
                 sleep(1000);
@@ -592,6 +957,328 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
         }
     }
 
+    private class ExperimentTask7Stage extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            mIAverageCharacteristics = new ArrayList<>();
+            mUAverageCharacteristics = new ArrayList<>();
+            mSCharacteristics = new ArrayList<>();
+            mP1Characteristics = new ArrayList<>();
+            mCosCharacteristics = new ArrayList<>();
+            mMCharacteristics = new ArrayList<>();
+            mVCharacteristics = new ArrayList<>();
+            mP2Characteristics = new ArrayList<>();
+            mNuCharacteristics = new ArrayList<>();
+            mTempAmbientCharacteristics = new ArrayList<>();
+            mTempEngineCharacteristics = new ArrayList<>();
+            mSkCharacteristics = new ArrayList<>();
+            clearCells();
+            setExperimentStart(true);
+            setNeededToSave(true);
+            mThreadOn = true;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            if (isExperimentStart()) {
+                changeTextOfView(mStatus, "Испытание началось");
+                mDevicesController.initDevicesFrom1To3And10And12Group();
+            }
+            while (isExperimentStart() && !isBeckhoffResponding()) {
+                changeTextOfView(mStatus, "Нет связи с ПЛК");
+                sleep(100);
+            }
+            while (isExperimentStart() && !mStartState) {
+                sleep(100);
+                changeTextOfView(mStatus, "Включите кнопочный пост");
+            }
+            if (isExperimentStart() && mStartState) {
+                mDevicesController.initDevicesFrom1To3And10And12Group();
+            }
+            while (isExperimentStart() && !isDevicesResponding() && mStartState) {
+                changeTextOfView(mStatus, "Нет связи с устройствами");
+                sleep(100);
+            }
+
+            if (isExperimentStart() && mStartState) {
+                changeTextOfView(mStatus, "Инициализация...");
+                mDevicesController.onKMsFrom1To3And10And12Group();
+                m200to5State = true;
+                sleep(500);
+                mDevicesController.setObjectParams(mSpecifiedUK10, mIntSpecifiedFrequencyK100, mIntSpecifiedFrequencyK100);
+                mDevicesController.startObject();
+            }
+            while (isExperimentStart() && !mFRA800ObjectReady && mStartState) {
+                sleep(100);
+                changeTextOfView(mStatus, "Ожидаем, пока частотный преобразователь ОИ выйдет к заданным характеристикам");
+            }
+            int t = 5;
+            while (isExperimentStart() && (--t > 0) && mStartState) {
+                sleep(1000);
+            }
+            if (isExperimentStart() && mStartState) {
+                mDevicesController.setObjectUMax(mSpecifiedUK10 + (int) (mSpecifiedUK10 - mUA * 10) + 15);
+            }
+
+            double f2 = mV * mZ1 * mSpecifiedFrequency / mV2 / mZ2;
+            int fCurGenerator = (int) (f2 * 100);
+
+            if (isExperimentStart() && mStartState) {
+                mDevicesController.setGeneratorParams(mSpecifiedUK10, mIntSpecifiedFrequencyK100, fCurGenerator);
+                mDevicesController.startGenerator();
+            }
+            while (isExperimentStart() && !mFRA800GeneratorReady && mStartState) {
+                sleep(100);
+                changeTextOfView(mStatus, "Ожидаем, пока частотный преобразователь генератора выйдет к заданным характеристикам");
+            }
+
+            int experimentTime = 10;
+            while (isExperimentStart() && (experimentTime-- > 0) && mStartState) {
+                sleep(1000);
+                changeTextOfView(mStatus, "Ждём заданное время обкатки на ХХ. Осталось: " + experimentTime);
+                changeTextOfView(mTCell, "" + experimentTime);
+            }
+            changeTextOfView(mTCell, "");
+
+            if (isExperimentStart() && mStartState) {
+                mDevicesController.onLoad();
+            }
+            sleep(500);
+            int waits = 100;
+            while (isExperimentStart() && (mM < 0) && (waits-- > 0) && mStartState) {
+                sleep(50);
+            }
+
+            mCurrentSpecifiedP2 = mSpecifiedP2 * 1.1f;
+
+            double limit = 0.05;
+            while (isExperimentStart() &&
+                    ((mP2 < mCurrentSpecifiedP2 * 0.8) || (mP2 > mCurrentSpecifiedP2 * 1.2)) && mStartState) {
+                if (mP2 < mCurrentSpecifiedP2 * 0.8) {
+                    mDevicesController.setGeneratorFCur(fCurGenerator -= 5);
+                } else if (mP2 > mCurrentSpecifiedP2 * 1.2) {
+                    mDevicesController.setGeneratorFCur(fCurGenerator += 5);
+                }
+                sleep(50);
+                pickUpStateRoughly();
+                changeTextOfView(mStatus, "Выводим частоту генератора для получения номинального P2 * 0.8");
+            }
+            while (isExperimentStart() &&
+                    ((mP2 < mCurrentSpecifiedP2 * (1 - limit)) || (mP2 > mCurrentSpecifiedP2 * (1 + limit))) && mStartState) {
+                if (mP2 < mCurrentSpecifiedP2 * (1 - limit)) {
+                    mDevicesController.setGeneratorFCur(fCurGenerator -= 3);
+                } else if (mP2 > mCurrentSpecifiedP2 * (1 + limit)) {
+                    mDevicesController.setGeneratorFCur(fCurGenerator += 3);
+                }
+                sleep(100);
+                pickUpStateRoughly();
+                changeTextOfView(mStatus, "Выводим частоту генератора для получения номинального P2 грубо");
+            }
+
+            if (isExperimentStart() && mStartState) {
+                pickUpState();
+            }
+
+            fCurGenerator = getNextCharacteristics(fCurGenerator);
+
+            mCurrentSpecifiedP2 = mSpecifiedP2 * 1f;
+
+            fCurGenerator = getNextCharacteristics(fCurGenerator);
+
+            mCurrentSpecifiedP2 = mSpecifiedP2 * 0.9f;
+
+            fCurGenerator = getNextCharacteristics(fCurGenerator);
+
+            mCurrentSpecifiedP2 = mSpecifiedP2 * 0.8f;
+
+            fCurGenerator = getNextCharacteristics(fCurGenerator);
+
+            mCurrentSpecifiedP2 = mSpecifiedP2 * 0.7f;
+
+            fCurGenerator = getNextCharacteristics(fCurGenerator);
+
+            mCurrentSpecifiedP2 = mSpecifiedP2 * 0.6f;
+
+            fCurGenerator = getNextCharacteristics(fCurGenerator);
+
+            mCurrentSpecifiedP2 = mSpecifiedP2 * 0.5f;
+
+            getNextCharacteristics(fCurGenerator);
+
+            setNeededToSave(false);
+
+            mDevicesController.offLoad();
+            sleep(500);
+            mDevicesController.stopObject();
+            mDevicesController.stopGenerator();
+            mDevicesController.offKMsFrom1To3And10And12Group();
+            m200to5State = false;
+            m40to5State = false;
+            m5to5State = false;
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            mDevicesController.diversifyDevices();
+            mExperimentSwitch.setChecked(false);
+            mStatus.setText("Испытание закончено");
+            mThreadOn = false;
+        }
+    }
+
+    private int getNextCharacteristics(int fCurGenerator) {
+        double limit;
+        int experimentTime;
+        limit = 0.01;
+        while (isExperimentStart() &&
+                ((mP2 < mCurrentSpecifiedP2 * (1 - limit)) || (mP2 > mCurrentSpecifiedP2 * (1 + limit))) && mStartState) {
+            if (mP2 < mCurrentSpecifiedP2 * (1 - limit)) {
+                fCurGenerator -= 4;
+                mDevicesController.setGeneratorFCur(fCurGenerator);
+            } else if (mP2 > mCurrentSpecifiedP2 * (1 + limit)) {
+                fCurGenerator += 4;
+                mDevicesController.setGeneratorFCur(fCurGenerator);
+            }
+            sleep(500);
+            changeTextOfView(mStatus, "Выводим частоту генератора для получения номинального P2 точно");
+        }
+
+        experimentTime = 5;
+        while (isExperimentStart() && (experimentTime-- > 0) && mStartState) {
+            sleep(1000);
+            changeTextOfView(mStatus, "Ждём заданное время под номинальной нагрузкой. Осталось: " + experimentTime);
+            changeTextOfView(mTCell, "" + experimentTime);
+        }
+
+        if (isExperimentStart() && mStartState) {
+            saveCharacteristics();
+        }
+        return fCurGenerator;
+    }
+
+    private void saveCharacteristics() {
+        double IAverage = mIAverage;
+        double UAverage = mUAverage;
+        double S = mS;
+        double P1 = mP1;
+        double Cos = mCos;
+        double M = mM;
+        double V = mV;
+        double P2 = mP2;
+        double Nu = mNu;
+        double TempAmbient = mTempAmbient;
+        double TempEngine = mTempEngine;
+        double Sk = mSk;
+
+        mIAverageCharacteristics.add(IAverage);
+        mUAverageCharacteristics.add(UAverage);
+        mSCharacteristics.add(S);
+        mP1Characteristics.add(P1);
+        mCosCharacteristics.add(Cos);
+        mMCharacteristics.add(M);
+        mVCharacteristics.add(V);
+        mP2Characteristics.add(P2);
+        mNuCharacteristics.add(Nu);
+        mTempAmbientCharacteristics.add(TempAmbient);
+        mTempEngineCharacteristics.add(TempEngine);
+        mSkCharacteristics.add(Sk);
+
+        double xValue = 0;
+        switch (mX) {
+            case I:
+                xValue = IAverage;
+                break;
+            case U:
+                xValue = UAverage;
+                break;
+            case S:
+                xValue = S;
+                break;
+            case P1:
+                xValue = P1;
+                break;
+            case COS:
+                xValue = Cos;
+                break;
+            case M:
+                xValue = M;
+                break;
+            case V:
+                xValue = V;
+                break;
+            case P2:
+                xValue = P2;
+                break;
+            case NU:
+                xValue = Nu;
+                break;
+            case TEMP_AMBIENT:
+                xValue = TempAmbient;
+                break;
+            case TEMP_ENGINE:
+                xValue = TempEngine;
+                break;
+            case SK:
+                xValue = Sk;
+                break;
+        }
+
+        double yValue = 0;
+        switch (mY) {
+            case I:
+                yValue = IAverage;
+                break;
+            case U:
+                yValue = UAverage;
+                break;
+            case S:
+                yValue = S;
+                break;
+            case P1:
+                yValue = P1;
+                break;
+            case COS:
+                yValue = Cos;
+                break;
+            case M:
+                yValue = M;
+                break;
+            case V:
+                yValue = V;
+                break;
+            case P2:
+                yValue = P2;
+                break;
+            case NU:
+                yValue = Nu;
+                break;
+            case TEMP_AMBIENT:
+                yValue = TempAmbient;
+                break;
+            case TEMP_ENGINE:
+                yValue = TempEngine;
+                break;
+            case SK:
+                yValue = Sk;
+                break;
+        }
+
+//        final double finalXValue = xValue;
+//        final double finalYValue = yValue;
+//        mHandler.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                mCurrentSeries.appendData(new DataPoint(finalXValue, finalYValue), true, 7);
+//            }
+//        });
+
+        changeSeriesAndLabel();
+    }
+
     private void changeTextOfView(final TextView view, final String text) {
         mHandler.post(new Runnable() {
             @Override
@@ -599,13 +1286,6 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
                 view.setText(text);
             }
         });
-    }
-
-    private void sleep(int mills) {
-        try {
-            Thread.sleep(mills);
-        } catch (InterruptedException ignored) {
-        }
     }
 
     private void pickUpState() {
@@ -1157,7 +1837,7 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
         }
     }
 
-    private void clearCells() {// TODO: 22.12.2017 добавить везде
+    private void clearCells() {
         changeTextOfView(mIACell, "");
         changeTextOfView(mUACell, "");
         changeTextOfView(mIBCell, "");

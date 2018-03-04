@@ -77,6 +77,8 @@ public class SubjectActivity extends AppCompatActivity {
     @BindView(R.id.temp_heating)
     EditText mTempHeating;
 
+    @BindView(R.id.num_of_stages_performance)
+    EditText mNumOfStagesPerformance;
     @BindView(R.id.z1_performance)
     EditText mZ1Performance;
     @BindView(R.id.z2_performance)
@@ -140,14 +142,14 @@ public class SubjectActivity extends AppCompatActivity {
 
             mUMgr.setText(String.format("%s", mSubject.getUMgr()));
 
-            int ERMgr = mSubject.getRMgr();
+            float ERMgr = mSubject.getRMgr();
             if (ERMgr == -1) {
                 mRMgr.setText(String.format("%s", ""));
             } else {
                 mRMgr.setText(String.format("%s", ERMgr));
             }
 
-            int ERIkas = mSubject.getRIkas();
+            float ERIkas = mSubject.getRIkas();
             if (ERIkas == -1) {
                 mRIkas.setText(String.format("%s", ""));
             } else {
@@ -171,6 +173,7 @@ public class SubjectActivity extends AppCompatActivity {
                 mTempHeating.setText(String.format("%s", ETempHeating));
             }
 
+            mNumOfStagesPerformance.setText(String.format("%s", mSubject.getNumOfStagesPerformance()));
             mZ1Performance.setText(String.format("%s", mSubject.getZ1Performance()));
             mZ2Performance.setText(String.format("%s", mSubject.getZ2Performance()));
             mTBreakInPerformance.setText(String.format("%s", mSubject.getTBreakInPerformance()));
@@ -232,18 +235,18 @@ public class SubjectActivity extends AppCompatActivity {
 
                 int UMgr = Integer.parseInt(mUMgr.getText().toString());
 
-                int ERMgr;
+                float ERMgr;
                 try {
-                    ERMgr = Integer.parseInt(mRMgr.getText().toString());
+                    ERMgr = Float.parseFloat(mRMgr.getText().toString());
                 } catch (Exception e) {
-                    ERMgr = -1;
+                    ERMgr = -1f;
                 }
 
-                int ERIkas;
+                float ERIkas;
                 try {
-                    ERIkas = Integer.parseInt(mRIkas.getText().toString());
+                    ERIkas = Float.parseFloat(mRIkas.getText().toString());
                 } catch (Exception e) {
-                    ERIkas = -1;
+                    ERIkas = -1f;
                 }
 
                 int UViu = Integer.parseInt(mUViu.getText().toString());
@@ -263,6 +266,7 @@ public class SubjectActivity extends AppCompatActivity {
                     ETempHeating = -1;
                 }
 
+                int NumOfStagesPerformance = Integer.parseInt(mNumOfStagesPerformance.getText().toString());
                 int Z1Performance = Integer.parseInt(mZ1Performance.getText().toString());
                 int Z2Performance = Integer.parseInt(mZ2Performance.getText().toString());
                 int TBreakInPerformance = Integer.parseInt(mTBreakInPerformance.getText().toString());
@@ -286,7 +290,7 @@ public class SubjectActivity extends AppCompatActivity {
                 Subject subject = new Subject(mSubjectId, name, PN, UN, IN, MN, VN, Winding, SN,
                         EfficiencyN, FN, UMgr, ERMgr, ERIkas, UViu, TViu, IViu, TBreakInIdle,
                         NumOfStagesIdle, TOnStageIdle, NumOfStagesSc, TOnStageSc, THeating,
-                        ETempHeating, Z1Performance, Z2Performance, TBreakInPerformance,
+                        ETempHeating, NumOfStagesPerformance, Z1Performance, Z2Performance, TBreakInPerformance,
                         TPerformance, KOverloadI, ENoise, EVibration);
 
                 mAdapter.open();
@@ -328,6 +332,7 @@ public class SubjectActivity extends AppCompatActivity {
                 mTOnStageSc.getText().length() > 0 &&
                 mTHeating.getText().length() > 0 &&
                 mTempHeating.getText().length() > 0 &&
+                mNumOfStagesPerformance.getText().length() > 0 &&
                 mZ1Performance.getText().length() > 0 &&
                 mZ2Performance.getText().length() > 0 &&
                 mTBreakInPerformance.getText().length() > 0 &&
@@ -338,12 +343,6 @@ public class SubjectActivity extends AppCompatActivity {
     }
 
     private boolean allFieldsAreFilledCorrectly() {
-//        String Winding = mWinding.getText().toString();
-//        if (!Winding.equals("звезда") && !Winding.equals("треугольник")) {
-//            Toast.makeText(this, "Введите корректное значение в поле \"Схема соединения обмоток\" : звезда или треугольник", Toast.LENGTH_LONG).show();
-//            return false;
-//        }
-
         int UMgr = Integer.parseInt(mUMgr.getText().toString());
         if (UMgr < 500 || UMgr > 2500 || (UMgr % 50 != 0)) {
             Toast.makeText(this, "Введите корректное значение в поле \"Напряжение\" опыта \"Измерение сопротивления изоляции обмоток\": больше 500, меньше 2500, кратное 50", Toast.LENGTH_LONG).show();
@@ -371,6 +370,12 @@ public class SubjectActivity extends AppCompatActivity {
         float NumOfStagesSc = Integer.parseInt(mNumOfStagesSc.getText().toString());
         if (NumOfStagesSc != 1 && NumOfStagesSc != 5) {
             Toast.makeText(this, "Введите корректное значение в поле \"ТКоличество ступеней\" опыта \"Определение токов и потерь КЗ\": 1 или 5", Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        float NumOfStagesPerformance = Integer.parseInt(mNumOfStagesPerformance.getText().toString());
+        if (NumOfStagesPerformance != 1 && NumOfStagesPerformance != 7) {
+            Toast.makeText(this, "Введите корректное значение в поле \"Количество ступеней\" опыта \"Определение рабочих характеристик\": 1 или 7", Toast.LENGTH_LONG).show();
             return false;
         }
 

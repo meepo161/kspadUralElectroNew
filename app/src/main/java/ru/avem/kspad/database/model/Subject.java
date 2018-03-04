@@ -19,9 +19,9 @@ public class Subject extends RealmObject {
     private float mFN;
 
     private int mUMgr;
-    private int mRMgr;
+    private float mRMgr;
 
-    private int mRIkas;
+    private float mRIkas;
 
     private int mUViu;
     private int mTViu;
@@ -37,6 +37,7 @@ public class Subject extends RealmObject {
     private int mTHeating;
     private int mTempHeating;
 
+    private int mNumOfStagesPerformance;
     private int mZ1Performance;
     private int mZ2Performance;
     private int mTBreakInPerformance;
@@ -51,9 +52,9 @@ public class Subject extends RealmObject {
     }
 
     public Subject(long id, String name, float PN, int UN, float IN, float MN, int VN,
-                   String Winding, float SN, float EfficiencyN, float FN, int UMgr, int RMgr, int RIkas, int UViu, int TViu, float IViu,
+                   String Winding, float SN, float EfficiencyN, float FN, int UMgr, float RMgr, float RIkas, int UViu, int TViu, float IViu,
                    int TBreakInIdle, int NumOfStagesIdle, int TOnStageIdle, int NumOfStagesSc,
-                   int TOnStageSc, int THeating, int TempHeating, int Z1Performance, int Z2Performance,
+                   int TOnStageSc, int THeating, int TempHeating, int NumOfStagesPerformance, int Z1Performance, int Z2Performance,
                    int TBreakInPerformance, int TPerformance, float KOverloadI, float Noise,
                    float Vibration) {
         mId = id;
@@ -80,6 +81,7 @@ public class Subject extends RealmObject {
         mTOnStageSc = TOnStageSc;
         mTHeating = THeating;
         mTempHeating = TempHeating;
+        mNumOfStagesPerformance = NumOfStagesPerformance;
         mZ1Performance = Z1Performance;
         mZ2Performance = Z2Performance;
         mTBreakInPerformance = TBreakInPerformance;
@@ -185,19 +187,19 @@ public class Subject extends RealmObject {
         mUMgr = UMgr;
     }
 
-    public int getRMgr() {
+    public float getRMgr() {
         return mRMgr;
     }
 
-    public void setRMgr(int RMgr) {
+    public void setRMgr(float RMgr) {
         mRMgr = RMgr;
     }
 
-    public int getRIkas() {
+    public float getRIkas() {
         return mRIkas;
     }
 
-    public void setRIkas(int RIkas) {
+    public void setRIkas(float RIkas) {
         mRIkas = RIkas;
     }
 
@@ -279,6 +281,14 @@ public class Subject extends RealmObject {
 
     public void setTempHeating(int tempHeating) {
         mTempHeating = tempHeating;
+    }
+
+    public int getNumOfStagesPerformance() {
+        return mNumOfStagesPerformance;
+    }
+
+    public void setNumOfStagesPerformance(int numOfStagesPerformance) {
+        mNumOfStagesPerformance = numOfStagesPerformance;
     }
 
     public int getZ1Performance() {

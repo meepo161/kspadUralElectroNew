@@ -40,6 +40,7 @@ import static ru.avem.kspad.communication.devices.DeviceController.TRM201_ID;
 import static ru.avem.kspad.communication.devices.DeviceController.VEHA_T_ID;
 import static ru.avem.kspad.utils.Utils.formatRealNumber;
 import static ru.avem.kspad.utils.Utils.getSyncV;
+import static ru.avem.kspad.utils.Utils.sleep;
 import static ru.avem.kspad.utils.Visibility.onFullscreenMode;
 
 public class Experiment10Activity extends AppCompatActivity implements Observer {
@@ -355,6 +356,7 @@ public class Experiment10Activity extends AppCompatActivity implements Observer 
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mBroadcastReceiver);
+        mDevicesController.setNeededToRunThreads(false);
     }
 
     @OnCheckedChanged(R.id.experiment_switch)
@@ -413,7 +415,7 @@ public class Experiment10Activity extends AppCompatActivity implements Observer 
             if (isExperimentStart() && mStartState) {
                 mDevicesController.initDevicesFrom1To3And10And12Group();
             }
-            while (isExperimentStart() && !isDevicesResponding()) {
+            while (isExperimentStart() && !isDevicesResponding() && mStartState) {
                 changeTextOfView(mStatus, "Нет связи с устройствами");
                 sleep(100);
             }
@@ -423,10 +425,10 @@ public class Experiment10Activity extends AppCompatActivity implements Observer 
                 mDevicesController.onKMsFrom1To3And10And12Group();
                 m200to5State = true;
                 sleep(500);
-                mDevicesController.setObjectParams(mSpecifiedUK10, mIntSpecifiedFrequencyK100, mIntSpecifiedFrequencyK100);// TODO: 13.12.2017 заменить хардкод везде
+                mDevicesController.setObjectParams(mSpecifiedUK10, mIntSpecifiedFrequencyK100, mIntSpecifiedFrequencyK100);
                 mDevicesController.startObject();
             }
-            while (isExperimentStart() && !mFRA800ObjectReady && mStartState) {// TODO: 12.12.2017 добавить проверку на StartState везде
+            while (isExperimentStart() && !mFRA800ObjectReady && mStartState) {
                 sleep(100);
                 changeTextOfView(mStatus, "Ожидаем, пока частотный преобразователь ОИ выйдет к заданным характеристикам");
             }
@@ -435,7 +437,7 @@ public class Experiment10Activity extends AppCompatActivity implements Observer 
                 sleep(1000);
             }
             if (isExperimentStart() && mStartState) {
-                mDevicesController.setObjectUMax(mSpecifiedUK10 + (int) (mSpecifiedUK10 - mUA * 10) + 15);// TODO: 12.12.2017 дорегулировать напряжение везде
+                mDevicesController.setObjectUMax(mSpecifiedUK10 + (int) (mSpecifiedUK10 - mUA * 10) + 15);
             }
 
             double f2 = mV * mZ1 * mSpecifiedFrequency / mV2 / mZ2;
@@ -511,13 +513,6 @@ public class Experiment10Activity extends AppCompatActivity implements Observer 
                 view.setText(text);
             }
         });
-    }
-
-    private void sleep(int mills) {
-        try {
-            Thread.sleep(mills);
-        } catch (InterruptedException ignored) {
-        }
     }
 
     private boolean isDevicesResponding() {

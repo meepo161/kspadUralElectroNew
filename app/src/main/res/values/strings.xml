@@ -18,4 +18,5 @@
     <string name="experiment14">Определение минимального момента</string>
     <string name="experiment15">Определение пускового момента и тока</string>
     <string name="experiment16">Определение уровня шума и вибрации</string>
+    <string name="experiment17">Определение сопротивления обмоток при постоянном токе в горячем состоянии</string>
 </resources>

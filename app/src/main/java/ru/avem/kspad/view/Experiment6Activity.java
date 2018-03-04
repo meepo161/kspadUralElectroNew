@@ -33,6 +33,7 @@ import static ru.avem.kspad.communication.devices.DeviceController.FR_A800_OBJEC
 import static ru.avem.kspad.communication.devices.DeviceController.PM130_ID;
 import static ru.avem.kspad.communication.devices.DeviceController.VOLTMETER_ID;
 import static ru.avem.kspad.utils.Utils.formatRealNumber;
+import static ru.avem.kspad.utils.Utils.sleep;
 import static ru.avem.kspad.utils.Visibility.onFullscreenMode;
 
 public class Experiment6Activity extends AppCompatActivity implements Observer {
@@ -80,6 +81,8 @@ public class Experiment6Activity extends AppCompatActivity implements Observer {
     private int mSpecifiedU;
     private int mExperimentTime;
     private float mSpecifiedI;
+    private float mSpecifiedFrequency;
+    private int mIntSpecifiedFrequencyK100;
     private boolean mPlatformOneSelected;
 
     private boolean mNeedToRefresh;
@@ -120,6 +123,12 @@ public class Experiment6Activity extends AppCompatActivity implements Observer {
             } else {
                 throw new NullPointerException("Не передано specifiedI");
             }
+            if (extras.getFloat(MainActivity.OUTPUT_PARAMETER.SPECIFIED_FREQUENCY) != 0) {
+                mSpecifiedFrequency = extras.getFloat(MainActivity.OUTPUT_PARAMETER.SPECIFIED_FREQUENCY);
+                mIntSpecifiedFrequencyK100 = (int) (mSpecifiedFrequency * 100);
+            } else {
+                throw new NullPointerException("Не передано specifiedFrequency");
+            }
             mPlatformOneSelected = extras.getBoolean(MainActivity.OUTPUT_PARAMETER.PLATFORM_ONE_SELECTED);
         } else {
             throw new NullPointerException("Не переданы параметры");
@@ -133,6 +142,7 @@ public class Experiment6Activity extends AppCompatActivity implements Observer {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mBroadcastReceiver);
+        mDevicesController.setNeededToRunThreads(false);
     }
 
     @OnCheckedChanged(R.id.experiment_switch)
@@ -156,13 +166,6 @@ public class Experiment6Activity extends AppCompatActivity implements Observer {
         mExperimentStart = experimentStart;
         if (!experimentStart) {
             mStatus.setText("В ожидании начала испытания");
-        }
-    }
-
-    private void sleep(int mills) {
-        try {
-            Thread.sleep(mills);
-        } catch (InterruptedException ignored) {
         }
     }
 
@@ -199,7 +202,7 @@ public class Experiment6Activity extends AppCompatActivity implements Observer {
                 changeTextOfView(mStatus, "Инициализация...");
                 mDevicesController.onKMsFrom6Group();
                 sleep(500);
-                mDevicesController.setObjectParams(10 * 10, 500 * 10, 500 * 10);
+                mDevicesController.setObjectParams(10 * 10, mIntSpecifiedFrequencyK100, mIntSpecifiedFrequencyK100);
             }
 
             if (isExperimentStart() && mStartState) {
@@ -292,7 +295,7 @@ public class Experiment6Activity extends AppCompatActivity implements Observer {
                 mDevicesController.setObjectUMax(start -= fineStep);
             }
             sleep(fineSleep);
-            changeTextOfView(mStatus, "Выводим значение для получения заданного значения тонко");
+            changeTextOfView(mStatus, "Выводим значение для получения заданного значения точно");
         }
         return start;
     }

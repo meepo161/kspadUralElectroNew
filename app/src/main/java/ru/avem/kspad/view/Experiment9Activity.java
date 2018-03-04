@@ -32,6 +32,7 @@ import static ru.avem.kspad.communication.devices.DeviceController.FR_A800_OBJEC
 import static ru.avem.kspad.communication.devices.DeviceController.PM130_ID;
 import static ru.avem.kspad.communication.devices.DeviceController.TRM201_ID;
 import static ru.avem.kspad.utils.Utils.formatRealNumber;
+import static ru.avem.kspad.utils.Utils.sleep;
 import static ru.avem.kspad.utils.Visibility.onFullscreenMode;
 
 public class Experiment9Activity extends AppCompatActivity implements Observer {
@@ -188,9 +189,10 @@ public class Experiment9Activity extends AppCompatActivity implements Observer {
 
     private boolean mExperimentStart;
 
-    private int mCurrentStage = 10;
+    private int mCurrentStage;
 
 
+    private int mNumOfStages;
     private float mSpecifiedU10;
     private float mSpecifiedU09;
     private float mSpecifiedU08;
@@ -198,6 +200,8 @@ public class Experiment9Activity extends AppCompatActivity implements Observer {
     private float mSpecifiedU06;
 
     private int mSpecifiedT;
+    private float mSpecifiedFrequency;
+    private int mIntSpecifiedFrequencyK100;
     private boolean mPlatformOneSelected;
 
     private boolean mBeckhoffResponding;
@@ -311,6 +315,16 @@ public class Experiment9Activity extends AppCompatActivity implements Observer {
             } else {
                 throw new NullPointerException("Не передано " + MainActivity.OUTPUT_PARAMETER.EXPERIMENT_NAME);
             }
+            if (extras.getInt(MainActivity.OUTPUT_PARAMETER.NUM_OF_STAGES_SC) != 0) {
+                mNumOfStages = extras.getInt(MainActivity.OUTPUT_PARAMETER.NUM_OF_STAGES_SC);
+                if (mNumOfStages == 1) {
+//                    setViewAndChildrenVisibility(mGraphPanel, View.GONE);
+                } else if (mNumOfStages == 5) {
+//                    setViewAndChildrenVisibility(mGraphPanel, View.VISIBLE);
+                }
+            } else {
+                throw new NullPointerException("Не передано " + MainActivity.OUTPUT_PARAMETER.NUM_OF_STAGES_SC);
+            }
             if (extras.getFloat(MainActivity.OUTPUT_PARAMETER.SPECIFIED_U) != 0) {
                 mSpecifiedU10 = extras.getFloat(MainActivity.OUTPUT_PARAMETER.SPECIFIED_U);
                 mSpecifiedU09 = (float) (mSpecifiedU10 * 0.9);
@@ -325,6 +339,12 @@ public class Experiment9Activity extends AppCompatActivity implements Observer {
             } else {
                 throw new NullPointerException("Не передано specifiedT");
             }
+            if (extras.getFloat(MainActivity.OUTPUT_PARAMETER.SPECIFIED_FREQUENCY) != 0) {
+                mSpecifiedFrequency = extras.getFloat(MainActivity.OUTPUT_PARAMETER.SPECIFIED_FREQUENCY);
+                mIntSpecifiedFrequencyK100 = (int) (mSpecifiedFrequency * 100);
+            } else {
+                throw new NullPointerException("Не передано specifiedFrequency");
+            }
             mPlatformOneSelected = extras.getBoolean(MainActivity.OUTPUT_PARAMETER.PLATFORM_ONE_SELECTED);
         } else {
             throw new NullPointerException("Не переданы параметры");
@@ -338,6 +358,7 @@ public class Experiment9Activity extends AppCompatActivity implements Observer {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mBroadcastReceiver);
+        mDevicesController.setNeededToRunThreads(false);
     }
 
     @OnCheckedChanged(R.id.experiment_switch)
@@ -364,13 +385,6 @@ public class Experiment9Activity extends AppCompatActivity implements Observer {
         }
     }
 
-    private void sleep(int mills) {
-        try {
-            Thread.sleep(mills);
-        } catch (InterruptedException ignored) {
-        }
-    }
-
     private class ExperimentTask extends AsyncTask<Void, Void, Void> {
 
         @Override
@@ -378,6 +392,7 @@ public class Experiment9Activity extends AppCompatActivity implements Observer {
             super.onPreExecute();
             clearCells();
             setExperimentStart(true);
+            mCurrentStage = 10;
         }
 
         @Override
@@ -407,7 +422,7 @@ public class Experiment9Activity extends AppCompatActivity implements Observer {
                 mDevicesController.onKMsFrom8To9Group();
                 m200to5State = true;
                 sleep(500);
-                mDevicesController.setObjectParams(100, 5000, 5000);
+                mDevicesController.setObjectParams(100, mIntSpecifiedFrequencyK100, mIntSpecifiedFrequencyK100);
             }
 
             if (isExperimentStart() && mStartState) {
@@ -419,46 +434,46 @@ public class Experiment9Activity extends AppCompatActivity implements Observer {
                 changeTextOfView(mStatus, "Ожидаем, пока частотный преобразователь выйдет к заданным характеристикам");
             }
 
-            regulation();
+            int lastLevel = regulation();
 
-            mCurrentStage = 9;
+            if (mNumOfStages > 1) {
+                mCurrentStage = 9;
 
+                if (isExperimentStart() && mStartState) {
+                    stateToBack();
+                }
 
-            if (isExperimentStart() && mStartState) {
-                stateToBack();
+                regulation();
+
+                mCurrentStage = 8;
+
+                if (isExperimentStart() && mStartState) {
+                    stateToBack();
+                }
+
+                regulation();
+
+                mCurrentStage = 7;
+
+                if (isExperimentStart() && mStartState) {
+                    stateToBack();
+                }
+
+                regulation();
+
+                mCurrentStage = 6;
+
+                if (isExperimentStart() && mStartState) {
+                    stateToBack();
+                }
+
+                lastLevel = regulation();
+
+                mCurrentStage = 5;
             }
 
-            regulation();
-
-            mCurrentStage = 8;
-
             if (isExperimentStart() && mStartState) {
-                stateToBack();
-            }
-
-            regulation();
-
-            mCurrentStage = 7;
-
-            if (isExperimentStart() && mStartState) {
-                stateToBack();
-            }
-
-            regulation();
-
-            mCurrentStage = 6;
-
-            if (isExperimentStart() && mStartState) {
-                stateToBack();
-            }
-
-            regulation();
-
-            mCurrentStage = 5;
-
-
-            if (isExperimentStart() && mStartState) {
-                for (int i = 500; i > 0; i -= 40) {
+                for (int i = lastLevel; i > 0; i -= 40) {
                     if (i > 0) {
                         mDevicesController.setObjectUMax(i);
                     }
@@ -534,9 +549,9 @@ public class Experiment9Activity extends AppCompatActivity implements Observer {
         }
     }
 
-    private void regulation() {
+    private int regulation() {
+        int uInt = 0;
         if (isExperimentStart() && mStartState) {
-            int uInt = 0;
             switch (mCurrentStage) {
                 case 10:
                     uInt = ((int) (mSpecifiedU10 * 100)) / 10;
@@ -559,7 +574,9 @@ public class Experiment9Activity extends AppCompatActivity implements Observer {
 
             sleep(3000);
 
-            mDevicesController.setObjectUMax(uInt + (int) (uInt - mPM130V1 * 10) + 2);
+            uInt = uInt + (int) (uInt - mPM130V1 * 10) + 2;
+
+            mDevicesController.setObjectUMax(uInt);
         }
 
         if (isExperimentStart() && mStartState) {
@@ -573,6 +590,8 @@ public class Experiment9Activity extends AppCompatActivity implements Observer {
             changeTextOfView(mStatus, "Ждём заданное T. Осталось: " + experimentTime);
             setT("" + experimentTime);
         }
+
+        return uInt;
     }
 
     private boolean isDevicesResponding() {
@@ -1298,6 +1317,71 @@ public class Experiment9Activity extends AppCompatActivity implements Observer {
     }
 
     private void clearCells() {
+        changeTextOfView(mU10ACell, "");
+        changeTextOfView(mI10ACell, "");
+        changeTextOfView(mU10BCell, "");
+        changeTextOfView(mI10BCell, "");
+        changeTextOfView(mP10Cell, "");
+        changeTextOfView(mCos10Cell, "");
+        changeTextOfView(mTempAmbient10Cell, "");
+        changeTextOfView(mTempEngine10Cell, "");
+        changeTextOfView(mT10Cell, "");
+        changeTextOfView(mU10CCell, "");
+        changeTextOfView(mI10CCell, "");
+        changeTextOfView(mU10AverageCell, "");
+        changeTextOfView(mI10AverageCell, "");
+        changeTextOfView(mU09ACell, "");
+        changeTextOfView(mI09ACell, "");
+        changeTextOfView(mU09BCell, "");
+        changeTextOfView(mI09BCell, "");
+        changeTextOfView(mP09Cell, "");
+        changeTextOfView(mCos09Cell, "");
+        changeTextOfView(mTempAmbient09Cell, "");
+        changeTextOfView(mTempEngine09Cell, "");
+        changeTextOfView(mT09Cell, "");
+        changeTextOfView(mU09CCell, "");
+        changeTextOfView(mI09CCell, "");
+        changeTextOfView(mU09AverageCell, "");
+        changeTextOfView(mI09AverageCell, "");
+        changeTextOfView(mU08ACell, "");
+        changeTextOfView(mI08ACell, "");
+        changeTextOfView(mU08BCell, "");
+        changeTextOfView(mI08BCell, "");
+        changeTextOfView(mP08Cell, "");
+        changeTextOfView(mCos08Cell, "");
+        changeTextOfView(mTempAmbient08Cell, "");
+        changeTextOfView(mTempEngine08Cell, "");
+        changeTextOfView(mT08Cell, "");
+        changeTextOfView(mU08CCell, "");
+        changeTextOfView(mI08CCell, "");
+        changeTextOfView(mU08AverageCell, "");
+        changeTextOfView(mI08AverageCell, "");
+        changeTextOfView(mU07ACell, "");
+        changeTextOfView(mI07ACell, "");
+        changeTextOfView(mU07BCell, "");
+        changeTextOfView(mI07BCell, "");
+        changeTextOfView(mP07Cell, "");
+        changeTextOfView(mCos07Cell, "");
+        changeTextOfView(mTempAmbient07Cell, "");
+        changeTextOfView(mTempEngine07Cell, "");
+        changeTextOfView(mT07Cell, "");
+        changeTextOfView(mU07CCell, "");
+        changeTextOfView(mI07CCell, "");
+        changeTextOfView(mU07AverageCell, "");
+        changeTextOfView(mI07AverageCell, "");
+        changeTextOfView(mU06ACell, "");
+        changeTextOfView(mI06ACell, "");
+        changeTextOfView(mU06BCell, "");
+        changeTextOfView(mI06BCell, "");
+        changeTextOfView(mP06Cell, "");
+        changeTextOfView(mCos06Cell, "");
+        changeTextOfView(mTempAmbient06Cell, "");
+        changeTextOfView(mTempEngine06Cell, "");
+        changeTextOfView(mT06Cell, "");
+        changeTextOfView(mU06CCell, "");
+        changeTextOfView(mI06CCell, "");
+        changeTextOfView(mU06AverageCell, "");
+        changeTextOfView(mI06AverageCell, "");
     }
 
     @Override

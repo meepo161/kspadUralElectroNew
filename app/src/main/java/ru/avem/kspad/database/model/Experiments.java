@@ -501,6 +501,14 @@ public class Experiments extends RealmObject {
     private String mE16MSpecified = "";
     private String mE16VSpecified = "";
 
+    private String mE17Ab = "";
+    private String mE17Bc = "";
+    private String mE17Ac = "";
+    private String mE17AverageR = "";
+    private String mE17Temp = "";
+    private String mE17Result = "";
+    private String mE17AverageRSpecified = "";
+
     public long getId() {
         return mId;
     }
@@ -4346,5 +4354,61 @@ public class Experiments extends RealmObject {
 
     public void setE16VSpecified(String e16VSpecified) {
         mE16VSpecified = e16VSpecified;
+    }
+
+    public String getE17Ab() {
+        return mE17Ab;
+    }
+
+    public void setE17Ab(String e17Ab) {
+        mE17Ab = e17Ab;
+    }
+
+    public String getE17Bc() {
+        return mE17Bc;
+    }
+
+    public void setE17Bc(String e17Bc) {
+        mE17Bc = e17Bc;
+    }
+
+    public String getE17Ac() {
+        return mE17Ac;
+    }
+
+    public void setE17Ac(String e17Ac) {
+        mE17Ac = e17Ac;
+    }
+
+    public String getE17AverageR() {
+        return mE17AverageR;
+    }
+
+    public void setE17AverageR(String e17AverageR) {
+        mE17AverageR = e17AverageR;
+    }
+
+    public String getE17Temp() {
+        return mE17Temp;
+    }
+
+    public void setE17Temp(String e17Temp) {
+        mE17Temp = e17Temp;
+    }
+
+    public String getE17Result() {
+        return mE17Result;
+    }
+
+    public void setE17Result(String e17Result) {
+        mE17Result = e17Result;
+    }
+
+    public String getE17AverageRSpecified() {
+        return mE17AverageRSpecified;
+    }
+
+    public void setE17AverageRSpecified(String e17AverageRSpecified) {
+        mE17AverageRSpecified = e17AverageRSpecified;
     }
 }

@@ -33,6 +33,7 @@ import static ru.avem.kspad.communication.devices.DeviceController.BECKHOFF_CONT
 import static ru.avem.kspad.communication.devices.DeviceController.FR_A800_OBJECT_ID;
 import static ru.avem.kspad.communication.devices.DeviceController.PM130_ID;
 import static ru.avem.kspad.utils.Utils.formatRealNumber;
+import static ru.avem.kspad.utils.Utils.sleep;
 import static ru.avem.kspad.utils.Visibility.onFullscreenMode;
 
 public class Experiment4Activity extends AppCompatActivity implements Observer {
@@ -86,7 +87,8 @@ public class Experiment4Activity extends AppCompatActivity implements Observer {
 
     //region Испытание
     private boolean mExperimentStart;
-    private int mCurrentStage = 1;
+    private String mCause = "";
+    private int mCurrentStage;
 
     private int mExperimentTime;
     private float mSpecifiedFrequency;
@@ -186,6 +188,7 @@ public class Experiment4Activity extends AppCompatActivity implements Observer {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mBroadcastReceiver);
+        mDevicesController.setNeededToRunThreads(false);
     }
 
     @OnCheckedChanged(R.id.experiment_switch)
@@ -214,6 +217,7 @@ public class Experiment4Activity extends AppCompatActivity implements Observer {
         protected void onPreExecute() {
             super.onPreExecute();
             clearCells();
+            mCurrentStage = 1;
             setExperimentStart(true);
             mThreadOn = true;
         }
@@ -235,7 +239,7 @@ public class Experiment4Activity extends AppCompatActivity implements Observer {
             if (isExperimentStart() && mStartState) {
                 mDevicesController.initDevicesFrom4Group();
             }
-            while (isExperimentStart() && !isDevicesResponding()) {
+            while (isExperimentStart() && !isDevicesResponding() && mStartState) {
                 changeTextOfView(mStatus, "Нет связи с устройствами");
                 sleep(100);
             }
@@ -275,19 +279,27 @@ public class Experiment4Activity extends AppCompatActivity implements Observer {
 
             if (isExperimentStart() && mStartState) {
                 pickUpState();
+                sleep(2000);
             }
 
-//            float lastI = mIAverage;
+            float lastI = mIAverage;
             int experimentTime = mExperimentTime;
             while (isExperimentStart() && (experimentTime > 0) && mStartState) {
                 experimentTime--;
                 sleep(1000);
                 changeTextOfView(mStatus, "Ждём заданное время. Осталось: " + experimentTime);
                 changeTextOfView(mTCell, "" + experimentTime);
-//                if (mIAverage > lastI * 1.2f) {
-//                    // TODO: 14.12.2017 индицировать превышение тока
-//                    break;
-//                }
+                if (mIAverage > lastI * 2) {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mCause = "Испытание закончено с ошибкой. Причина: резкое превышение тока.";
+                            mExperimentSwitch.setChecked(false);
+                        }
+                    });
+                } else {
+                    lastI = mIAverage;
+                }
             }
 
             if (isExperimentStart() && mStartState) {
@@ -341,7 +353,12 @@ public class Experiment4Activity extends AppCompatActivity implements Observer {
         protected void onPostExecute(Integer result) {
             mDevicesController.diversifyDevices();
             mExperimentSwitch.setChecked(false);
-            mStatus.setText("Испытание закончено");
+            if (mCause.isEmpty()) {
+                mStatus.setText("Испытание закончено");
+            } else {
+                mStatus.setText(mCause);
+                mCause = "";
+            }
             mThreadOn = false;
         }
     }
@@ -357,7 +374,7 @@ public class Experiment4Activity extends AppCompatActivity implements Observer {
                 mDevicesController.setObjectUMax(start -= coarseStep);
             }
             sleep(coarseSleep);
-            changeTextOfView(mStatus, "Выводим значение для получения заданного значения грубо");
+            changeTextOfView(mStatus, "Выводим напряжение для получения заданного значения грубо");
         }
         while (isExperimentStart() && ((mUA < end - fineLimit) || (mUA > end + fineLimit)) && mStartState) {
             Logger.withTag(Logger.DEBUG_TAG).log("end:" + end + " compared:" + mUA);
@@ -367,7 +384,7 @@ public class Experiment4Activity extends AppCompatActivity implements Observer {
                 mDevicesController.setObjectUMax(start -= fineStep);
             }
             sleep(fineSleep);
-            changeTextOfView(mStatus, "Выводим значение для получения заданного значения тонко");
+            changeTextOfView(mStatus, "Выводим напряжение для получения заданного значения точно");
         }
         return start;
     }
@@ -379,13 +396,6 @@ public class Experiment4Activity extends AppCompatActivity implements Observer {
                 view.setText(text);
             }
         });
-    }
-
-    private void sleep(int mills) {
-        try {
-            Thread.sleep(mills);
-        } catch (InterruptedException ignored) {
-        }
     }
 
     private void pickUpState() {

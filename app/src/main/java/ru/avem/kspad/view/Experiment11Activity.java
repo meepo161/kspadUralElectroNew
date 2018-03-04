@@ -28,6 +28,7 @@ import ru.avem.kspad.model.ExperimentsHolder;
 import static ru.avem.kspad.communication.devices.DeviceController.BECKHOFF_CONTROL_ID;
 import static ru.avem.kspad.communication.devices.DeviceController.TRM201_ID;
 import static ru.avem.kspad.utils.Utils.formatRealNumber;
+import static ru.avem.kspad.utils.Utils.sleep;
 import static ru.avem.kspad.utils.Visibility.onFullscreenMode;
 
 public class Experiment11Activity extends AppCompatActivity implements Observer {
@@ -114,6 +115,7 @@ public class Experiment11Activity extends AppCompatActivity implements Observer 
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mBroadcastReceiver);
+        mDevicesController.setNeededToRunThreads(false);
     }
 
     @OnCheckedChanged(R.id.experiment_switch)
@@ -144,6 +146,7 @@ public class Experiment11Activity extends AppCompatActivity implements Observer 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            clearCells();
             setExperimentStart(true);
         }
 
@@ -221,13 +224,6 @@ public class Experiment11Activity extends AppCompatActivity implements Observer 
                 view.setText(text);
             }
         });
-    }
-
-    private void sleep(int mills) {
-        try {
-            Thread.sleep(mills);
-        } catch (InterruptedException ignored) {
-        }
     }
 
     private boolean isDevicesResponding() {
@@ -330,6 +326,15 @@ public class Experiment11Activity extends AppCompatActivity implements Observer 
     public void setExperimentResult(boolean experimentResult) {
         mExperimentResult = experimentResult;
         changeTextOfView(mResultCell, experimentResult ? "Успешно" : "Неуспешно");
+    }
+
+    private void clearCells() {
+        changeTextOfView(mUrCell, "");
+        changeTextOfView(mR15Cell, "");
+        changeTextOfView(mR60Cell, "");
+        changeTextOfView(mKCell, "");
+        changeTextOfView(mTempCell, "");
+        changeTextOfView(mResultCell, "");
     }
 
     @Override

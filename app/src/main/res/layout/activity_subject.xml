@@ -203,7 +203,7 @@
                 <EditText
                     android:id="@+id/r_mgr"
                     android:background="@drawable/border_padding"
-                    android:inputType="number"
+                    android:inputType="numberDecimal"
                     android:maxLines="1"
                     android:textSize="28sp"/>
             </TableRow>
@@ -223,13 +223,13 @@
 
                 <TextView
                     android:background="@drawable/border_padding"
-                    android:text="Среднее значение сопротивления, Ω"
+                    android:text="Среднее значение сопротивления при 20 °C, Ω"
                     android:textSize="28sp"/>
 
                 <EditText
                     android:id="@+id/r_ikas"
                     android:background="@drawable/border_padding"
-                    android:inputType="number"
+                    android:inputType="numberDecimal"
                     android:maxLines="1"
                     android:textSize="28sp"/>
             </TableRow>
@@ -437,6 +437,21 @@
                     android:text="Определение рабочих характеристик"
                     android:textSize="28sp"
                     android:textStyle="bold"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:text="Количество ступеней(1 или 7)"
+                    android:textSize="28sp"/>
+
+                <EditText
+                    android:id="@+id/num_of_stages_performance"
+                    android:background="@drawable/border_padding"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:textSize="28sp"/>
             </TableRow>
 
             <TableRow>

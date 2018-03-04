@@ -108,6 +108,10 @@ public class MainModel {
         return mProtocol.isPlatformOneSelected();
     }
 
+    public int getNumOfStagesPerformance() {
+        return mProtocol.getNumOfStagesPerformance();
+    }
+
     public int getZ1Performance() {
         return mProtocol.getZ1Performance();
     }
@@ -160,8 +164,16 @@ public class MainModel {
         return mProtocol.getTOnStageIdle();
     }
 
+    public int getNumOfStagesIdle() {
+        return mProtocol.getNumOfStagesIdle();
+    }
+
     public int getTOnStageSc() {
         return mProtocol.getTOnStageSc();
+    }
+
+    public int getNumOfStagesSc() {
+        return mProtocol.getNumOfStagesSc();
     }
 
     public int getUMgr() {
@@ -196,8 +208,12 @@ public class MainModel {
         return mProtocol.getKOverloadI();
     }
 
-    public int getRIkas() {
+    public float getRIkas() {
         return mProtocol.getRIkas();
+    }
+
+    public int getIkasRType() {
+        return mProtocol.getIkasRType();
     }
 
 
@@ -400,8 +416,20 @@ public class MainModel {
         mProtocol.setI3MVZR(UMVZ3R);
     }
 
-    public void setIkasR(float IkasR) {
-        mProtocol.setIkasR(IkasR);
+    public void setIkasRCold(float IkasRCold) {
+        mProtocol.setIkasRCold(IkasRCold);
+    }
+
+    public void setIkasR20(float IkasR20) {
+        mProtocol.setIkasR20(IkasR20);
+    }
+
+    public void setIkasRType(int IkasRType) {
+        mProtocol.setIkasRType(IkasRType);
+    }
+
+    public void setIkasRHot(float IkasRHot) {
+        mProtocol.setIkasRHot(IkasRHot);
     }
 
     public void setUViuR(float UViuR) {

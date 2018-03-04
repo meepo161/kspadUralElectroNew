@@ -45,8 +45,10 @@ import java.text.SimpleDateFormat;
 import io.realm.Realm;
 import ru.avem.kspad.R;
 import ru.avem.kspad.database.model.Protocol;
+import ru.avem.kspad.utils.Logger;
 
 import static android.content.Context.USB_SERVICE;
+import static ru.avem.kspad.utils.Utils.RU_LOCALE;
 import static ru.avem.kspad.utils.Utils.formatRealNumber;
 
 public class Logging {
@@ -148,7 +150,7 @@ public class Logging {
     }
 
     private static String writeWorkbookToMassStorage(Protocol protocol, Context context) {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd_MM(HH-mm-ss)");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd_MM(HH-mm-ss)", RU_LOCALE);
         String fileName = "protocol-" + sdf.format(System.currentTimeMillis()) + ".xlsx";
         UsbMassStorageDevice[] massStorageDevices = UsbMassStorageDevice.getMassStorageDevices(context);
         UsbMassStorageDevice currentDevice = massStorageDevices[0];
@@ -419,12 +421,17 @@ public class Logging {
                                     setNumberCellValue(cell, protocol.getP06SCR() * 1000);
                                     break;
                                 case "$R49":
-                                    if ((protocol.getTempEngineR() > 0) && (protocol.getTempAmbientR() > 0)) {
-                                        setNumberCellValue(cell, protocol.getTempEngineR() - protocol.getTempAmbientR());
+                                    Logger.withTag("R49").log(String.format("R горячее: %f, R20: %f", protocol.getIkasRHot(), protocol.getIkasR20()));
+                                    if ((protocol.getIkasRHot() > 0) && (protocol.getIkasR20() > 0)) {
+                                        float ikasRHotHalf = protocol.getIkasRHot() / 2f;
+                                        double value = ((ikasRHotHalf / protocol.getIkasR20() - 1) / 0.00393) + 20;
+                                        setNumberCellValue(cell, value);
+                                    } else {
+                                        cell.setCellValue("");
                                     }
                                     break;
                                 case "$R50":
-                                    setNumberCellValue(cell, protocol.getIkasR() / 2f);
+                                    setNumberCellValue(cell, protocol.getIkasR20());
                                     break;
                                 case "$R51":
                                     setNumberCellValue(cell, protocol.getMgrR());
@@ -460,18 +467,28 @@ public class Logging {
                                     setNumberCellValue(cell, protocol.getUViuR());
                                     break;
                                 case "$R65":
-                                    int TViuR = (int) protocol.getTViuR();
-                                    setNumberCellValue(cell, TViuR);
+                                    setNumberCellValue(cell, protocol.getTViuR());
                                     break;
                                 case "$R67":
                                     setNumberCellValue(cell, protocol.getVOverloadR());
                                     break;
                                 case "$R68":
-                                    int TOverloadR = (int) protocol.getTOverloadR();
-                                    setNumberCellValue(cell, TOverloadR);
+                                    setNumberCellValue(cell, protocol.getTOverloadR());
                                     break;
                                 case "$R69":
                                     setNumberCellValue(cell, protocol.getIOverloadR());
+                                    break;
+                                case "$R70":
+//                                    if ((protocol.getTempEngineR() > 0) && (protocol.getTempAmbientR() > 0)) {
+//                                        setNumberCellValue(cell, protocol.getTempEngineR() - protocol.getTempAmbientR());
+//                                    }
+                                    setNumberCellValue(cell, protocol.getTempEngineR());
+                                    break;
+                                case "$R71":
+                                    setNumberCellValue(cell, protocol.getIkasRCold() / 2f);
+                                    break;
+                                case "$R72":
+                                    setNumberCellValue(cell, protocol.getIkasRHot() / 2f);
                                     break;
                                 case "$POS1$":
                                     cell.setCellValue(protocol.getPosition1());
@@ -480,13 +497,13 @@ public class Logging {
                                     cell.setCellValue(protocol.getPosition2());
                                     break;
                                 case "$POS1NAME$":
-                                    cell.setCellValue("/" + protocol.getPosition1FullName() + "/");
+                                    cell.setCellValue(String.format(RU_LOCALE, "/%s/", protocol.getPosition1FullName()));
                                     break;
                                 case "$POS2NAME$":
-                                    cell.setCellValue("/" + protocol.getPosition2FullName() + "/");
+                                    cell.setCellValue(String.format(RU_LOCALE, "/%s/", protocol.getPosition2FullName()));
                                     break;
                                 case "$DATE$":
-                                    SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yy");
+                                    SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yy", RU_LOCALE);
                                     cell.setCellValue(sdf.format(protocol.getDate()));
                                     break;
                                 default:
@@ -525,7 +542,7 @@ public class Logging {
     private static void calculatePsteel(Protocol protocol, Cell cell) {
         float P10Idle = protocol.getP10IdleR() * 1000;
         float I10Idle = protocol.getI10IdleR();
-        float RIkas = protocol.getIkasR();
+        float RIkas = protocol.getIkasRHot();
         float P05Idle = protocol.getP05IdleR() * 1000;
         float P06Idle = protocol.getP06IdleR() * 1000;
         float P07Idle = protocol.getP07IdleR() * 1000;
@@ -550,7 +567,7 @@ public class Logging {
 
     private static void calculatePstator(Protocol protocol, Cell cell) {
         float IR = protocol.getIR();
-        float RIkas = protocol.getIkasR();
+        float RIkas = protocol.getIkasRHot();
         if ((IR > 0) && (RIkas > 0)) {
             double Pstat = 3 * IR * IR * (RIkas / 2.0);
             setNumberCellValue(cell, Pstat);
@@ -567,7 +584,7 @@ public class Logging {
 
         float P10Idle = protocol.getP10IdleR() * 1000;
         float I10Idle = protocol.getI10IdleR();
-        float RIkas = protocol.getIkasR();
+        float RIkas = protocol.getIkasRHot();
         float P05Idle = protocol.getP05IdleR() * 1000;
         float P06Idle = protocol.getP06IdleR() * 1000;
         float P07Idle = protocol.getP07IdleR() * 1000;
@@ -627,7 +644,7 @@ public class Logging {
 
         float P10Idle = protocol.getP10IdleR() * 1000;
         float I10Idle = protocol.getI10IdleR();
-        float RIkas = protocol.getIkasR();
+        float RIkas = protocol.getIkasRHot();
         float P05Idle = protocol.getP05IdleR() * 1000;
         float P06Idle = protocol.getP06IdleR() * 1000;
         float P07Idle = protocol.getP07IdleR() * 1000;
@@ -688,7 +705,7 @@ public class Logging {
 
     private static String writeWorkbookToInternalStorage(Protocol protocol, Context context) {
         clearDirectory(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/protocol"));
-        SimpleDateFormat sdf = new SimpleDateFormat("dd_MM(HH-mm-ss)");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd_MM(HH-mm-ss)", RU_LOCALE);
         String fileName = "protocol-" + sdf.format(System.currentTimeMillis()) + ".xlsx";
         try {
             ByteArrayOutputStream out = convertProtocolToWorkbook(protocol, context);

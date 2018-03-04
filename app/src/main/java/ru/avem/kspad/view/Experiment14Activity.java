@@ -33,6 +33,7 @@ import static ru.avem.kspad.communication.devices.DeviceController.FR_A800_OBJEC
 import static ru.avem.kspad.communication.devices.DeviceController.M40_ID;
 import static ru.avem.kspad.communication.devices.DeviceController.VEHA_T_ID;
 import static ru.avem.kspad.utils.Utils.formatRealNumber;
+import static ru.avem.kspad.utils.Utils.sleep;
 import static ru.avem.kspad.utils.Visibility.onFullscreenMode;
 
 public class Experiment14Activity extends AppCompatActivity implements Observer {
@@ -150,6 +151,7 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mBroadcastReceiver);
+        mDevicesController.setNeededToRunThreads(false);
     }
 
     @OnCheckedChanged(R.id.experiment_switch)
@@ -199,7 +201,7 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
             if (isExperimentStart() && mStartState) {
                 mDevicesController.initDevicesFrom14Group();
             }
-            while (isExperimentStart() && !isDevicesResponding()) {
+            while (isExperimentStart() && !isDevicesResponding() && mStartState) {
                 changeTextOfView(mStatus, "Нет связи с устройствами");
                 sleep(100);
             }
@@ -327,13 +329,6 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
                 view.setText(text);
             }
         });
-    }
-
-    private void sleep(int mills) {
-        try {
-            Thread.sleep(mills);
-        } catch (InterruptedException ignored) {
-        }
     }
 
     private boolean isDevicesResponding() {

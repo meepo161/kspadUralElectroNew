@@ -11,6 +11,7 @@
         <item>@string/experiment3</item>
         <item>@string/experiment2</item>
         <item>@string/experiment12</item>
+        <item>@string/experiment17</item>
         <item>@string/experiment10</item>
         <item>@string/experiment14</item>
         <item>@string/experiment15</item>
@@ -27,5 +28,20 @@
     <string-array name="platforms">
         <item>Платформа 1</item>
         <item>Платформа 2</item>
+    </string-array>
+
+    <string-array name="characteristics">
+        <item>I</item>
+        <item>U</item>
+        <item>S</item>
+        <item>P1</item>
+        <item>cos φ</item>
+        <item>M</item>
+        <item>V</item>
+        <item>P2</item>
+        <item>η</item>
+        <item>tокр.с.</item>
+        <item>tдвиг.с.</item>
+        <item>s</item>
     </string-array>
 </resources>

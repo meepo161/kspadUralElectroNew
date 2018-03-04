@@ -21,7 +21,7 @@ public class KSPAD extends Application {
                         int i = 1;
                         Subject w800 = realm.createObject(Subject.class, i++);
                         w800.setName("АДМС71В4УХЛ1");
-                        w800.setPN(800f);
+                        w800.setPN(750f);
                         w800.setUN(380);
                         w800.setIN(2.2f);
                         w800.setMN(10f);
@@ -31,8 +31,8 @@ public class KSPAD extends Application {
                         w800.setEfficiencyN(0.7f);
                         w800.setFN(50f);
                         w800.setUMgr(1000);
-                        w800.setRMgr(10);
-                        w800.setRIkas(1200);
+                        w800.setRMgr(10f);
+                        w800.setRIkas(17f);
                         w800.setUViu(1200);
                         w800.setTViu(30);
                         w800.setIViu(0.5f);
@@ -43,6 +43,7 @@ public class KSPAD extends Application {
                         w800.setTOnStageSc(10);
                         w800.setTHeating(60);
                         w800.setTempHeating(45);
+                        w800.setNumOfStagesPerformance(7);
                         w800.setZ1Performance(72);
                         w800.setZ2Performance(72);
                         w800.setTBreakInPerformance(60);
@@ -63,8 +64,8 @@ public class KSPAD extends Application {
                         w2200.setEfficiencyN(0.75f);
                         w2200.setFN(50f);
                         w2200.setUMgr(1000);
-                        w2200.setRMgr(10);
-                        w2200.setRIkas(2);
+                        w2200.setRMgr(10f);
+                        w2200.setRIkas(2f);
                         w2200.setUViu(1750);
                         w2200.setTViu(60);
                         w2200.setIViu(0.5f);
@@ -75,6 +76,7 @@ public class KSPAD extends Application {
                         w2200.setTOnStageSc(10);
                         w2200.setTHeating(300);
                         w2200.setTempHeating(50);
+                        w2200.setNumOfStagesPerformance(1);
                         w2200.setZ1Performance(72);
                         w2200.setZ2Performance(48);
                         w2200.setTBreakInPerformance(120);
@@ -95,8 +97,8 @@ public class KSPAD extends Application {
                         w7500.setEfficiencyN(0.84f);
                         w7500.setFN(50f);
                         w7500.setUMgr(1000);
-                        w7500.setRMgr(100);
-                        w7500.setRIkas(3);
+                        w7500.setRMgr(100f);
+                        w7500.setRIkas(3f);
                         w7500.setUViu(1200);
                         w7500.setTViu(30);
                         w7500.setIViu(1f);
@@ -107,6 +109,7 @@ public class KSPAD extends Application {
                         w7500.setTOnStageSc(10);
                         w7500.setTHeating(50);
                         w7500.setTempHeating(4);
+                        w7500.setNumOfStagesPerformance(1);
                         w7500.setZ1Performance(510);
                         w7500.setZ2Performance(260);
                         w7500.setTBreakInPerformance(30);
@@ -127,8 +130,8 @@ public class KSPAD extends Application {
                         w15000.setEfficiencyN(0.89f);
                         w15000.setFN(50f);
                         w15000.setUMgr(1000);
-                        w15000.setRMgr(100);
-                        w15000.setRIkas(3);
+                        w15000.setRMgr(100f);
+                        w15000.setRIkas(3f);
                         w15000.setUViu(1200);
                         w15000.setTViu(30);
                         w15000.setIViu(1f);
@@ -139,6 +142,7 @@ public class KSPAD extends Application {
                         w15000.setTOnStageSc(10);
                         w15000.setTHeating(50);
                         w15000.setTempHeating(4);
+                        w15000.setNumOfStagesPerformance(1);
                         w15000.setZ1Performance(260);
                         w15000.setZ2Performance(500);
                         w15000.setTBreakInPerformance(30);

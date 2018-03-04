@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
+import static ru.avem.kspad.utils.Utils.RU_LOCALE;
+
 public class Protocol extends RealmObject {
     @PrimaryKey
     private long mId;
@@ -24,9 +26,9 @@ public class Protocol extends RealmObject {
     private float mFN = -1f;
 
     private int mUMgr = -1;
-    private int mRMgr = -1;
+    private float mRMgr = -1f;
 
-    private int mRIkas = -1;
+    private float mRIkas = -1f;
 
     private int mUViu = -1;
     private int mTViu = -1;
@@ -42,6 +44,7 @@ public class Protocol extends RealmObject {
     private int mTHeating = -1;
     private int mTempHeating = -1;
 
+    private int mNumOfStagesPerformance = -1;
     private int mZ1Performance = -1;
     private int mZ2Performance = -1;
     private int mTBreakInPerformance = -1;
@@ -104,7 +107,10 @@ public class Protocol extends RealmObject {
     private float mTempEngineR = -1f;
     private float mTempAmbientR = -1f;
 
-    private float mIkasR = -1f;
+    private float mIkasRCold = -1f;
+    private float mIkasR20 = -1f;
+    private int mIkasRType = 1;
+    private float mIkasRHot = -1f;
 
     private float mMgrR = -1f;
 
@@ -138,10 +144,10 @@ public class Protocol extends RealmObject {
         this(0, serialNumber, null, true,
 
                 -1f, -1, -1f, -1f, -1,
-                null, -1f, -1f, -1f, -1, -1, -1,
+                null, -1f, -1f, -1f, -1, -1f, -1f,
                 -1, -1, -1f, -1, -1,
                 -1, -1, -1, -1,
-                -1, -1, -1,
+                -1, -1, -1, -1,
                 -1, -1, -1f, -1f,
                 -1f,
 
@@ -152,8 +158,8 @@ public class Protocol extends RealmObject {
                 -1f, -1f, -1f, -1f, -1f, -1f,
                 -1f, -1f, -1f, -1f, -1f, -1f,
                 -1f, -1f, -1f, -1f, -1f, -1f,
-                -1f, -1f, -1f, -1f, -1f, -1f,
-                -1f, -1f, -1f, -1f, -1f, -1f,
+                -1f, -1f, -1f, 1, -1f, -1f, -1f,
+                -1f, -1f, -1f, -1f, -1f, -1f, -1f, -1f,
 
                 null, null, null,
                 null, null, null,
@@ -163,10 +169,12 @@ public class Protocol extends RealmObject {
     private Protocol(long id, String serialNumber, String subjectName, boolean PlatformOneSelected,
 
                      float PN, int UN, float IN, float MN, int VN,
-                     String Winding, float SN, float EfficiencyN, float FN, int UMgr, int RMgr,
-                     int RIkas, int UViu, int TViu, float IViu, int TBreakInIdle, int NumOfStagesIdle,
+                     String Winding, float SN, float EfficiencyN, float FN, int UMgr, float RMgr,
+                     float RIkas, int UViu, int TViu, float IViu, int TBreakInIdle, int NumOfStagesIdle,
                      int TOnStageIdle, int NumOfStagesSc, int TOnStageSc, int THeating,
-                     int TempHeating, int Z1Performance, int Z2Performance,
+                     int TempHeating,
+
+                     int NumOfStagesPerformance, int Z1Performance, int Z2Performance,
                      int TBreakInPerformance, int TPerformance, float KOverloadI, float Noise,
                      float Vibration,
 
@@ -178,7 +186,9 @@ public class Protocol extends RealmObject {
                      float P06IdleR, float U06IdleR, float I05IdleR, float P05IdleR, float U05IdleR,
                      float I10SCR, float P10SCR, float I09SCR, float P09SCR, float I08SCR,
                      float P08SCR, float I07SCR, float P07SCR, float I06SCR, float P06SCR,
-                     float TempEngineR, float TempAmbientR, float IkasR, float MgrR, float I1MVZR, float I2MVZR,
+                     float TempEngineR, float TempAmbientR,
+                     float IkasRCold, float IkasR20, int IkasRType, float IkasRHot,
+                     float MgrR, float I1MVZR, float I2MVZR,
                      float I3MVZR, float UViuR, float TViuR, float VOverloadR, float TOverloadR,
                      float SpecifiedIOverloadR, float IOverloadR,
 
@@ -220,6 +230,7 @@ public class Protocol extends RealmObject {
         mTHeating = THeating;
         mTempHeating = TempHeating;
 
+        mNumOfStagesPerformance = NumOfStagesPerformance;
         mZ1Performance = Z1Performance;
         mZ2Performance = Z2Performance;
         mTBreakInPerformance = TBreakInPerformance;
@@ -277,7 +288,12 @@ public class Protocol extends RealmObject {
         mP06SCR = P06SCR;
         mTempEngineR = TempEngineR;
         mTempAmbientR = TempAmbientR;
-        mIkasR = IkasR;
+
+        mIkasRCold = IkasRCold;
+        mIkasR20 = IkasR20;
+        mIkasRType = IkasRType;
+        mIkasRHot = IkasRHot;
+
         mMgrR = MgrR;
         mI1MVZR = I1MVZR;
         mI2MVZR = I2MVZR;
@@ -327,6 +343,7 @@ public class Protocol extends RealmObject {
         mTOnStageSc = protocol.getTOnStageSc();
         mTHeating = protocol.getTHeating();
         mTempHeating = protocol.getTempHeating();
+        mNumOfStagesPerformance = protocol.getNumOfStagesPerformance();
         mZ1Performance = protocol.getZ1Performance();
         mZ2Performance = protocol.getZ2Performance();
         mTBreakInPerformance = protocol.getTBreakInPerformance();
@@ -380,7 +397,10 @@ public class Protocol extends RealmObject {
         mP06SCR = protocol.getP06SCR();
         mTempEngineR = protocol.getTempEngineR();
         mTempAmbientR = protocol.getTempAmbientR();
-        mIkasR = protocol.getIkasR();
+        mIkasRCold = protocol.getIkasRCold();
+        mIkasR20 = protocol.getIkasR20();
+        mIkasRType = protocol.getIkasRType();
+        mIkasRHot = protocol.getIkasRHot();
         mMgrR = protocol.getMgrR();
         mI1MVZR = protocol.getI1MVZR();
         mI2MVZR = protocol.getI2MVZR();
@@ -456,6 +476,7 @@ public class Protocol extends RealmObject {
         mTHeating = subject.getTHeating();
         mTempHeating = subject.getTempHeating();
 
+        mNumOfStagesPerformance = subject.getNumOfStagesPerformance();
         mZ1Performance = subject.getZ1Performance();
         mZ2Performance = subject.getZ2Performance();
         mTBreakInPerformance = subject.getTBreakInPerformance();
@@ -506,11 +527,11 @@ public class Protocol extends RealmObject {
         return mUMgr;
     }
 
-    public int getRMgr() {
+    public float getRMgr() {
         return mRMgr;
     }
 
-    public int getRIkas() {
+    public float getRIkas() {
         return mRIkas;
     }
 
@@ -530,7 +551,7 @@ public class Protocol extends RealmObject {
         return mTBreakInIdle;
     }
 
-    public int getNumOfStagesIdle() {// TODO: 24.12.2017 реализовать
+    public int getNumOfStagesIdle() {
         return mNumOfStagesIdle;
     }
 
@@ -552,6 +573,10 @@ public class Protocol extends RealmObject {
 
     public int getTempHeating() {
         return mTempHeating;
+    }
+
+    public int getNumOfStagesPerformance() {
+        return mNumOfStagesPerformance;
     }
 
     public int getZ1Performance() {
@@ -950,12 +975,36 @@ public class Protocol extends RealmObject {
         mTempAmbientR = tempAmbientR;
     }
 
-    public float getIkasR() {
-        return mIkasR;
+    public float getIkasRCold() {
+        return mIkasRCold;
     }
 
-    public void setIkasR(float ikasR) {
-        mIkasR = ikasR;
+    public void setIkasRCold(float ikasRCold) {
+        mIkasRCold = ikasRCold;
+    }
+
+    public float getIkasR20() {
+        return mIkasR20;
+    }
+
+    public void setIkasR20(float ikasR20) {
+        mIkasR20 = ikasR20;
+    }
+
+    public int getIkasRType() {
+        return mIkasRType;
+    }
+
+    public void setIkasRType(int ikasRType) {
+        mIkasRType = ikasRType;
+    }
+
+    public float getIkasRHot() {
+        return mIkasRHot;
+    }
+
+    public void setIkasRHot(float ikasRHot) {
+        mIkasRHot = ikasRHot;
     }
 
     public float getMgrR() {
@@ -1096,7 +1145,7 @@ public class Protocol extends RealmObject {
 
     @Override
     public String toString() {
-        SimpleDateFormat sdf = new SimpleDateFormat("Время проведения испытания: HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("Время проведения испытания: HH:mm:ss", RU_LOCALE);
         return String.format("%s. № %s (%s) %s", mId, mSerialNumber, mSubjectName, sdf.format(mDate));
     }
 }

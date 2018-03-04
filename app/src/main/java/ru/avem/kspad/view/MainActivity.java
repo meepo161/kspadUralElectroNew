@@ -124,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     public static final String EXPERIMENT_14 = "Определение минимального момента";
     public static final String EXPERIMENT_15 = "Определение пускового момента и тока";
     public static final String EXPERIMENT_16 = "Определение уровня шума и вибрации";
+    public static final String EXPERIMENT_17 = "Определение сопротивления обмоток при постоянном токе в горячем состоянии";
 
     public static final int EXPERIMENT_1_ID = 1;
     public static final int EXPERIMENT_2_ID = 2;
@@ -141,6 +142,7 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     public static final int EXPERIMENT_14_ID = 14;
     public static final int EXPERIMENT_15_ID = 15;
     public static final int EXPERIMENT_16_ID = 16;
+    public static final int EXPERIMENT_17_ID = 17;
     //endregion
 
     private static final float DEFAULT_VALUE = -1f;
@@ -148,6 +150,9 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     //region Константы параметров
     public static class OUTPUT_PARAMETER {
         public static final String EXPERIMENT_NAME = "experimentName";
+        public static final String NUM_OF_STAGES_PERFORMANCE = "numOfStagesPerformance";
+        public static final String NUM_OF_STAGES_IDLE = "numOfStagesIdle";
+        public static final String NUM_OF_STAGES_SC = "numOfStagesSc";
         public static final String Z1 = "Z1";
         public static final String Z2 = "Z2";
         public static final String V1 = "V1";
@@ -164,6 +169,7 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
         public static final String SPECIFIED_SK = "specifiedSk";
         public static final String PLATFORM_ONE_SELECTED = "platformOneSelected";
         public static final String SPECIFIED_R = "specifiedR";
+        public static final String SPECIFIED_R_TYPE = "specifiedRType";
         public static final String SPECIFIED_T1 = "specifiedT1";
         public static final String SPECIFIED_T2 = "specifiedT2";
         public static final String SPECIFIED_T = "specifiedT";
@@ -217,7 +223,10 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
         static final String P06_SC_R = "P06SCR";
         static final String TEMP_ENGINE_R = "TempEngineR";
         static final String TEMP_AMBIENT_R = "TempAmbientR";
-        static final String IKAS_R = "IkasR";
+        static final String IKAS_R_COLD = "IkasRCold";
+        static final String IKAS_R_20 = "IkasR20";
+        static final String IKAS_R_TYPE = "IkasR20";
+        static final String IKAS_R_HOT = "IkasRHot";
         static final String MGR_R = "MgrR";
         static final String I_MVZ1_R = "I1MVZR";
         static final String I_MVZ2_R = "I2MVZR";
@@ -317,6 +326,8 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     FrameLayout mExperiment15;
     @BindView(R.id.experiment16)
     FrameLayout mExperiment16;
+    @BindView(R.id.experiment17)
+    FrameLayout mExperiment17;
 
     @BindView(R.id.e1_i_a)
     TextView mE1IA;
@@ -1289,6 +1300,21 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     TextView mE16MSpecified;
     @BindView(R.id.e16_v_specified)
     TextView mE16VSpecified;
+
+    @BindView(R.id.e17_ab)
+    TextView mE17Ab;
+    @BindView(R.id.e17_bc)
+    TextView mE17Bc;
+    @BindView(R.id.e17_ac)
+    TextView mE17Ac;
+    @BindView(R.id.e17_average_r)
+    TextView mE17AverageR;
+    @BindView(R.id.e17_temp)
+    TextView mE17Temp;
+    @BindView(R.id.e17_result)
+    TextView mE17Result;
+    @BindView(R.id.e17_average_r_specified)
+    TextView mE17AverageRSpecified;
     //endregion
 
     //region Вкладка 4 Протокол
@@ -2016,6 +2042,14 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
             mE16CosSpecified.setText(experiments.getE16CosSpecified());
             mE16MSpecified.setText(experiments.getE16MSpecified());
             mE16VSpecified.setText(experiments.getE16VSpecified());
+
+            mE17Ab.setText(experiments.getE17Ab());
+            mE17Bc.setText(experiments.getE17Bc());
+            mE17Ac.setText(experiments.getE17Ac());
+            mE17AverageR.setText(experiments.getE17AverageR());
+            mE17Temp.setText(experiments.getE17Temp());
+            mE17Result.setText(experiments.getE17Result());
+            mE17AverageRSpecified.setText(experiments.getE17AverageRSpecified());
         }
         realm.commitTransaction();
         realm.close();
@@ -2366,6 +2400,7 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
         switch (mExperimentType) {
             case EXPERIMENT_1:
                 intent.setClass(this, Experiment1Activity.class);
+                intent.putExtra(OUTPUT_PARAMETER.NUM_OF_STAGES_PERFORMANCE, mModel.getNumOfStagesPerformance()); // Количество ступеней
                 intent.putExtra(OUTPUT_PARAMETER.Z1, mModel.getZ1Performance()); // Параметр шкива ОИ
                 intent.putExtra(OUTPUT_PARAMETER.Z2, mModel.getZ2Performance()); // Параметр шкива НМ
                 intent.putExtra(OUTPUT_PARAMETER.V1, mModel.getVN()); // Номинальная частота вращения
@@ -2428,6 +2463,7 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
                 intent.putExtra(OUTPUT_PARAMETER.SPECIFIED_U, mModel.getUViu()); // Напряжение ВИУ
                 intent.putExtra(OUTPUT_PARAMETER.EXPERIMENT_TIME, mModel.getTViu()); // Время выдержки под номиональной нагрузкой
                 intent.putExtra(OUTPUT_PARAMETER.SPECIFIED_I, mModel.getIViu()); // Ток ВИУ
+                intent.putExtra(OUTPUT_PARAMETER.SPECIFIED_FREQUENCY, mModel.getFN()); // Номинальная частота сети
                 startActivityForResult(intent, EXPERIMENT_6_ID);
                 break;
             case EXPERIMENT_7:
@@ -2435,6 +2471,8 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
                 intent.putExtra(OUTPUT_PARAMETER.SPECIFIED_U, (float) mModel.getUN()); // Номинальное напряжение ХХ
                 intent.putExtra(OUTPUT_PARAMETER.SPECIFIED_T1, mModel.getTBreakInIdle()); // Время обкатки ХХ
                 intent.putExtra(OUTPUT_PARAMETER.SPECIFIED_T2, mModel.getTOnStageIdle()); // Время нахождения на каждой ступени ХХ
+                intent.putExtra(OUTPUT_PARAMETER.SPECIFIED_FREQUENCY, mModel.getFN()); // Номинальная частота сети
+                intent.putExtra(OUTPUT_PARAMETER.NUM_OF_STAGES_IDLE, mModel.getNumOfStagesIdle()); // Количество ступеней
                 startActivityForResult(intent, EXPERIMENT_7_ID);
                 break;
             case EXPERIMENT_8:
@@ -2447,6 +2485,8 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
                 intent.setClass(this, Experiment9Activity.class);
                 intent.putExtra(OUTPUT_PARAMETER.SPECIFIED_U, mModel.getUN() / 3.8f); // Номинальное напряжение / 3.8f
                 intent.putExtra(OUTPUT_PARAMETER.SPECIFIED_T, mModel.getTOnStageSc()); // Время нахождения на каждой ступени КЗ
+                intent.putExtra(OUTPUT_PARAMETER.SPECIFIED_FREQUENCY, mModel.getFN()); // Номинальная частота сети
+                intent.putExtra(OUTPUT_PARAMETER.NUM_OF_STAGES_SC, mModel.getNumOfStagesSc()); // Количество ступеней
                 startActivityForResult(intent, EXPERIMENT_9_ID);
                 break;
             case EXPERIMENT_10:
@@ -2489,6 +2529,7 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
             case EXPERIMENT_13:
                 intent.setClass(this, Experiment13Activity.class);
                 intent.putExtra(OUTPUT_PARAMETER.SPECIFIED_U, (float) mModel.getUN()); // Номинальное напряжение
+                intent.putExtra(OUTPUT_PARAMETER.SPECIFIED_FREQUENCY, mModel.getFN()); // Номинальная частота сети
                 startActivityForResult(intent, EXPERIMENT_13_ID);
                 break;
             case EXPERIMENT_14:
@@ -2509,6 +2550,12 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
                 intent.setClass(this, Experiment16Activity.class);
                 startActivityForResult(intent, EXPERIMENT_16_ID);
                 break;
+            case EXPERIMENT_17:
+                intent.setClass(this, Experiment17Activity.class);
+                intent.putExtra(OUTPUT_PARAMETER.SPECIFIED_R, mModel.getRIkas()); // Среднее сопротивление ИКАС
+                intent.putExtra(OUTPUT_PARAMETER.SPECIFIED_R_TYPE, mModel.getIkasRType()); // Номер обмотки (1-3)
+                startActivityForResult(intent, EXPERIMENT_17_ID);
+                break;
         }
     }
 
@@ -2526,30 +2573,26 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
                 mModel.setCosR(data.getFloatExtra(INPUT_PARAMETER.COS_R, DEFAULT_VALUE));
                 mModel.setP1R(data.getFloatExtra(INPUT_PARAMETER.P1_R, DEFAULT_VALUE));
                 mModel.setMR(data.getFloatExtra(INPUT_PARAMETER.M_R, DEFAULT_VALUE));
-                mMainPresenter.startNextExperiment();
                 break;
             case EXPERIMENT_2_ID:
-                mMainPresenter.startNextExperiment();
                 break;
             case EXPERIMENT_3_ID:
                 mModel.setSpecifiedIOverloadR(data.getFloatExtra(INPUT_PARAMETER.SPECIFIED_I_OVERLOAD_R, DEFAULT_VALUE));
                 mModel.setIOverloadR(data.getFloatExtra(INPUT_PARAMETER.I_OVERLOAD_R, DEFAULT_VALUE));
-                mMainPresenter.startNextExperiment();
                 break;
             case EXPERIMENT_4_ID:
                 mModel.setUMVZ1R(data.getFloatExtra(INPUT_PARAMETER.I_MVZ1_R, DEFAULT_VALUE));
                 mModel.setUMVZ2R(data.getFloatExtra(INPUT_PARAMETER.I_MVZ2_R, DEFAULT_VALUE));
                 mModel.setUMVZ3R(data.getFloatExtra(INPUT_PARAMETER.I_MVZ3_R, DEFAULT_VALUE));
-                mMainPresenter.startNextExperiment();
                 break;
             case EXPERIMENT_5_ID:
-                mModel.setIkasR(data.getFloatExtra(INPUT_PARAMETER.IKAS_R, DEFAULT_VALUE));
-                mMainPresenter.startNextExperiment();
+                mModel.setIkasRCold(data.getFloatExtra(INPUT_PARAMETER.IKAS_R_COLD, DEFAULT_VALUE));
+                mModel.setIkasR20(data.getFloatExtra(INPUT_PARAMETER.IKAS_R_20, DEFAULT_VALUE));
+                mModel.setIkasRType(data.getIntExtra(INPUT_PARAMETER.IKAS_R_TYPE, 1));
                 break;
             case EXPERIMENT_6_ID:
                 mModel.setUViuR(data.getFloatExtra(INPUT_PARAMETER.U_VIU_R, DEFAULT_VALUE));
                 mModel.setTViuR(data.getFloatExtra(INPUT_PARAMETER.T_VIU_R, DEFAULT_VALUE));
-                showAlertDialogOfVIU();
                 break;
             case EXPERIMENT_7_ID:
                 mModel.setI13IdleR(data.getFloatExtra(INPUT_PARAMETER.I13_IDLE_R, DEFAULT_VALUE));
@@ -2573,12 +2616,10 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
                 mModel.setI05IdleR(data.getFloatExtra(INPUT_PARAMETER.I05_IDLE_R, DEFAULT_VALUE));
                 mModel.setP05IdleR(data.getFloatExtra(INPUT_PARAMETER.P05_IDLE_R, DEFAULT_VALUE));
                 mModel.setU05IdleR(data.getFloatExtra(INPUT_PARAMETER.U05_IDLE_R, DEFAULT_VALUE));
-                mMainPresenter.startNextExperiment();
                 break;
             case EXPERIMENT_8_ID:
                 mModel.setVOverloadR(data.getFloatExtra(INPUT_PARAMETER.V_OVERLOAD_R, DEFAULT_VALUE));
                 mModel.setTOverloadR(data.getFloatExtra(INPUT_PARAMETER.T_OVERLOAD_R, DEFAULT_VALUE));
-                mMainPresenter.startNextExperiment();
                 break;
             case EXPERIMENT_9_ID:
                 mModel.setI10SCR(data.getFloatExtra(INPUT_PARAMETER.I10_SC_R, DEFAULT_VALUE));
@@ -2591,36 +2632,37 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
                 mModel.setP07SCR(data.getFloatExtra(INPUT_PARAMETER.P07_SC_R, DEFAULT_VALUE));
                 mModel.setI06SCR(data.getFloatExtra(INPUT_PARAMETER.I06_SC_R, DEFAULT_VALUE));
                 mModel.setP06SCR(data.getFloatExtra(INPUT_PARAMETER.P06_SC_R, DEFAULT_VALUE));
-                mMainPresenter.startNextExperiment();
                 break;
             case EXPERIMENT_10_ID:
                 mModel.setMMaxR(data.getFloatExtra(INPUT_PARAMETER.M_MAX_R, DEFAULT_VALUE));
-                mMainPresenter.startNextExperiment();
                 break;
             case EXPERIMENT_11_ID:
                 mModel.setMgrR(data.getFloatExtra(INPUT_PARAMETER.MGR_R, DEFAULT_VALUE));
-                mMainPresenter.startNextExperiment();
                 break;
             case EXPERIMENT_12_ID:
                 mModel.setTempEngineR(data.getFloatExtra(INPUT_PARAMETER.TEMP_ENGINE_R, DEFAULT_VALUE));
                 mModel.setTempAmbientR(data.getFloatExtra(INPUT_PARAMETER.TEMP_AMBIENT_R, DEFAULT_VALUE));
-                mMainPresenter.startNextExperiment();
                 break;
             case EXPERIMENT_13_ID:
-                mMainPresenter.startNextExperiment();
                 break;
             case EXPERIMENT_14_ID:
                 mModel.setMMinR(data.getFloatExtra(INPUT_PARAMETER.M_MIN_R, DEFAULT_VALUE));
-                mMainPresenter.startNextExperiment();
                 break;
             case EXPERIMENT_15_ID:
                 mModel.setMStartR(data.getFloatExtra(INPUT_PARAMETER.M_START_R, DEFAULT_VALUE));
                 mModel.setIStartR(data.getFloatExtra(INPUT_PARAMETER.I_START_R, DEFAULT_VALUE));
-                mMainPresenter.startNextExperiment();
                 break;
             case EXPERIMENT_16_ID:
-                mMainPresenter.startNextExperiment();
                 break;
+            case EXPERIMENT_17_ID:
+                mModel.setIkasRHot(data.getFloatExtra(INPUT_PARAMETER.IKAS_R_HOT, DEFAULT_VALUE));
+                break;
+        }
+
+        if (requestCode != EXPERIMENT_6_ID) {
+            mMainPresenter.startNextExperiment();
+        } else {
+            showAlertDialogOfVIU();
         }
     }
 
@@ -2788,6 +2830,11 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     @Override
     public void show16Experiment() {
         mExperiment16.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void show17Experiment() {
+        mExperiment17.setVisibility(View.VISIBLE);
     }
 
     @Override

@@ -48,6 +48,7 @@ import static ru.avem.kspad.communication.devices.DeviceController.TRM201_ID;
 import static ru.avem.kspad.communication.devices.DeviceController.VEHA_T_ID;
 import static ru.avem.kspad.utils.Utils.formatRealNumber;
 import static ru.avem.kspad.utils.Utils.getSyncV;
+import static ru.avem.kspad.utils.Utils.sleep;
 
 public class Experiment12Activity extends AppCompatActivity implements Observer {
     //region Константы
@@ -383,6 +384,9 @@ public class Experiment12Activity extends AppCompatActivity implements Observer 
         mGraph.getViewport().setXAxisBoundsManual(true);
         mGraph.getViewport().setMinX(0);
         mGraph.getViewport().setMaxX(100);
+        mGraph.getViewport().setYAxisBoundsManual(true);
+        mGraph.getViewport().setMinY(0);
+        mGraph.getViewport().setMaxY(50);
         mGraph.getViewport().setScalable(true);
         mGraph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter() {
             @Override
@@ -406,6 +410,7 @@ public class Experiment12Activity extends AppCompatActivity implements Observer 
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mBroadcastReceiver);
+        mDevicesController.setNeededToRunThreads(false);
     }
 
     @OnCheckedChanged(R.id.experiment_switch)
@@ -465,7 +470,7 @@ public class Experiment12Activity extends AppCompatActivity implements Observer 
             if (isExperimentStart() && mStartState) {
                 mDevicesController.initDevicesFrom1To3And10And12Group();
             }
-            while (isExperimentStart() && !isDevicesResponding()) {
+            while (isExperimentStart() && !isDevicesResponding() && mStartState) {
                 changeTextOfView(mStatus, "Нет связи с устройствами");
                 sleep(100);
             }
@@ -556,12 +561,12 @@ public class Experiment12Activity extends AppCompatActivity implements Observer 
                     mDevicesController.setGeneratorFCur(fCurGenerator++);
                 }
                 sleep(500);
-                changeTextOfView(mStatus, "Выводим частоту генератора для получения номинального P2 тонко");
+                changeTextOfView(mStatus, "Выводим частоту генератора для получения номинального P2 точно");
             }
 
             changeTextOfView(mStatus, "Ждём, пока температура перестанет меняться");
             float lastTemp;
-            while (isExperimentStart()) {
+            while (isExperimentStart() && mStartState) {
                 lastTemp = mTempEngine;
                 sleep(15 * 1000);
                 if (Math.abs(mTempEngine - lastTemp) < 0.5f) {
@@ -569,7 +574,7 @@ public class Experiment12Activity extends AppCompatActivity implements Observer 
                 }
             }
 
-            experimentTime = mExperimentTime;
+            experimentTime = 600;
             while (isExperimentStart() && (experimentTime-- > 0) && mStartState) {
                 sleep(1000);
                 changeTextOfView(mStatus, "Ждём заданное время под номинальной нагрузкой. Осталось: " + experimentTime);
@@ -614,13 +619,6 @@ public class Experiment12Activity extends AppCompatActivity implements Observer 
                 view.setText(text);
             }
         });
-    }
-
-    private void sleep(int mills) {
-        try {
-            Thread.sleep(mills);
-        } catch (InterruptedException ignored) {
-        }
     }
 
     private void pickUpState() {

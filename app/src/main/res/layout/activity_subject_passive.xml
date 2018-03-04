@@ -399,6 +399,19 @@
 
                 <TextView
                     android:background="@drawable/border_padding"
+                    android:text="Количество ступеней(1 или 7)"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:id="@+id/num_of_stages_performance"
+                    android:background="@drawable/border_padding"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
                     android:text="Параметр шкива ОИ"
                     android:textSize="28sp"/>
 

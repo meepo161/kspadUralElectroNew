@@ -34,6 +34,7 @@ import static ru.avem.kspad.communication.devices.DeviceController.PM130_ID;
 import static ru.avem.kspad.communication.devices.DeviceController.TRM201_ID;
 import static ru.avem.kspad.communication.devices.DeviceController.VEHA_T_ID;
 import static ru.avem.kspad.utils.Utils.formatRealNumber;
+import static ru.avem.kspad.utils.Utils.sleep;
 import static ru.avem.kspad.utils.Visibility.onFullscreenMode;
 
 public class Experiment8Activity extends AppCompatActivity implements Observer {
@@ -162,6 +163,7 @@ public class Experiment8Activity extends AppCompatActivity implements Observer {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mBroadcastReceiver);
+        mDevicesController.setNeededToRunThreads(false);
     }
 
     @OnCheckedChanged(R.id.experiment_switch)
@@ -192,6 +194,7 @@ public class Experiment8Activity extends AppCompatActivity implements Observer {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            clearCells();
             setExperimentStart(true);
             mNeedToSave = true;
         }
@@ -289,13 +292,6 @@ public class Experiment8Activity extends AppCompatActivity implements Observer {
                 view.setText(text);
             }
         });
-    }
-
-    private void sleep(int mills) {
-        try {
-            Thread.sleep(mills);
-        } catch (InterruptedException ignored) {
-        }
     }
 
     private void pickUpState() {
@@ -562,6 +558,22 @@ public class Experiment8Activity extends AppCompatActivity implements Observer {
     public void setTemp(float temp) {
         mTemp = temp;
         changeTextOfView(mTempCell, formatRealNumber(temp));
+    }
+
+    private void clearCells() {
+        changeTextOfView(mUACell, "");
+        changeTextOfView(mIACell, "");
+        changeTextOfView(mUBCell, "");
+        changeTextOfView(mIBCell, "");
+        changeTextOfView(mPCell, "");
+        changeTextOfView(mCosCell, "");
+        changeTextOfView(mVCell, "");
+        changeTextOfView(mTempCell, "");
+        changeTextOfView(mTCell, "");
+        changeTextOfView(mUCCell, "");
+        changeTextOfView(mICCell, "");
+        changeTextOfView(mIAverageCell, "");
+        changeTextOfView(mUAverageCell, "");
     }
 
     @Override
