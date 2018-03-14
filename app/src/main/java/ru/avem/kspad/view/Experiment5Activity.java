@@ -432,9 +432,9 @@ public class Experiment5Activity extends AppCompatActivity implements Observer {
 
     private void returnValues() {
         Intent data = new Intent();
-        data.putExtra(MainActivity.INPUT_PARAMETER.IKAS_R_COLD, mAverageR);
-        data.putExtra(MainActivity.INPUT_PARAMETER.IKAS_R_20, mR20);
-        data.putExtra(MainActivity.INPUT_PARAMETER.IKAS_R_TYPE, mType);
+        data.putExtra(MainActivity.INPUT_PARAMETER.IKAS_R_COLD_R, mAverageR);
+        data.putExtra(MainActivity.INPUT_PARAMETER.IKAS_R_20_R, mR20);
+        data.putExtra(MainActivity.INPUT_PARAMETER.IKAS_R_TYPE_R, mType);
         setResult(RESULT_OK, data);
     }
 

@@ -22,18 +22,16 @@ import ru.avem.kspad.R;
 import ru.avem.kspad.communication.devices.DevicesController;
 import ru.avem.kspad.communication.devices.FR_A800.FRA800Model;
 import ru.avem.kspad.communication.devices.beckhoff.BeckhoffModel;
+import ru.avem.kspad.communication.devices.ikas.IKASModel;
 import ru.avem.kspad.communication.devices.pm130.PM130Model;
-import ru.avem.kspad.communication.devices.trm201.TRM201Model;
-import ru.avem.kspad.communication.devices.veha_t.VEHATModel;
 import ru.avem.kspad.database.model.Experiments;
 import ru.avem.kspad.model.ExperimentsHolder;
 import ru.avem.kspad.utils.Logger;
 
 import static ru.avem.kspad.communication.devices.DeviceController.BECKHOFF_CONTROL_ID;
 import static ru.avem.kspad.communication.devices.DeviceController.FR_A800_OBJECT_ID;
+import static ru.avem.kspad.communication.devices.DeviceController.IKAS_ID;
 import static ru.avem.kspad.communication.devices.DeviceController.PM130_ID;
-import static ru.avem.kspad.communication.devices.DeviceController.TRM201_ID;
-import static ru.avem.kspad.communication.devices.DeviceController.VEHA_T_ID;
 import static ru.avem.kspad.utils.Utils.formatRealNumber;
 import static ru.avem.kspad.utils.Utils.sleep;
 import static ru.avem.kspad.utils.Visibility.onFullscreenMode;
@@ -61,12 +59,12 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     TextView mP13Cell;
     @BindView(R.id.cos_1_3)
     TextView mCos13Cell;
-    @BindView(R.id.v_1_3)
-    TextView mV13Cell;
-    @BindView(R.id.temp_1_3_ambient)
-    TextView mTemp13AmbientCell;
-    @BindView(R.id.temp_1_3_engine)
-    TextView mTemp13EngineCell;
+    @BindView(R.id.p_cop_1_3)
+    TextView mPCop13Cell;
+    @BindView(R.id.p_m_p_st_1_3)
+    TextView mPmPst13Cell;
+    @BindView(R.id.p_st_1_3)
+    TextView mPst13Cell;
     @BindView(R.id.t_1_3)
     TextView mT13Cell;
     @BindView(R.id.u_1_3_c)
@@ -90,12 +88,12 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     TextView mP12Cell;
     @BindView(R.id.cos_1_2)
     TextView mCos12Cell;
-    @BindView(R.id.v_1_2)
-    TextView mV12Cell;
-    @BindView(R.id.temp_1_2_ambient)
-    TextView mTemp12AmbientCell;
-    @BindView(R.id.temp_1_2_engine)
-    TextView mTemp12EngineCell;
+    @BindView(R.id.p_cop_1_2)
+    TextView mPCop12Cell;
+    @BindView(R.id.p_m_p_st_1_2)
+    TextView mPmPst12Cell;
+    @BindView(R.id.p_st_1_2)
+    TextView mPst12Cell;
     @BindView(R.id.t_1_2)
     TextView mT12Cell;
     @BindView(R.id.u_1_2_c)
@@ -119,12 +117,12 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     TextView mP11Cell;
     @BindView(R.id.cos_1_1)
     TextView mCos11Cell;
-    @BindView(R.id.v_1_1)
-    TextView mV11Cell;
-    @BindView(R.id.temp_1_1_ambient)
-    TextView mTemp11AmbientCell;
-    @BindView(R.id.temp_1_1_engine)
-    TextView mTemp11EngineCell;
+    @BindView(R.id.p_cop_1_1)
+    TextView mPCop11Cell;
+    @BindView(R.id.p_m_p_st_1_1)
+    TextView mPmPst11Cell;
+    @BindView(R.id.p_st_1_1)
+    TextView mPst11Cell;
     @BindView(R.id.t_1_1)
     TextView mT11Cell;
     @BindView(R.id.u_1_1_c)
@@ -148,12 +146,12 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     TextView mP10Cell;
     @BindView(R.id.cos_1_0)
     TextView mCos10Cell;
-    @BindView(R.id.v_1_0)
-    TextView mV10Cell;
-    @BindView(R.id.temp_1_0_ambient)
-    TextView mTemp10AmbientCell;
-    @BindView(R.id.temp_1_0_engine)
-    TextView mTemp10EngineCell;
+    @BindView(R.id.p_cop_1_0)
+    TextView mPCop10Cell;
+    @BindView(R.id.p_m_p_st_1_0)
+    TextView mPmPst10Cell;
+    @BindView(R.id.p_st_1_0)
+    TextView mPst10Cell;
     @BindView(R.id.t_1_0)
     TextView mT10Cell;
     @BindView(R.id.u_1_0_c)
@@ -177,12 +175,12 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     TextView mP09Cell;
     @BindView(R.id.cos_0_9)
     TextView mCos09Cell;
-    @BindView(R.id.v_0_9)
-    TextView mV09Cell;
-    @BindView(R.id.temp_0_9_ambient)
-    TextView mTemp09AmbientCell;
-    @BindView(R.id.temp_0_9_engine)
-    TextView mTemp09EngineCell;
+    @BindView(R.id.p_cop_0_9)
+    TextView mPCop09Cell;
+    @BindView(R.id.p_m_p_st_0_9)
+    TextView mPmPst09Cell;
+    @BindView(R.id.p_st_0_9)
+    TextView mPst09Cell;
     @BindView(R.id.t_0_9)
     TextView mT09Cell;
     @BindView(R.id.u_0_9_c)
@@ -206,12 +204,12 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     TextView mP08Cell;
     @BindView(R.id.cos_0_8)
     TextView mCos08Cell;
-    @BindView(R.id.v_0_8)
-    TextView mV08Cell;
-    @BindView(R.id.temp_0_8_ambient)
-    TextView mTemp08AmbientCell;
-    @BindView(R.id.temp_0_8_engine)
-    TextView mTemp08EngineCell;
+    @BindView(R.id.p_cop_0_8)
+    TextView mPCop08Cell;
+    @BindView(R.id.p_m_p_st_0_8)
+    TextView mPmPst08Cell;
+    @BindView(R.id.p_st_0_8)
+    TextView mPst08Cell;
     @BindView(R.id.t_0_8)
     TextView mT08Cell;
     @BindView(R.id.u_0_8_c)
@@ -235,12 +233,12 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     TextView mP07Cell;
     @BindView(R.id.cos_0_7)
     TextView mCos07Cell;
-    @BindView(R.id.v_0_7)
-    TextView mV07Cell;
-    @BindView(R.id.temp_0_7_ambient)
-    TextView mTemp07AmbientCell;
-    @BindView(R.id.temp_0_7_engine)
-    TextView mTemp07EngineCell;
+    @BindView(R.id.p_cop_0_7)
+    TextView mPCop07Cell;
+    @BindView(R.id.p_m_p_st_0_7)
+    TextView mPmPst07Cell;
+    @BindView(R.id.p_st_0_7)
+    TextView mPst07Cell;
     @BindView(R.id.t_0_7)
     TextView mT07Cell;
     @BindView(R.id.u_0_7_c)
@@ -264,12 +262,12 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     TextView mP06Cell;
     @BindView(R.id.cos_0_6)
     TextView mCos06Cell;
-    @BindView(R.id.v_0_6)
-    TextView mV06Cell;
-    @BindView(R.id.temp_0_6_ambient)
-    TextView mTemp06AmbientCell;
-    @BindView(R.id.temp_0_6_engine)
-    TextView mTemp06EngineCell;
+    @BindView(R.id.p_cop_0_6)
+    TextView mPCop06Cell;
+    @BindView(R.id.p_m_p_st_0_6)
+    TextView mPmPst06Cell;
+    @BindView(R.id.p_st_0_6)
+    TextView mPst06Cell;
     @BindView(R.id.t_0_6)
     TextView mT06Cell;
     @BindView(R.id.u_0_6_c)
@@ -293,12 +291,12 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     TextView mP05Cell;
     @BindView(R.id.cos_0_5)
     TextView mCos05Cell;
-    @BindView(R.id.v_0_5)
-    TextView mV05Cell;
-    @BindView(R.id.temp_0_5_ambient)
-    TextView mTemp05AmbientCell;
-    @BindView(R.id.temp_0_5_engine)
-    TextView mTemp05EngineCell;
+    @BindView(R.id.p_cop_0_5)
+    TextView mPCop05Cell;
+    @BindView(R.id.p_m_p_st_0_5)
+    TextView mPmPst05Cell;
+    @BindView(R.id.p_st_0_5)
+    TextView mPst05Cell;
     @BindView(R.id.t_0_5)
     TextView mT05Cell;
     @BindView(R.id.u_0_5_c)
@@ -309,6 +307,11 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     TextView mU05AverageCell;
     @BindView(R.id.i_0_5_average)
     TextView mI05AverageCell;
+
+    @BindView(R.id.r)
+    TextView mRCell;
+    @BindView(R.id.p_mech)
+    TextView mPMechCell;
 
     private DevicesController mDevicesController;
     private final Handler mHandler = new Handler();
@@ -334,6 +337,8 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     private float mSpecifiedU07;
     private float mSpecifiedU06;
     private float mSpecifiedU05;
+    private int mSpecifiedRType;
+    private float mSpecifiedAverageR;
 
     private int mSpecifiedT1;
     private int mSpecifiedT2;
@@ -343,9 +348,6 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
 
     private boolean mBeckhoffResponding;
     private boolean mStartState;
-
-    private boolean mVEHATResponding;
-    private float mV;
 
     private boolean mFRA800ObjectResponding;
     private boolean mFRA800ObjectReady;
@@ -363,9 +365,10 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     private float mPM130P;
     private float mPM130Cos;
 
-    private boolean mTRM201Responding;
-    private float mTempAmbient;
-    private float mTempEngine;
+    private boolean mIKASResponding;
+    private float mIKASReady;
+    private float mMeasurable;
+    private float mR;
 
     private float mU13A;
     private float mI13A;
@@ -373,9 +376,9 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     private float mI13B;
     private float mP13 = -1f;
     private float mCos13;
-    private float mV13;
-    private float mTemp13Ambient;
-    private float mTemp13Engine;
+    private float mPCop13;
+    private float mPmPst13;
+    private double mPst13;
     private float mT13;
     private float mU13C;
     private float mI13C;
@@ -388,9 +391,9 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     private float mI12B;
     private float mP12 = -1f;
     private float mCos12;
-    private float mV12;
-    private float mTemp12Ambient;
-    private float mTemp12Engine;
+    private float mPCop12;
+    private float mPmPst12;
+    private double mPst12;
     private float mT12;
     private float mU12C;
     private float mI12C;
@@ -403,9 +406,9 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     private float mI11B;
     private float mP11 = -1f;
     private float mCos11;
-    private float mV11;
-    private float mTemp11Ambient;
-    private float mTemp11Engine;
+    private float mPCop11;
+    private float mPmPst11;
+    private double mPst11;
     private float mT11;
     private float mU11C;
     private float mI11C;
@@ -418,9 +421,9 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     private float mI10B;
     private float mP10 = -1f;
     private float mCos10;
-    private float mV10;
-    private float mTemp10Ambient;
-    private float mTemp10Engine;
+    private float mPCop10;
+    private float mPmPst10;
+    private double mPst10 = -1.;
     private float mT10;
     private float mU10C;
     private float mI10C;
@@ -433,9 +436,9 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     private float mI09B;
     private float mP09 = -1f;
     private float mCos09;
-    private float mV09;
-    private float mTemp09Ambient;
-    private float mTemp09Engine;
+    private float mPCop09;
+    private float mPmPst09;
+    private double mPst09;
     private float mT09;
     private float mU09C;
     private float mI09C;
@@ -448,9 +451,9 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     private float mI08B;
     private float mP08 = -1f;
     private float mCos08;
-    private float mV08;
-    private float mTemp08Ambient;
-    private float mTemp08Engine;
+    private float mPCop08;
+    private float mPmPst08;
+    private double mPst08;
     private float mT08;
     private float mU08C;
     private float mI08C;
@@ -463,9 +466,9 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     private float mI07B;
     private float mP07 = -1f;
     private float mCos07;
-    private float mV07;
-    private float mTemp07Ambient;
-    private float mTemp07Engine;
+    private float mPCop07;
+    private float mPmPst07;
+    private double mPst07;
     private float mT07;
     private float mU07C;
     private float mI07C;
@@ -478,9 +481,9 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     private float mI06B;
     private float mP06 = -1f;
     private float mCos06;
-    private float mV06;
-    private float mTemp06Ambient;
-    private float mTemp06Engine;
+    private float mPCop06;
+    private float mPmPst06;
+    private double mPst06;
     private float mT06;
     private float mU06C;
     private float mI06C;
@@ -493,14 +496,16 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     private float mI05B;
     private float mP05 = -1f;
     private float mCos05;
-    private float mV05;
-    private float mTemp05Ambient;
-    private float mTemp05Engine;
+    private float mPCop05;
+    private float mPmPst05;
+    private double mPst05;
     private float mT05;
     private float mU05C;
     private float mI05C;
     private float mU05Average = -1f;
     private float mI05Average = -1f;
+
+    private double mPMech = -1.;
 
 
     @Override
@@ -559,6 +564,16 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
             } else {
                 throw new NullPointerException("Не передано specifiedFrequency");
             }
+            if (extras.getInt(MainActivity.OUTPUT_PARAMETER.SPECIFIED_R_TYPE) != 0) {
+                mSpecifiedRType = extras.getInt(MainActivity.OUTPUT_PARAMETER.SPECIFIED_R_TYPE);
+            } else {
+                throw new NullPointerException("Не передано specifiedRType");
+            }
+            if (extras.getFloat(MainActivity.OUTPUT_PARAMETER.SPECIFIED_R) != 0) {
+                mSpecifiedAverageR = extras.getFloat(MainActivity.OUTPUT_PARAMETER.SPECIFIED_R);
+            } else {
+                throw new NullPointerException("Не передано specifiedR");
+            }
             mPlatformOneSelected = extras.getBoolean(MainActivity.OUTPUT_PARAMETER.PLATFORM_ONE_SELECTED);
         } else {
             throw new NullPointerException("Не переданы параметры");
@@ -612,7 +627,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         @Override
         protected Void doInBackground(Void... voids) {
             changeTextOfView(mStatus, "Испытание началось");
-            mDevicesController.initDevicesFrom7To8Group();
+            mDevicesController.initDevices8Group();
             while (isExperimentStart() && !isBeckhoffResponding()) {
                 changeTextOfView(mStatus, "Нет связи с ПЛК");
                 sleep(1000);
@@ -624,8 +639,8 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
             }
 
             changeTextOfView(mStatus, "Инициализация...");
-            mDevicesController.initDevicesFrom7To8Group();
-            while (isExperimentStart() && !isDevicesResponding() && mStartState) {
+            mDevicesController.initDevices7Group();
+            while (isExperimentStart() && !isFirstDevicesResponding() && mStartState) {
                 changeTextOfView(mStatus, "Нет связи с устройствами");
                 sleep(100);
             }
@@ -659,7 +674,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
                 }
 
                 if (isExperimentStart() && mStartState) {
-                    sleep(2000);
+                    sleep(5000);
                 }
 
                 mCurrentStage = 13;
@@ -747,12 +762,95 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
             }
 
             mDevicesController.stopObject();
+            sleep(5000);
             mDevicesController.offKMsFrom4And7And13Group();
             m200to5State = false;
             m40to5State = false;
             m5to5State = false;
 
+            if (mNumOfStages > 1) {
+                mDevicesController.diversifyDevices();
+                mDevicesController.initBeckhoff();
+                mDevicesController.initIKAS();
+                while (isExperimentStart() && !isSecondDevicesResponding() && mStartState) {
+                    changeTextOfView(mStatus, "Нет связи с устройствами");
+                    sleep(100);
+                }
+
+                if (isExperimentStart() && mStartState) {
+                    changeTextOfView(mStatus, "Инициализация...");
+                    mDevicesController.onKMsFrom5And17Group();
+                }
+
+                while (isExperimentStart() && (mIKASReady != 0f) && (mIKASReady != 1f) && (mIKASReady != 101f) && mStartState) {
+                    sleep(100);
+                    changeTextOfView(mStatus, "Ожидаем, пока ИКАС подготовится");
+                }
+
+                if (isExperimentStart() && mStartState) {
+                    startMeasuring();
+                    sleep(2000);
+                }
+
+                while (isExperimentStart() && (mIKASReady != 0f) && (mIKASReady != 101f) && mStartState) {
+                    sleep(100);
+                    changeTextOfView(mStatus, "Ожидаем, пока измерение ИКАСа закончится");
+                }
+
+                if (isExperimentStart() && mStartState) {
+                    setR(mMeasurable);
+
+                    setPCop13((float) (3 * mI13Average * mI13Average * (mR / 2.0) / 1000.));
+                    setPCop12((float) (3 * mI12Average * mI12Average * (mR / 2.0) / 1000.));
+                    setPCop11((float) (3 * mI11Average * mI11Average * (mR / 2.0) / 1000.));
+                    setPCop10((float) (3 * mI10Average * mI10Average * (mR / 2.0) / 1000.));
+                    setPCop09((float) (3 * mI09Average * mI09Average * (mR / 2.0) / 1000.));
+                    setPCop08((float) (3 * mI08Average * mI08Average * (mR / 2.0) / 1000.));
+                    setPCop07((float) (3 * mI07Average * mI07Average * (mR / 2.0) / 1000.));
+                    setPCop06((float) (3 * mI06Average * mI06Average * (mR / 2.0) / 1000.));
+                    setPCop05((float) (3 * mI05Average * mI05Average * (mR / 2.0) / 1000.));
+
+                    setPmPst13(mP13 - mPCop13);
+                    setPmPst12(mP12 - mPCop12);
+                    setPmPst11(mP11 - mPCop11);
+                    setPmPst10(mP10 - mPCop10);
+                    setPmPst09(mP09 - mPCop09);
+                    setPmPst08(mP08 - mPCop08);
+                    setPmPst07(mP07 - mPCop07);
+                    setPmPst06(mP06 - mPCop06);
+                    setPmPst05(mP05 - mPCop05);
+
+//                    setPMech(((0 - mU06Average * mU06Average) * (0 - mU07Average * mU07Average)) / ((mU05Average * mU05Average - mU06Average * mU06Average) * (mU05Average * mU05Average - mU07Average * mU07Average)) * mPmPst05 +
+//                            ((0 - mU05Average * mU05Average) * (0 - mU07Average * mU07Average)) / ((mU06Average * mU06Average - mU05Average * mU05Average) * (mU06Average * mU06Average - mU07Average * mU07Average)) * mPmPst06 +
+//                            ((0 - mU05Average * mU05Average) * (0 - mU06Average * mU06Average)) / ((mU07Average * mU07Average - mU05Average * mU05Average) * (mU07Average * mU07Average - mU06Average * mU06Average)) * mPmPst07);
+
+                    setPMech((mU05Average * mU05Average * mPmPst05 + mPmPst05 * mU06Average * mU06Average - mPmPst05 * mU05Average * mU05Average - mU05Average * mU05Average * mPmPst06) / (mU06Average * mU06Average - mU05Average * mU05Average));
+
+                    setPst13((float)(mPmPst13 - mPMech));
+                    setPst12((float)(mPmPst12 - mPMech));
+                    setPst11((float)(mPmPst11 - mPMech));
+                    setPst10(mPmPst10 - mPMech);
+                    setPst09((float)(mPmPst09 - mPMech));
+                    setPst08((float)(mPmPst08 - mPMech));
+                    setPst07((float)(mPmPst07 - mPMech));
+                    setPst06((float)(mPmPst06 - mPMech));
+                    setPst05((float)(mPmPst05 - mPMech));
+                }
+
+                mDevicesController.offKMsFrom5And17Group();
+            }
+
             return null;
+        }
+
+        private void startMeasuring() {
+            if (mSpecifiedRType == 1) {
+                mDevicesController.startMeasuringAB(mSpecifiedAverageR);
+            } else if (mSpecifiedRType == 2) {
+                mDevicesController.startMeasuringBC(mSpecifiedAverageR);
+            } else {
+                mDevicesController.startMeasuringAC(mSpecifiedAverageR);
+            }
         }
 
         @Override
@@ -827,7 +925,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
                 mDevicesController.setObjectUMax(start -= coarseStep);
             }
             sleep(coarseSleep);
-            changeTextOfView(mStatus, "Выводим значение для получения заданного значения грубо");
+            changeTextOfView(mStatus, "Выводим напряжение для получения заданного значения грубо");
         }
         while (isExperimentStart() && ((mPM130V1 < end - fineLimit) || (mPM130V1 > end + fineLimit)) && mStartState) {
             Logger.withTag(Logger.DEBUG_TAG).log("end:" + end + " compared:" + mPM130V1);
@@ -837,7 +935,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
                 mDevicesController.setObjectUMax(start -= fineStep);
             }
             sleep(fineSleep);
-            changeTextOfView(mStatus, "Выводим значение для получения заданного значения точно");
+            changeTextOfView(mStatus, "Выводим напряжение для получения заданного значения точно");
         }
         return start;
     }
@@ -869,8 +967,12 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         }
     }
 
-    private boolean isDevicesResponding() {
-        return isBeckhoffResponding() && isVEHATResponding() && isFRA800ObjectResponding() && isPM130Responding() && isTRM201Responding();
+    private boolean isFirstDevicesResponding() {
+        return isBeckhoffResponding() && isFRA800ObjectResponding() && isPM130Responding();
+    }
+
+    private boolean isSecondDevicesResponding() {
+        return isBeckhoffResponding() && isIKASResponding();
     }
 
 
@@ -974,26 +1076,16 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
                         break;
                 }
                 break;
-            case VEHA_T_ID:
+            case IKAS_ID:
                 switch (param) {
-                    case VEHATModel.RESPONDING_PARAM:
-                        setVEHATResponding((boolean) value);
+                    case IKASModel.RESPONDING_PARAM:
+                        setIKASResponding((boolean) value);
                         break;
-                    case VEHATModel.ROTATION_FREQUENCY_PARAM:
-                        setV((float) value);
+                    case IKASModel.READY_PARAM:
+                        setIKASReady((float) value);
                         break;
-                }
-                break;
-            case TRM201_ID:
-                switch (param) {
-                    case TRM201Model.RESPONDING_PARAM:
-                        setTRM201Responding((boolean) value);
-                        break;
-                    case TRM201Model.T_AMBIENT_PARAM:
-                        setTempAmbient((float) value);
-                        break;
-                    case TRM201Model.T_ENGINE_PARAM:
-                        setTempEngine((float) value);
+                    case IKASModel.MEASURABLE_PARAM:
+                        setMeasurable((float) value);
                         break;
                 }
                 break;
@@ -1019,47 +1111,6 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
 
     public void setStartState(boolean startState) {
         mStartState = startState;
-    }
-
-    public boolean isVEHATResponding() {
-        return mVEHATResponding;
-    }
-
-    public void setVEHATResponding(boolean VEHATResponding) {
-        mVEHATResponding = VEHATResponding;
-    }
-
-    public void setV(float v) {
-        mV = v;
-        switch (mCurrentStage) {
-            case 13:
-                setV13(v);
-                break;
-            case 12:
-                setV12(v);
-                break;
-            case 11:
-                setV11(v);
-                break;
-            case 10:
-                setV10(v);
-                break;
-            case 9:
-                setV09(v);
-                break;
-            case 8:
-                setV08(v);
-                break;
-            case 7:
-                setV07(v);
-                break;
-            case 6:
-                setV06(v);
-                break;
-            case 5:
-                setV05(v);
-                break;
-        }
     }
 
     public boolean isFRA800ObjectResponding() {
@@ -1358,80 +1409,6 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         }
     }
 
-    public boolean isTRM201Responding() {
-        return mTRM201Responding;
-    }
-
-    public void setTRM201Responding(boolean TRM201Responding) {
-        mTRM201Responding = TRM201Responding;
-    }
-
-    public void setTempAmbient(float tempAmbient) {
-        mTempAmbient = tempAmbient;
-        switch (mCurrentStage) {
-            case 13:
-                setTemp13Ambient(tempAmbient);
-                break;
-            case 12:
-                setTemp12Ambient(tempAmbient);
-                break;
-            case 11:
-                setTemp11Ambient(tempAmbient);
-                break;
-            case 10:
-                setTemp10Ambient(tempAmbient);
-                break;
-            case 9:
-                setTemp09Ambient(tempAmbient);
-                break;
-            case 8:
-                setTemp08Ambient(tempAmbient);
-                break;
-            case 7:
-                setTemp07Ambient(tempAmbient);
-                break;
-            case 6:
-                setTemp06Ambient(tempAmbient);
-                break;
-            case 5:
-                setTemp05Ambient(tempAmbient);
-                break;
-        }
-    }
-
-    public void setTempEngine(float tempEngine) {
-        mTempEngine = tempEngine;
-        switch (mCurrentStage) {
-            case 13:
-                setTemp13Engine(tempEngine);
-                break;
-            case 12:
-                setTemp12Engine(tempEngine);
-                break;
-            case 11:
-                setTemp11Engine(tempEngine);
-                break;
-            case 10:
-                setTemp10Engine(tempEngine);
-                break;
-            case 9:
-                setTemp09Engine(tempEngine);
-                break;
-            case 8:
-                setTemp08Engine(tempEngine);
-                break;
-            case 7:
-                setTemp07Engine(tempEngine);
-                break;
-            case 6:
-                setTemp06Engine(tempEngine);
-                break;
-            case 5:
-                setTemp05Engine(tempEngine);
-                break;
-        }
-    }
-
     public void setU13A(float u13A) {
         mU13A = u13A;
         changeTextOfView(mU13ACell, formatRealNumber(u13A));
@@ -1462,19 +1439,19 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mCos13Cell, formatRealNumber(cos13));
     }
 
-    public void setV13(float v13) {
-        mV13 = v13;
-        changeTextOfView(mV13Cell, formatRealNumber(v13));
+    public void setPCop13(float PCop13) {
+        mPCop13 = PCop13;
+        changeTextOfView(mPCop13Cell, formatRealNumber(PCop13));
     }
 
-    public void setTemp13Ambient(float temp13Ambient) {
-        mTemp13Ambient = temp13Ambient;
-        changeTextOfView(mTemp13AmbientCell, formatRealNumber(temp13Ambient));
+    public void setPmPst13(float pmPst13) {
+        mPmPst13 = pmPst13;
+        changeTextOfView(mPmPst13Cell, formatRealNumber(pmPst13));
     }
 
-    public void setTemp13Engine(float temp13Engine) {
-        mTemp13Engine = temp13Engine;
-        changeTextOfView(mTemp13EngineCell, formatRealNumber(temp13Engine));
+    public void setPst13(float pst13) {
+        mPst13 = pst13;
+        changeTextOfView(mPst13Cell, formatRealNumber(pst13));
     }
 
     public void setT13(float t13) {
@@ -1533,19 +1510,19 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mCos12Cell, formatRealNumber(cos12));
     }
 
-    public void setV12(float v12) {
-        mV12 = v12;
-        changeTextOfView(mV12Cell, formatRealNumber(v12));
+    public void setPCop12(float PCop12) {
+        mPCop12 = PCop12;
+        changeTextOfView(mPCop12Cell, formatRealNumber(PCop12));
     }
 
-    public void setTemp12Ambient(float temp12Ambient) {
-        mTemp12Ambient = temp12Ambient;
-        changeTextOfView(mTemp12AmbientCell, formatRealNumber(temp12Ambient));
+    public void setPmPst12(float pmPst12) {
+        mPmPst12 = pmPst12;
+        changeTextOfView(mPmPst12Cell, formatRealNumber(pmPst12));
     }
 
-    public void setTemp12Engine(float temp12Engine) {
-        mTemp12Engine = temp12Engine;
-        changeTextOfView(mTemp12EngineCell, formatRealNumber(temp12Engine));
+    public void setPst12(float pst12) {
+        mPst12 = pst12;
+        changeTextOfView(mPst12Cell, formatRealNumber(pst12));
     }
 
     public void setT12(float t12) {
@@ -1604,19 +1581,19 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mCos11Cell, formatRealNumber(cos11));
     }
 
-    public void setV11(float v11) {
-        mV11 = v11;
-        changeTextOfView(mV11Cell, formatRealNumber(v11));
+    public void setPCop11(float PCop11) {
+        mPCop11 = PCop11;
+        changeTextOfView(mPCop11Cell, formatRealNumber(PCop11));
     }
 
-    public void setTemp11Ambient(float temp11Ambient) {
-        mTemp11Ambient = temp11Ambient;
-        changeTextOfView(mTemp11AmbientCell, formatRealNumber(temp11Ambient));
+    public void setPmPst11(float pmPst11) {
+        mPmPst11 = pmPst11;
+        changeTextOfView(mPmPst11Cell, formatRealNumber(pmPst11));
     }
 
-    public void setTemp11Engine(float temp11Engine) {
-        mTemp11Engine = temp11Engine;
-        changeTextOfView(mTemp11EngineCell, formatRealNumber(temp11Engine));
+    public void setPst11(float pst11) {
+        mPst11 = pst11;
+        changeTextOfView(mPst11Cell, formatRealNumber(pst11));
     }
 
     public void setT11(float t11) {
@@ -1675,19 +1652,19 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mCos10Cell, formatRealNumber(cos10));
     }
 
-    public void setV10(float v10) {
-        mV10 = v10;
-        changeTextOfView(mV10Cell, formatRealNumber(v10));
+    public void setPCop10(float PCop10) {
+        mPCop10 = PCop10;
+        changeTextOfView(mPCop10Cell, formatRealNumber(PCop10));
     }
 
-    public void setTemp10Ambient(float temp10Ambient) {
-        mTemp10Ambient = temp10Ambient;
-        changeTextOfView(mTemp10AmbientCell, formatRealNumber(temp10Ambient));
+    public void setPmPst10(float pmPst10) {
+        mPmPst10 = pmPst10;
+        changeTextOfView(mPmPst10Cell, formatRealNumber(pmPst10));
     }
 
-    public void setTemp10Engine(float temp10Engine) {
-        mTemp10Engine = temp10Engine;
-        changeTextOfView(mTemp10EngineCell, formatRealNumber(temp10Engine));
+    public void setPst10(double pst10) {
+        mPst10 = pst10;
+        changeTextOfView(mPst10Cell, formatRealNumber(pst10));
     }
 
     public void setT10(float t10) {
@@ -1746,19 +1723,19 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mCos09Cell, formatRealNumber(cos09));
     }
 
-    public void setV09(float v09) {
-        mV09 = v09;
-        changeTextOfView(mV09Cell, formatRealNumber(v09));
+    public void setPCop09(float PCop09) {
+        mPCop09 = PCop09;
+        changeTextOfView(mPCop09Cell, formatRealNumber(PCop09));
     }
 
-    public void setTemp09Ambient(float temp09Ambient) {
-        mTemp09Ambient = temp09Ambient;
-        changeTextOfView(mTemp09AmbientCell, formatRealNumber(temp09Ambient));
+    public void setPmPst09(float pmPst09) {
+        mPmPst09 = pmPst09;
+        changeTextOfView(mPmPst09Cell, formatRealNumber(pmPst09));
     }
 
-    public void setTemp09Engine(float temp09Engine) {
-        mTemp09Engine = temp09Engine;
-        changeTextOfView(mTemp09EngineCell, formatRealNumber(temp09Engine));
+    public void setPst09(float pst09) {
+        mPst09 = pst09;
+        changeTextOfView(mPst09Cell, formatRealNumber(pst09));
     }
 
     public void setT09(float t09) {
@@ -1817,19 +1794,19 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mCos08Cell, formatRealNumber(cos08));
     }
 
-    public void setV08(float v08) {
-        mV08 = v08;
-        changeTextOfView(mV08Cell, formatRealNumber(v08));
+    public void setPCop08(float PCop08) {
+        mPCop08 = PCop08;
+        changeTextOfView(mPCop08Cell, formatRealNumber(PCop08));
     }
 
-    public void setTemp08Ambient(float temp08Ambient) {
-        mTemp08Ambient = temp08Ambient;
-        changeTextOfView(mTemp08AmbientCell, formatRealNumber(temp08Ambient));
+    public void setPmPst08(float pmPst08) {
+        mPmPst08 = pmPst08;
+        changeTextOfView(mPmPst08Cell, formatRealNumber(pmPst08));
     }
 
-    public void setTemp08Engine(float temp08Engine) {
-        mTemp08Engine = temp08Engine;
-        changeTextOfView(mTemp08EngineCell, formatRealNumber(temp08Engine));
+    public void setPst08(float pst08) {
+        mPst08 = pst08;
+        changeTextOfView(mPst08Cell, formatRealNumber(pst08));
     }
 
     public void setT08(float t08) {
@@ -1888,19 +1865,19 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mCos07Cell, formatRealNumber(cos07));
     }
 
-    public void setV07(float v07) {
-        mV07 = v07;
-        changeTextOfView(mV07Cell, formatRealNumber(v07));
+    public void setPCop07(float PCop07) {
+        mPCop07 = PCop07;
+        changeTextOfView(mPCop07Cell, formatRealNumber(PCop07));
     }
 
-    public void setTemp07Ambient(float temp07Ambient) {
-        mTemp07Ambient = temp07Ambient;
-        changeTextOfView(mTemp07AmbientCell, formatRealNumber(temp07Ambient));
+    public void setPmPst07(float pmPst07) {
+        mPmPst07 = pmPst07;
+        changeTextOfView(mPmPst07Cell, formatRealNumber(pmPst07));
     }
 
-    public void setTemp07Engine(float temp07Engine) {
-        mTemp07Engine = temp07Engine;
-        changeTextOfView(mTemp07EngineCell, formatRealNumber(temp07Engine));
+    public void setPst07(float pst07) {
+        mPst07 = pst07;
+        changeTextOfView(mPst07Cell, formatRealNumber(pst07));
     }
 
     public void setT07(float t07) {
@@ -1959,19 +1936,19 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mCos06Cell, formatRealNumber(cos06));
     }
 
-    public void setV06(float v06) {
-        mV06 = v06;
-        changeTextOfView(mV06Cell, formatRealNumber(v06));
+    public void setPCop06(float PCop06) {
+        mPCop06 = PCop06;
+        changeTextOfView(mPCop06Cell, formatRealNumber(PCop06));
     }
 
-    public void setTemp06Ambient(float temp06Ambient) {
-        mTemp06Ambient = temp06Ambient;
-        changeTextOfView(mTemp06AmbientCell, formatRealNumber(temp06Ambient));
+    public void setPmPst06(float pmPst06) {
+        mPmPst06 = pmPst06;
+        changeTextOfView(mPmPst06Cell, formatRealNumber(pmPst06));
     }
 
-    public void setTemp06Engine(float temp06Engine) {
-        mTemp06Engine = temp06Engine;
-        changeTextOfView(mTemp06EngineCell, formatRealNumber(temp06Engine));
+    public void setPst06(float pst06) {
+        mPst06 = pst06;
+        changeTextOfView(mPst06Cell, formatRealNumber(pst06));
     }
 
     public void setT06(float t06) {
@@ -2030,19 +2007,19 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mCos05Cell, formatRealNumber(cos05));
     }
 
-    public void setV05(float v05) {
-        mV05 = v05;
-        changeTextOfView(mV05Cell, formatRealNumber(v05));
+    public void setPCop05(float PCop05) {
+        mPCop05 = PCop05;
+        changeTextOfView(mPCop05Cell, formatRealNumber(PCop05));
     }
 
-    public void setTemp05Ambient(float temp05Ambient) {
-        mTemp05Ambient = temp05Ambient;
-        changeTextOfView(mTemp05AmbientCell, formatRealNumber(temp05Ambient));
+    public void setPmPst05(float pmPst05) {
+        mPmPst05 = pmPst05;
+        changeTextOfView(mPmPst05Cell, formatRealNumber(pmPst05));
     }
 
-    public void setTemp05Engine(float temp05Engine) {
-        mTemp05Engine = temp05Engine;
-        changeTextOfView(mTemp05EngineCell, formatRealNumber(temp05Engine));
+    public void setPst05(float pst05) {
+        mPst05 = pst05;
+        changeTextOfView(mPst05Cell, formatRealNumber(pst05));
     }
 
     public void setT05(float t05) {
@@ -2071,6 +2048,33 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mI05AverageCell, formatRealNumber(I05Average));
     }
 
+
+    public boolean isIKASResponding() {
+        return mIKASResponding;
+    }
+
+    public void setIKASResponding(boolean IKASResponding) {
+        mIKASResponding = IKASResponding;
+    }
+
+    public void setIKASReady(float IKASReady) {
+        mIKASReady = IKASReady;
+    }
+
+    public void setMeasurable(float measurable) {
+        mMeasurable = measurable;
+    }
+
+    public void setR(float r) {
+        mR = r;
+        changeTextOfView(mRCell, formatRealNumber(r));
+    }
+
+    public void setPMech(double pMech) {
+        mPMech = pMech;
+        changeTextOfView(mPMechCell, formatRealNumber(pMech));
+    }
+
     private void clearCells() {
         changeTextOfView(mU13ACell, "");
         changeTextOfView(mI13ACell, "");
@@ -2078,9 +2082,9 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mI13BCell, "");
         changeTextOfView(mP13Cell, "");
         changeTextOfView(mCos13Cell, "");
-        changeTextOfView(mV13Cell, "");
-        changeTextOfView(mTemp13AmbientCell, "");
-        changeTextOfView(mTemp13EngineCell, "");
+        changeTextOfView(mPCop13Cell, "");
+        changeTextOfView(mPmPst13Cell, "");
+        changeTextOfView(mPst13Cell, "");
         changeTextOfView(mT13Cell, "");
         changeTextOfView(mU13CCell, "");
         changeTextOfView(mI13CCell, "");
@@ -2093,9 +2097,9 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mI12BCell, "");
         changeTextOfView(mP12Cell, "");
         changeTextOfView(mCos12Cell, "");
-        changeTextOfView(mV12Cell, "");
-        changeTextOfView(mTemp12AmbientCell, "");
-        changeTextOfView(mTemp12EngineCell, "");
+        changeTextOfView(mPCop12Cell, "");
+        changeTextOfView(mPmPst12Cell, "");
+        changeTextOfView(mPst12Cell, "");
         changeTextOfView(mT12Cell, "");
         changeTextOfView(mU12CCell, "");
         changeTextOfView(mI12CCell, "");
@@ -2108,9 +2112,9 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mI11BCell, "");
         changeTextOfView(mP11Cell, "");
         changeTextOfView(mCos11Cell, "");
-        changeTextOfView(mV11Cell, "");
-        changeTextOfView(mTemp11AmbientCell, "");
-        changeTextOfView(mTemp11EngineCell, "");
+        changeTextOfView(mPCop11Cell, "");
+        changeTextOfView(mPmPst11Cell, "");
+        changeTextOfView(mPst11Cell, "");
         changeTextOfView(mT11Cell, "");
         changeTextOfView(mU11CCell, "");
         changeTextOfView(mI11CCell, "");
@@ -2123,9 +2127,9 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mI10BCell, "");
         changeTextOfView(mP10Cell, "");
         changeTextOfView(mCos10Cell, "");
-        changeTextOfView(mV10Cell, "");
-        changeTextOfView(mTemp10AmbientCell, "");
-        changeTextOfView(mTemp10EngineCell, "");
+        changeTextOfView(mPCop10Cell, "");
+        changeTextOfView(mPmPst10Cell, "");
+        changeTextOfView(mPst10Cell, "");
         changeTextOfView(mT10Cell, "");
         changeTextOfView(mU10CCell, "");
         changeTextOfView(mI10CCell, "");
@@ -2138,9 +2142,9 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mI09BCell, "");
         changeTextOfView(mP09Cell, "");
         changeTextOfView(mCos09Cell, "");
-        changeTextOfView(mV09Cell, "");
-        changeTextOfView(mTemp09AmbientCell, "");
-        changeTextOfView(mTemp09EngineCell, "");
+        changeTextOfView(mPCop09Cell, "");
+        changeTextOfView(mPmPst09Cell, "");
+        changeTextOfView(mPst09Cell, "");
         changeTextOfView(mT09Cell, "");
         changeTextOfView(mU09CCell, "");
         changeTextOfView(mI09CCell, "");
@@ -2153,9 +2157,9 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mI08BCell, "");
         changeTextOfView(mP08Cell, "");
         changeTextOfView(mCos08Cell, "");
-        changeTextOfView(mV08Cell, "");
-        changeTextOfView(mTemp08AmbientCell, "");
-        changeTextOfView(mTemp08EngineCell, "");
+        changeTextOfView(mPCop08Cell, "");
+        changeTextOfView(mPmPst08Cell, "");
+        changeTextOfView(mPst08Cell, "");
         changeTextOfView(mT08Cell, "");
         changeTextOfView(mU08CCell, "");
         changeTextOfView(mI08CCell, "");
@@ -2168,9 +2172,9 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mI07BCell, "");
         changeTextOfView(mP07Cell, "");
         changeTextOfView(mCos07Cell, "");
-        changeTextOfView(mV07Cell, "");
-        changeTextOfView(mTemp07AmbientCell, "");
-        changeTextOfView(mTemp07EngineCell, "");
+        changeTextOfView(mPCop07Cell, "");
+        changeTextOfView(mPmPst07Cell, "");
+        changeTextOfView(mPst07Cell, "");
         changeTextOfView(mT07Cell, "");
         changeTextOfView(mU07CCell, "");
         changeTextOfView(mI07CCell, "");
@@ -2183,9 +2187,9 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mI06BCell, "");
         changeTextOfView(mP06Cell, "");
         changeTextOfView(mCos06Cell, "");
-        changeTextOfView(mV06Cell, "");
-        changeTextOfView(mTemp06AmbientCell, "");
-        changeTextOfView(mTemp06EngineCell, "");
+        changeTextOfView(mPCop06Cell, "");
+        changeTextOfView(mPmPst06Cell, "");
+        changeTextOfView(mPst06Cell, "");
         changeTextOfView(mT06Cell, "");
         changeTextOfView(mU06CCell, "");
         changeTextOfView(mI06CCell, "");
@@ -2198,9 +2202,9 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mI05BCell, "");
         changeTextOfView(mP05Cell, "");
         changeTextOfView(mCos05Cell, "");
-        changeTextOfView(mV05Cell, "");
-        changeTextOfView(mTemp05AmbientCell, "");
-        changeTextOfView(mTemp05EngineCell, "");
+        changeTextOfView(mPCop05Cell, "");
+        changeTextOfView(mPmPst05Cell, "");
+        changeTextOfView(mPst05Cell, "");
         changeTextOfView(mT05Cell, "");
         changeTextOfView(mU05CCell, "");
         changeTextOfView(mI05CCell, "");
@@ -2239,6 +2243,8 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         data.putExtra(MainActivity.INPUT_PARAMETER.I05_IDLE_R, mI05Average);
         data.putExtra(MainActivity.INPUT_PARAMETER.P05_IDLE_R, mP05);
         data.putExtra(MainActivity.INPUT_PARAMETER.U05_IDLE_R, mU05Average);
+        data.putExtra(MainActivity.INPUT_PARAMETER.P_ST_R, mPst10);
+        data.putExtra(MainActivity.INPUT_PARAMETER.P_MECH_R, mPMech);
         setResult(RESULT_OK, data);
     }
 
@@ -2252,9 +2258,9 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         experiments.setE7I13B(mI13BCell.getText().toString());
         experiments.setE7P13(mP13Cell.getText().toString());
         experiments.setE7Cos13(mCos13Cell.getText().toString());
-        experiments.setE7V13(mV13Cell.getText().toString());
-        experiments.setE7Temp13Ambient(mTemp13AmbientCell.getText().toString());
-        experiments.setE7Temp13Engine(mTemp13EngineCell.getText().toString());
+        experiments.setE7PCop13(mPCop13Cell.getText().toString());
+        experiments.setE7PmPst13(mPmPst13Cell.getText().toString());
+        experiments.setE7Pst13(mPst13Cell.getText().toString());
         experiments.setE7T13(mT13Cell.getText().toString());
         experiments.setE7U13C(mU13CCell.getText().toString());
         experiments.setE7I13C(mI13CCell.getText().toString());
@@ -2266,9 +2272,9 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         experiments.setE7I12B(mI12BCell.getText().toString());
         experiments.setE7P12(mP12Cell.getText().toString());
         experiments.setE7Cos12(mCos12Cell.getText().toString());
-        experiments.setE7V12(mV12Cell.getText().toString());
-        experiments.setE7Temp12Ambient(mTemp12AmbientCell.getText().toString());
-        experiments.setE7Temp12Engine(mTemp12EngineCell.getText().toString());
+        experiments.setE7PCop12(mPCop12Cell.getText().toString());
+        experiments.setE7PmPst12(mPmPst12Cell.getText().toString());
+        experiments.setE7Pst12(mPst12Cell.getText().toString());
         experiments.setE7T12(mT12Cell.getText().toString());
         experiments.setE7U12C(mU12CCell.getText().toString());
         experiments.setE7I12C(mI12CCell.getText().toString());
@@ -2280,9 +2286,9 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         experiments.setE7I11B(mI11BCell.getText().toString());
         experiments.setE7P11(mP11Cell.getText().toString());
         experiments.setE7Cos11(mCos11Cell.getText().toString());
-        experiments.setE7V11(mV11Cell.getText().toString());
-        experiments.setE7Temp11Ambient(mTemp11AmbientCell.getText().toString());
-        experiments.setE7Temp11Engine(mTemp11EngineCell.getText().toString());
+        experiments.setE7PCop11(mPCop11Cell.getText().toString());
+        experiments.setE7PmPst11(mPmPst11Cell.getText().toString());
+        experiments.setE7Pst11(mPst11Cell.getText().toString());
         experiments.setE7T11(mT11Cell.getText().toString());
         experiments.setE7U11C(mU11CCell.getText().toString());
         experiments.setE7I11C(mI11CCell.getText().toString());
@@ -2294,9 +2300,9 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         experiments.setE7I10B(mI10BCell.getText().toString());
         experiments.setE7P10(mP10Cell.getText().toString());
         experiments.setE7Cos10(mCos10Cell.getText().toString());
-        experiments.setE7V10(mV10Cell.getText().toString());
-        experiments.setE7Temp10Ambient(mTemp10AmbientCell.getText().toString());
-        experiments.setE7Temp10Engine(mTemp10EngineCell.getText().toString());
+        experiments.setE7PCop10(mPCop10Cell.getText().toString());
+        experiments.setE7PmPst10(mPmPst10Cell.getText().toString());
+        experiments.setE7Pst10(mPst10Cell.getText().toString());
         experiments.setE7T10(mT10Cell.getText().toString());
         experiments.setE7U10C(mU10CCell.getText().toString());
         experiments.setE7I10C(mI10CCell.getText().toString());
@@ -2308,9 +2314,9 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         experiments.setE7I09B(mI09BCell.getText().toString());
         experiments.setE7P09(mP09Cell.getText().toString());
         experiments.setE7Cos09(mCos09Cell.getText().toString());
-        experiments.setE7V09(mV09Cell.getText().toString());
-        experiments.setE7Temp09Ambient(mTemp09AmbientCell.getText().toString());
-        experiments.setE7Temp09Engine(mTemp09EngineCell.getText().toString());
+        experiments.setE7PCop09(mPCop09Cell.getText().toString());
+        experiments.setE7PmPst09(mPmPst09Cell.getText().toString());
+        experiments.setE7Pst09(mPst09Cell.getText().toString());
         experiments.setE7T09(mT09Cell.getText().toString());
         experiments.setE7U09C(mU09CCell.getText().toString());
         experiments.setE7I09C(mI09CCell.getText().toString());
@@ -2322,9 +2328,9 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         experiments.setE7I08B(mI08BCell.getText().toString());
         experiments.setE7P08(mP08Cell.getText().toString());
         experiments.setE7Cos08(mCos08Cell.getText().toString());
-        experiments.setE7V08(mV08Cell.getText().toString());
-        experiments.setE7Temp08Ambient(mTemp08AmbientCell.getText().toString());
-        experiments.setE7Temp08Engine(mTemp08EngineCell.getText().toString());
+        experiments.setE7PCop08(mPCop08Cell.getText().toString());
+        experiments.setE7PmPst08(mPmPst08Cell.getText().toString());
+        experiments.setE7Pst08(mPst08Cell.getText().toString());
         experiments.setE7T08(mT08Cell.getText().toString());
         experiments.setE7U08C(mU08CCell.getText().toString());
         experiments.setE7I08C(mI08CCell.getText().toString());
@@ -2336,9 +2342,9 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         experiments.setE7I07B(mI07BCell.getText().toString());
         experiments.setE7P07(mP07Cell.getText().toString());
         experiments.setE7Cos07(mCos07Cell.getText().toString());
-        experiments.setE7V07(mV07Cell.getText().toString());
-        experiments.setE7Temp07Ambient(mTemp07AmbientCell.getText().toString());
-        experiments.setE7Temp07Engine(mTemp07EngineCell.getText().toString());
+        experiments.setE7PCop07(mPCop07Cell.getText().toString());
+        experiments.setE7PmPst07(mPmPst07Cell.getText().toString());
+        experiments.setE7Pst07(mPst07Cell.getText().toString());
         experiments.setE7T07(mT07Cell.getText().toString());
         experiments.setE7U07C(mU07CCell.getText().toString());
         experiments.setE7I07C(mI07CCell.getText().toString());
@@ -2350,9 +2356,9 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         experiments.setE7I06B(mI06BCell.getText().toString());
         experiments.setE7P06(mP06Cell.getText().toString());
         experiments.setE7Cos06(mCos06Cell.getText().toString());
-        experiments.setE7V06(mV06Cell.getText().toString());
-        experiments.setE7Temp06Ambient(mTemp06AmbientCell.getText().toString());
-        experiments.setE7Temp06Engine(mTemp06EngineCell.getText().toString());
+        experiments.setE7PCop06(mPCop06Cell.getText().toString());
+        experiments.setE7PmPst06(mPmPst06Cell.getText().toString());
+        experiments.setE7Pst06(mPst06Cell.getText().toString());
         experiments.setE7T06(mT06Cell.getText().toString());
         experiments.setE7U06C(mU06CCell.getText().toString());
         experiments.setE7I06C(mI06CCell.getText().toString());
@@ -2364,14 +2370,16 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         experiments.setE7I05B(mI05BCell.getText().toString());
         experiments.setE7P05(mP05Cell.getText().toString());
         experiments.setE7Cos05(mCos05Cell.getText().toString());
-        experiments.setE7V05(mV05Cell.getText().toString());
-        experiments.setE7Temp05Ambient(mTemp05AmbientCell.getText().toString());
-        experiments.setE7Temp05Engine(mTemp05EngineCell.getText().toString());
+        experiments.setE7PCop05(mPCop05Cell.getText().toString());
+        experiments.setE7PmPst05(mPmPst05Cell.getText().toString());
+        experiments.setE7Pst05(mPst05Cell.getText().toString());
         experiments.setE7T05(mT05Cell.getText().toString());
         experiments.setE7U05C(mU05CCell.getText().toString());
         experiments.setE7I05C(mI05CCell.getText().toString());
         experiments.setE7U05Average(mU05AverageCell.getText().toString());
         experiments.setE7I05Average(mI05AverageCell.getText().toString());
+        experiments.setE7R(mRCell.getText().toString());
+        experiments.setE7PMech(mPMechCell.getText().toString());
         realm.commitTransaction();
         realm.close();
     }

@@ -447,7 +447,7 @@ public class Experiment13Activity extends AppCompatActivity implements Observer 
                 mDevicesController.setObjectUMax(start -= coarseStep);
             }
             sleep(coarseSleep);
-            changeTextOfView(mStatus, "Выводим значение для получения заданного значения грубо");
+            changeTextOfView(mStatus, "Выводим напряжение для получения заданного значения грубо");
         }
         while (isExperimentStart() && ((mPM130V1 < end - fineLimit) || (mPM130V1 > end + fineLimit)) && mStartState) {
             Logger.withTag(Logger.DEBUG_TAG).log("end:" + end + " compared:" + mPM130V1);
@@ -457,7 +457,7 @@ public class Experiment13Activity extends AppCompatActivity implements Observer 
                 mDevicesController.setObjectUMax(start -= fineStep);
             }
             sleep(fineSleep);
-            changeTextOfView(mStatus, "Выводим значение для получения заданного значения точно");
+            changeTextOfView(mStatus, "Выводим напряжение для получения заданного значения точно");
         }
         return start;
     }

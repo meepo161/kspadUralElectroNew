@@ -35,7 +35,7 @@
                 android:textSize="28sp"/>
 
             <TextView
-                android:text="Среднее"
+                android:text="R0"
                 android:background="@drawable/border_padding_gray"
                 android:textSize="28sp"/>
 

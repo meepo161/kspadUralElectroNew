@@ -43,7 +43,7 @@ public class KSPAD extends Application {
                         w800.setTOnStageSc(10);
                         w800.setTHeating(60);
                         w800.setTempHeating(45);
-                        w800.setNumOfStagesPerformance(7);
+                        w800.setNumOfStagesPerformance(1);
                         w800.setZ1Performance(72);
                         w800.setZ2Performance(72);
                         w800.setTBreakInPerformance(60);
@@ -103,9 +103,9 @@ public class KSPAD extends Application {
                         w7500.setTViu(30);
                         w7500.setIViu(1f);
                         w7500.setTBreakInIdle(30);
-                        w7500.setNumOfStagesIdle(1);
+                        w7500.setNumOfStagesIdle(9);
                         w7500.setTOnStageIdle(30);
-                        w7500.setNumOfStagesSc(1);
+                        w7500.setNumOfStagesSc(5);
                         w7500.setTOnStageSc(10);
                         w7500.setTHeating(50);
                         w7500.setTempHeating(4);

@@ -202,7 +202,7 @@ public class Experiment8Activity extends AppCompatActivity implements Observer {
         @Override
         protected Void doInBackground(Integer... params) {
             changeTextOfView(mStatus, "Испытание началось");
-            mDevicesController.initDevicesFrom7To8Group();
+            mDevicesController.initDevices8Group();
             while (isExperimentStart() && !isBeckhoffResponding()) {
                 changeTextOfView(mStatus, "Нет связи с ПЛК");
                 sleep(100);
@@ -211,7 +211,7 @@ public class Experiment8Activity extends AppCompatActivity implements Observer {
                 sleep(100);
                 changeTextOfView(mStatus, "Включите кнопочный пост");
             }
-            mDevicesController.initDevicesFrom7To8Group();
+            mDevicesController.initDevices8Group();
             while (isExperimentStart() && !isDevicesResponding() && mStartState) {
                 changeTextOfView(mStatus, "Нет связи с устройствами");
                 sleep(100);

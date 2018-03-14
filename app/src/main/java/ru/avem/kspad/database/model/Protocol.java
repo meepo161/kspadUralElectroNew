@@ -92,6 +92,8 @@ public class Protocol extends RealmObject {
     private float mI05IdleR = -1f;
     private float mP05IdleR = -1f;
     private float mU05IdleR = -1f;
+    private double mPStR = -1.;
+    private double mPMechR = -1.;
 
     private float mI10SCR = -1f;
     private float mP10SCR = -1f;
@@ -107,10 +109,10 @@ public class Protocol extends RealmObject {
     private float mTempEngineR = -1f;
     private float mTempAmbientR = -1f;
 
-    private float mIkasRCold = -1f;
-    private float mIkasR20 = -1f;
-    private int mIkasRType = 1;
-    private float mIkasRHot = -1f;
+    private float mIkasRColdR = -1f;
+    private float mIkasR20R = -1f;
+    private int mIkasRTypeR = 1;
+    private float mIkasRHotR = -1f;
 
     private float mMgrR = -1f;
 
@@ -156,7 +158,7 @@ public class Protocol extends RealmObject {
                 -1f, -1f, -1f, -1f, -1f, -1f,
                 -1f, -1f, -1f, -1f, -1f, -1f,
                 -1f, -1f, -1f, -1f, -1f, -1f,
-                -1f, -1f, -1f, -1f, -1f, -1f,
+                -1f, -1., -1., -1f, -1f, -1f, -1f, -1f,
                 -1f, -1f, -1f, -1f, -1f, -1f,
                 -1f, -1f, -1f, 1, -1f, -1f, -1f,
                 -1f, -1f, -1f, -1f, -1f, -1f, -1f, -1f,
@@ -183,11 +185,11 @@ public class Protocol extends RealmObject {
                      float I13IdleR, float P13IdleR, float I12IdleR, float P12IdleR, float I11IdleR,
                      float P11IdleR, float I10IdleR, float P10IdleR, float I09IdleR, float P09IdleR,
                      float I08IdleR, float P08IdleR, float I07IdleR, float P07IdleR, float U07IdleR, float I06IdleR,
-                     float P06IdleR, float U06IdleR, float I05IdleR, float P05IdleR, float U05IdleR,
+                     float P06IdleR, float U06IdleR, float I05IdleR, float P05IdleR, float U05IdleR, double PStR, double PMechR,
                      float I10SCR, float P10SCR, float I09SCR, float P09SCR, float I08SCR,
                      float P08SCR, float I07SCR, float P07SCR, float I06SCR, float P06SCR,
                      float TempEngineR, float TempAmbientR,
-                     float IkasRCold, float IkasR20, int IkasRType, float IkasRHot,
+                     float ikasRColdR, float ikasR20R, int ikasRTypeR, float ikasRHotR,
                      float MgrR, float I1MVZR, float I2MVZR,
                      float I3MVZR, float UViuR, float TViuR, float VOverloadR, float TOverloadR,
                      float SpecifiedIOverloadR, float IOverloadR,
@@ -276,6 +278,9 @@ public class Protocol extends RealmObject {
         mI05IdleR = I05IdleR;
         mP05IdleR = P05IdleR;
         mU05IdleR = U05IdleR;
+        mPStR = PStR;
+        mPMechR = PMechR;
+
         mI10SCR = I10SCR;
         mP10SCR = P10SCR;
         mI09SCR = I09SCR;
@@ -289,10 +294,10 @@ public class Protocol extends RealmObject {
         mTempEngineR = TempEngineR;
         mTempAmbientR = TempAmbientR;
 
-        mIkasRCold = IkasRCold;
-        mIkasR20 = IkasR20;
-        mIkasRType = IkasRType;
-        mIkasRHot = IkasRHot;
+        mIkasRColdR = ikasRColdR;
+        mIkasR20R = ikasR20R;
+        mIkasRTypeR = ikasRTypeR;
+        mIkasRHotR = ikasRHotR;
 
         mMgrR = MgrR;
         mI1MVZR = I1MVZR;
@@ -385,6 +390,8 @@ public class Protocol extends RealmObject {
         mI05IdleR = protocol.getI05IdleR();
         mP05IdleR = protocol.getP05IdleR();
         mU05IdleR = protocol.getU05IdleR();
+        mPStR = protocol.getPStR();
+        mPMechR = protocol.getPMechR();
         mI10SCR = protocol.getI10SCR();
         mP10SCR = protocol.getP10SCR();
         mI09SCR = protocol.getI09SCR();
@@ -397,10 +404,10 @@ public class Protocol extends RealmObject {
         mP06SCR = protocol.getP06SCR();
         mTempEngineR = protocol.getTempEngineR();
         mTempAmbientR = protocol.getTempAmbientR();
-        mIkasRCold = protocol.getIkasRCold();
-        mIkasR20 = protocol.getIkasR20();
-        mIkasRType = protocol.getIkasRType();
-        mIkasRHot = protocol.getIkasRHot();
+        mIkasRColdR = protocol.getIkasRColdR();
+        mIkasR20R = protocol.getIkasR20R();
+        mIkasRTypeR = protocol.getIkasRTypeR();
+        mIkasRHotR = protocol.getIkasRHotR();
         mMgrR = protocol.getMgrR();
         mI1MVZR = protocol.getI1MVZR();
         mI2MVZR = protocol.getI2MVZR();
@@ -879,6 +886,22 @@ public class Protocol extends RealmObject {
         mU05IdleR = u05IdleR;
     }
 
+    public double getPStR() {
+        return mPStR;
+    }
+
+    public void setPStR(double PStR) {
+        mPStR = PStR;
+    }
+
+    public double getPMechR() {
+        return mPMechR;
+    }
+
+    public void setPMechR(double PMechR) {
+        mPMechR = PMechR;
+    }
+
     public float getI10SCR() {
         return mI10SCR;
     }
@@ -975,36 +998,36 @@ public class Protocol extends RealmObject {
         mTempAmbientR = tempAmbientR;
     }
 
-    public float getIkasRCold() {
-        return mIkasRCold;
+    public float getIkasRColdR() {
+        return mIkasRColdR;
     }
 
-    public void setIkasRCold(float ikasRCold) {
-        mIkasRCold = ikasRCold;
+    public void setIkasRColdR(float ikasRColdR) {
+        mIkasRColdR = ikasRColdR;
     }
 
-    public float getIkasR20() {
-        return mIkasR20;
+    public float getIkasR20R() {
+        return mIkasR20R;
     }
 
-    public void setIkasR20(float ikasR20) {
-        mIkasR20 = ikasR20;
+    public void setIkasR20R(float ikasR20R) {
+        mIkasR20R = ikasR20R;
     }
 
-    public int getIkasRType() {
-        return mIkasRType;
+    public int getIkasRTypeR() {
+        return mIkasRTypeR;
     }
 
-    public void setIkasRType(int ikasRType) {
-        mIkasRType = ikasRType;
+    public void setIkasRTypeR(int ikasRTypeR) {
+        mIkasRTypeR = ikasRTypeR;
     }
 
-    public float getIkasRHot() {
-        return mIkasRHot;
+    public float getIkasRHotR() {
+        return mIkasRHotR;
     }
 
-    public void setIkasRHot(float ikasRHot) {
-        mIkasRHot = ikasRHot;
+    public void setIkasRHotR(float ikasRHotR) {
+        mIkasRHotR = ikasRHotR;
     }
 
     public float getMgrR() {

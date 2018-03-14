@@ -285,7 +285,7 @@ public class Experiment6Activity extends AppCompatActivity implements Observer {
                 mDevicesController.setObjectUMax(start -= coarseStep);
             }
             sleep(coarseSleep);
-            changeTextOfView(mStatus, "Выводим значение для получения заданного значения грубо");
+            changeTextOfView(mStatus, "Выводим напряжение для получения заданного значения грубо");
         }
         while (isExperimentStart() && ((mVoltmeterU < end - fineLimit) || (mVoltmeterU > end + fineLimit)) && mStartState) {
             Logger.withTag(Logger.DEBUG_TAG).log("end:" + end + " compared:" + mVoltmeterU);
@@ -295,7 +295,7 @@ public class Experiment6Activity extends AppCompatActivity implements Observer {
                 mDevicesController.setObjectUMax(start -= fineStep);
             }
             sleep(fineSleep);
-            changeTextOfView(mStatus, "Выводим значение для получения заданного значения точно");
+            changeTextOfView(mStatus, "Выводим напряжение для получения заданного значения точно");
         }
         return start;
     }
@@ -466,7 +466,7 @@ public class Experiment6Activity extends AppCompatActivity implements Observer {
     private void returnValues() {
         Intent data = new Intent();
         data.putExtra(MainActivity.INPUT_PARAMETER.U_VIU_R, mU);
-        data.putExtra(MainActivity.INPUT_PARAMETER.T_VIU_R, 30f);
+        data.putExtra(MainActivity.INPUT_PARAMETER.T_VIU_R, (float) mExperimentTime);
         setResult(RESULT_OK, data);
     }
 

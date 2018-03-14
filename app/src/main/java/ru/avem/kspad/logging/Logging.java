@@ -57,7 +57,11 @@ public class Logging {
 
     public static void preview(Activity activity, Protocol protocol) {
         if (requestPermission(activity)) {
-            new SaveTask(2, activity).execute(protocol.getId());
+            if (protocol != null) {
+                new SaveTask(2, activity).execute(protocol.getId());
+            } else {
+                Toast.makeText(activity, "Выберите протокол из выпадающего списка", Toast.LENGTH_SHORT).show();
+            }
         } else {
             Toast.makeText(activity, "Ошибка доступа. Дайте разрешение на запись.", Toast.LENGTH_SHORT).show();
         }
@@ -421,23 +425,23 @@ public class Logging {
                                     setNumberCellValue(cell, protocol.getP06SCR() * 1000);
                                     break;
                                 case "$R49":
-                                    Logger.withTag("R49").log(String.format("R горячее: %f, R20: %f", protocol.getIkasRHot(), protocol.getIkasR20()));
-                                    if ((protocol.getIkasRHot() > 0) && (protocol.getIkasR20() > 0)) {
-                                        float ikasRHotHalf = protocol.getIkasRHot() / 2f;
-                                        double value = ((ikasRHotHalf / protocol.getIkasR20() - 1) / 0.00393) + 20;
+                                    Logger.withTag("R49").log(String.format("R горячее: %f, R20: %f", protocol.getIkasRHotR(), protocol.getIkasR20R()));
+                                    if ((protocol.getIkasRHotR() > 0) && (protocol.getIkasR20R() > 0)) {
+                                        float ikasRHotHalf = protocol.getIkasRHotR() / 2f;
+                                        double value = ((ikasRHotHalf / protocol.getIkasR20R() - 1) / 0.00393) + 20;
                                         setNumberCellValue(cell, value);
                                     } else {
                                         cell.setCellValue("");
                                     }
                                     break;
                                 case "$R50":
-                                    setNumberCellValue(cell, protocol.getIkasR20());
+                                    setNumberCellValue(cell, protocol.getIkasR20R());
                                     break;
                                 case "$R51":
                                     setNumberCellValue(cell, protocol.getMgrR());
                                     break;
                                 case "$R52":
-                                    calculatePsteel(protocol, cell);
+                                    setNumberCellValue(cell, protocol.getPStR() * 1000);
                                     break;
                                 case "$R53":
                                     calculatePstator(protocol, cell);
@@ -446,7 +450,7 @@ public class Logging {
                                     calculateProtor(protocol, cell);
                                     break;
                                 case "$R55":
-                                    calculatePmech(protocol, cell);
+                                    setNumberCellValue(cell, protocol.getPMechR() * 1000);
                                     break;
                                 case "$R56":
                                     calculatePadd(protocol, cell);
@@ -485,10 +489,10 @@ public class Logging {
                                     setNumberCellValue(cell, protocol.getTempEngineR());
                                     break;
                                 case "$R71":
-                                    setNumberCellValue(cell, protocol.getIkasRCold() / 2f);
+                                    setNumberCellValue(cell, protocol.getIkasRColdR() / 2f);
                                     break;
                                 case "$R72":
-                                    setNumberCellValue(cell, protocol.getIkasRHot() / 2f);
+                                    setNumberCellValue(cell, protocol.getIkasRHotR() / 2f);
                                     break;
                                 case "$POS1$":
                                     cell.setCellValue(protocol.getPosition1());
@@ -539,35 +543,9 @@ public class Logging {
         }
     }
 
-    private static void calculatePsteel(Protocol protocol, Cell cell) {
-        float P10Idle = protocol.getP10IdleR() * 1000;
-        float I10Idle = protocol.getI10IdleR();
-        float RIkas = protocol.getIkasRHot();
-        float P05Idle = protocol.getP05IdleR() * 1000;
-        float P06Idle = protocol.getP06IdleR() * 1000;
-        float P07Idle = protocol.getP07IdleR() * 1000;
-        float U05Idle = protocol.getU05IdleR();
-        float U06Idle = protocol.getU06IdleR();
-        float U07Idle = protocol.getU07IdleR();
-        if ((P10Idle > 0) && (I10Idle > 0) && (RIkas > 0) && (P05Idle > 0) && (P06Idle > 0) && (P07Idle > 0) && (U06Idle > 0) && (U05Idle > 0) && (U07Idle > 0) && (U07Idle > 0)) {
-            double Pcop = 3 * I10Idle * I10Idle * (RIkas / 2.0);
-//            double Pmech = (U05Idle * P05Idle + P05Idle * U06Idle - P05Idle * U05Idle - U05Idle * P06Idle) / (U06Idle - U05Idle);
-//            double Pmech = ((0 - U06Idle) * (0 - U07Idle)) / ((U05Idle - U06Idle) * (U05Idle - U07Idle)) * P05Idle +
-//                    ((0 - U05Idle) * (0 - U07Idle)) / ((U06Idle - U05Idle) * (U06Idle - U07Idle)) * P06Idle +
-//                    ((0 - U05Idle) * (0 - U06Idle)) / ((U07Idle - U05Idle) * (U07Idle - U06Idle)) * P07Idle;
-            double Pmech = ((0 - U06Idle * U06Idle) * (0 - U07Idle * U07Idle)) / ((U05Idle * U05Idle - U06Idle * U06Idle) * (U05Idle * U05Idle - U07Idle * U07Idle)) * P05Idle +
-                    ((0 - U05Idle * U05Idle) * (0 - U07Idle * U07Idle)) / ((U06Idle * U06Idle - U05Idle * U05Idle) * (U06Idle * U06Idle - U07Idle * U07Idle)) * P06Idle +
-                    ((0 - U05Idle * U05Idle) * (0 - U06Idle * U06Idle)) / ((U07Idle * U07Idle - U05Idle * U05Idle) * (U07Idle * U07Idle - U06Idle * U06Idle)) * P07Idle;
-            double Psteel = P10Idle - Pcop - Pmech;
-            setNumberCellValue(cell, Psteel);
-        } else {
-            cell.setCellValue("");
-        }
-    }
-
     private static void calculatePstator(Protocol protocol, Cell cell) {
         float IR = protocol.getIR();
-        float RIkas = protocol.getIkasRHot();
+        float RIkas = protocol.getIkasRHotR();
         if ((IR > 0) && (RIkas > 0)) {
             double Pstat = 3 * IR * IR * (RIkas / 2.0);
             setNumberCellValue(cell, Pstat);
@@ -577,37 +555,19 @@ public class Logging {
     }
 
     private static void calculateProtor(Protocol protocol, Cell cell) {
-        double Psteel = -1.;
-        double Pcop = -1.;
-        double Pmech = -1.;
         double Pstat = -1.;
 
-        float P10Idle = protocol.getP10IdleR() * 1000;
-        float I10Idle = protocol.getI10IdleR();
-        float RIkas = protocol.getIkasRHot();
-        float P05Idle = protocol.getP05IdleR() * 1000;
-        float P06Idle = protocol.getP06IdleR() * 1000;
-        float P07Idle = protocol.getP07IdleR() * 1000;
-        float U05Idle = protocol.getU05IdleR();
-        float U06Idle = protocol.getU06IdleR();
-        float U07Idle = protocol.getU07IdleR();
         float IR = protocol.getIR();
-        if ((P10Idle > 0) && (I10Idle > 0) && (RIkas > 0) && (P05Idle > 0) && (P06Idle > 0) && (U06Idle > 0) && (U05Idle > 0) && (U07Idle > 0) && (IR > 0)) {
-            Pcop = 3 * I10Idle * I10Idle * (RIkas / 2.0);
-//            Pmech = ((0 - U06Idle) * (0 - U07Idle)) / ((U05Idle - U06Idle) * (U05Idle - U07Idle)) * P05Idle +
-//                    ((0 - U05Idle) * (0 - U07Idle)) / ((U06Idle - U05Idle) * (U06Idle - U07Idle)) * P06Idle +
-//                    ((0 - U05Idle) * (0 - U06Idle)) / ((U07Idle - U05Idle) * (U07Idle - U06Idle)) * P07Idle;
-            Pmech = ((0 - U06Idle * U06Idle) * (0 - U07Idle * U07Idle)) / ((U05Idle * U05Idle - U06Idle * U06Idle) * (U05Idle * U05Idle - U07Idle * U07Idle)) * P05Idle +
-                    ((0 - U05Idle * U05Idle) * (0 - U07Idle * U07Idle)) / ((U06Idle * U06Idle - U05Idle * U05Idle) * (U06Idle * U06Idle - U07Idle * U07Idle)) * P06Idle +
-                    ((0 - U05Idle * U05Idle) * (0 - U06Idle * U06Idle)) / ((U07Idle * U07Idle - U05Idle * U05Idle) * (U07Idle * U07Idle - U06Idle * U06Idle)) * P07Idle;
-            Psteel = P10Idle - Pcop - Pmech;
+        float RIkas = protocol.getIkasRHotR();
+        if ((IR > 0) && (RIkas > 0)) {
             Pstat = 3 * IR * IR * (RIkas / 2.0);
         }
 
+        double Psteel = protocol.getPStR() * 1000;
         float P1R = protocol.getP1R() * 1000;
         float SR = protocol.getSR() / 100f;
 
-        if ((P1R > 0) && (Psteel > 0) && (Pcop > 0) && (Pstat > 0) && (SR > 0)) {
+        if ((P1R > 0) && (Psteel > 0) && (Pstat > 0) && (SR > 0)) {
             double Protor = (P1R - Psteel - Pstat) * SR;
             setNumberCellValue(cell, Protor);
         } else {
@@ -615,55 +575,18 @@ public class Logging {
         }
     }
 
-    private static void calculatePmech(Protocol protocol, Cell cell) {
-        float P05Idle = protocol.getP05IdleR() * 1000;
-        float P06Idle = protocol.getP06IdleR() * 1000;
-        float P07Idle = protocol.getP07IdleR() * 1000;
-        float U05Idle = protocol.getU05IdleR();
-        float U06Idle = protocol.getU06IdleR();
-        float U07Idle = protocol.getU07IdleR();
-        if ((P05Idle > 0) && (P06Idle > 0) && (U06Idle > 0) && (U05Idle > 0) && (U07Idle > 0)) {
-//            double Pmech = ((0 - U06Idle) * (0 - U07Idle)) / ((U05Idle - U06Idle) * (U05Idle - U07Idle)) * P05Idle +
-//                    ((0 - U05Idle) * (0 - U07Idle)) / ((U06Idle - U05Idle) * (U06Idle - U07Idle)) * P06Idle +
-//                    ((0 - U05Idle) * (0 - U06Idle)) / ((U07Idle - U05Idle) * (U07Idle - U06Idle)) * P07Idle;
-            double Pmech = ((0 - U06Idle * U06Idle) * (0 - U07Idle * U07Idle)) / ((U05Idle * U05Idle - U06Idle * U06Idle) * (U05Idle * U05Idle - U07Idle * U07Idle)) * P05Idle +
-                    ((0 - U05Idle * U05Idle) * (0 - U07Idle * U07Idle)) / ((U06Idle * U06Idle - U05Idle * U05Idle) * (U06Idle * U06Idle - U07Idle * U07Idle)) * P06Idle +
-                    ((0 - U05Idle * U05Idle) * (0 - U06Idle * U06Idle)) / ((U07Idle * U07Idle - U05Idle * U05Idle) * (U07Idle * U07Idle - U06Idle * U06Idle)) * P07Idle;
-            setNumberCellValue(cell, Pmech);
-        } else {
-            cell.setCellValue("");
-        }
-    }
-
     private static void calculatePadd(Protocol protocol, Cell cell) {
-        double Psteel = -1.;
-        double Pcop = -1.;
-        double Pmech = -1.;
         double Pstat = -1.;
         double Psum = -1.;
 
-        float P10Idle = protocol.getP10IdleR() * 1000;
-        float I10Idle = protocol.getI10IdleR();
-        float RIkas = protocol.getIkasRHot();
-        float P05Idle = protocol.getP05IdleR() * 1000;
-        float P06Idle = protocol.getP06IdleR() * 1000;
-        float P07Idle = protocol.getP07IdleR() * 1000;
-        float U05Idle = protocol.getU05IdleR();
-        float U06Idle = protocol.getU06IdleR();
-        float U07Idle = protocol.getU07IdleR();
         float IR = protocol.getIR();
-        if ((P10Idle > 0) && (I10Idle > 0) && (RIkas > 0) && (P05Idle > 0) && (P06Idle > 0) && (U05Idle > 0) && (U06Idle > 0) && (U07Idle > 0) && (IR > 0)) {
-            Pcop = 3 * I10Idle * I10Idle * (RIkas / 2.0);
-//            Pmech = ((0 - U06Idle) * (0 - U07Idle)) / ((U05Idle - U06Idle) * (U05Idle - U07Idle)) * P05Idle +
-//                    ((0 - U05Idle) * (0 - U07Idle)) / ((U06Idle - U05Idle) * (U06Idle - U07Idle)) * P06Idle +
-//                    ((0 - U05Idle) * (0 - U06Idle)) / ((U07Idle - U05Idle) * (U07Idle - U06Idle)) * P07Idle;
-            Pmech = ((0 - U06Idle * U06Idle) * (0 - U07Idle * U07Idle)) / ((U05Idle * U05Idle - U06Idle * U06Idle) * (U05Idle * U05Idle - U07Idle * U07Idle)) * P05Idle +
-                    ((0 - U05Idle * U05Idle) * (0 - U07Idle * U07Idle)) / ((U06Idle * U06Idle - U05Idle * U05Idle) * (U06Idle * U06Idle - U07Idle * U07Idle)) * P06Idle +
-                    ((0 - U05Idle * U05Idle) * (0 - U06Idle * U06Idle)) / ((U07Idle * U07Idle - U05Idle * U05Idle) * (U07Idle * U07Idle - U06Idle * U06Idle)) * P07Idle;
-            Psteel = P10Idle - Pcop - Pmech;
+        float RIkas = protocol.getIkasRHotR();
+        if ((IR > 0) && (RIkas > 0)) {
             Pstat = 3 * IR * IR * (RIkas / 2.0);
         }
 
+        double Psteel = protocol.getPStR() * 1000;
+        double Pmech = protocol.getPMechR() * 1000;
         float P1R = protocol.getP1R() * 1000;
         float P2R = protocol.getP2R() * 1000;
         if ((P1R > 0) && (P2R > 0)) {
@@ -672,7 +595,7 @@ public class Logging {
 
         float SR = protocol.getSR() / 100f;
 
-        if ((Psum > 0) && (P1R > 0) && (Psteel > 0) && (Pcop > 0) && (Pstat > 0) && (SR > 0)) {
+        if ((Psum > 0) && (Psteel > 0) && (Pstat > 0) && (SR > 0) && (Pmech > 0)) {
             double Protor = (P1R - Psteel - Pstat) * SR;
             double Padd = Psum - (Pstat + Protor + Psteel + Pmech);
             setNumberCellValue(cell, Padd);

@@ -10,9 +10,11 @@ import ru.avem.kspad.communication.protocol.modbus.ModbusController;
 
 public class PM130Controller implements DeviceController {
     private static final byte MODBUS_ADDRESS = 0x1E;
-    //    private static final short I1_REGISTER = 13318; мгновенные
+
+//    private static final short I1_REGISTER = 13318; мгновенные
 //    private static final short VL1_REGISTER = 13372;
 //    private static final short P_REGISTER = 13696;
+
     private static final short I1_REGISTER = 13958; // за 1 секунду
     private static final short VL1_REGISTER = 14012;
     private static final short P_REGISTER = 14336;
@@ -126,10 +128,10 @@ public class PM130Controller implements DeviceController {
         if (statusP.equals(ModbusController.RequestStatus.FRAME_RECEIVED)) {
             mModel.setResponding(true);
             try {// TODO: 12.12.2017 сделать нормально
-                mModel.setP1(convertUINTtoINT(inputBuffer.getInt()) / 1000.0f);
+                mModel.setP1(convertMidEndianINTtoINT(inputBuffer.getInt()) / 1000.0f);
                 inputBuffer.getInt();
                 mModel.setS1(convertUINTtoINT(inputBuffer.getInt()) / 1000.0f);
-                mModel.setCos(convertUINTtoINT(inputBuffer.getInt()) / 1000.0f);
+                mModel.setCos(convertMidEndianINTtoINT(inputBuffer.getInt()) / 1000.0f);
             } catch (Exception ignored) {
             }
         }
@@ -178,6 +180,20 @@ public class PM130Controller implements DeviceController {
         convertBuffer.flip();
         int preparedInt = convertBuffer.getInt();
         return (long) preparedInt & 0xFFFFFFFFL;
+    }
+
+    private int convertMidEndianINTtoINT(int i) {
+        ByteBuffer convertBuffer = ByteBuffer.allocate(CONVERT_BUFFER_SIZE);
+        convertBuffer.clear();
+        convertBuffer.putInt(i);
+        convertBuffer.flip();
+        short rightSide = convertBuffer.getShort();
+        short leftSide = convertBuffer.getShort();
+        convertBuffer.clear();
+        convertBuffer.putShort(leftSide);
+        convertBuffer.putShort(rightSide);
+        convertBuffer.flip();
+        return convertBuffer.getInt();
     }
 
     @Override

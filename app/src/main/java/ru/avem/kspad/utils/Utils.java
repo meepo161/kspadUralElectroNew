@@ -13,6 +13,8 @@ import ru.avem.kspad.R;
 public class Utils {
     public static final Locale RU_LOCALE = new Locale("ru");
 
+    private static final float NUM_OF_POINTS = 3f;
+
     private Utils() {
         throw new AssertionError();
     }
@@ -71,6 +73,21 @@ public class Utils {
         try {
             Thread.sleep(mills);
         } catch (InterruptedException ignored) {
+        }
+    }
+
+    public static float setNextValueAndReturnAverage(List<Float> list, float value) {
+        if (list.size() < NUM_OF_POINTS) {
+            list.add(value);
+            return -1f;
+        } else {
+            float sum = 0;
+            for (Float f : list) {
+                sum += f;
+            }
+            sum /= NUM_OF_POINTS;
+            list.clear();
+            return sum;
         }
     }
 }

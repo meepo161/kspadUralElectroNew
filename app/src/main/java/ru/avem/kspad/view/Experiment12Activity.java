@@ -48,6 +48,7 @@ import static ru.avem.kspad.communication.devices.DeviceController.TRM201_ID;
 import static ru.avem.kspad.communication.devices.DeviceController.VEHA_T_ID;
 import static ru.avem.kspad.utils.Utils.formatRealNumber;
 import static ru.avem.kspad.utils.Utils.getSyncV;
+import static ru.avem.kspad.utils.Utils.setNextValueAndReturnAverage;
 import static ru.avem.kspad.utils.Utils.sleep;
 
 public class Experiment12Activity extends AppCompatActivity implements Observer {
@@ -56,8 +57,6 @@ public class Experiment12Activity extends AppCompatActivity implements Observer 
     private static final int STATE_200_TO_5_MULTIPLIER = 200 / 5;
     private static final int STATE_40_TO_5_MULTIPLIER = 40 / 5;
     private static final int STATE_5_TO_5_MULTIPLIER = 5 / 5;
-
-    private static final float NUM_OF_POINTS = 3f;
 
     private static final int MAX_DATA_POINTS = 1000;
     //endregion
@@ -574,7 +573,7 @@ public class Experiment12Activity extends AppCompatActivity implements Observer 
                 }
             }
 
-            experimentTime = 600;
+            experimentTime = mExperimentTime;
             while (isExperimentStart() && (experimentTime-- > 0) && mStartState) {
                 sleep(1000);
                 changeTextOfView(mStatus, "Ждём заданное время под номинальной нагрузкой. Осталось: " + experimentTime);
@@ -874,9 +873,9 @@ public class Experiment12Activity extends AppCompatActivity implements Observer 
     }
 
     public void setMAverage(float MAverage) {
-        float sumM = setNextValueAndReturnSum(mSeveralM, MAverage, NUM_OF_POINTS);
-        if (sumM != -1) {
-            mMAverage = sumM / NUM_OF_POINTS;
+        float averageM = setNextValueAndReturnAverage(mSeveralM, MAverage);
+        if (averageM != -1) {
+            mMAverage = averageM;
             changeTextOfView(mMAverageCell, formatRealNumber(mMAverage));
         }
         recountP2Average();
@@ -899,20 +898,6 @@ public class Experiment12Activity extends AppCompatActivity implements Observer 
     public void setNuAverage(double nuAverage) {
         mNuAverage = nuAverage;
         changeTextOfView(mNuAverageCell, formatRealNumber(nuAverage));
-    }
-
-    private float setNextValueAndReturnSum(List<Float> list, float value, float numOfPoints) {
-        if (list.size() < numOfPoints) {
-            list.add(value);
-            return -1f;
-        } else {
-            float sumV = 0;
-            for (Float v : list) {
-                sumV += v;
-            }
-            list.clear();
-            return sumV;
-        }
     }
 
     private void recountP2() {
@@ -951,9 +936,9 @@ public class Experiment12Activity extends AppCompatActivity implements Observer 
     }
 
     public void setVAverage(float VAverage) {
-        float sumV = setNextValueAndReturnSum(mSeveralV, VAverage, NUM_OF_POINTS);
-        if (sumV != -1) {
-            mVAverage = sumV / NUM_OF_POINTS;
+        float averageV = setNextValueAndReturnAverage(mSeveralV, VAverage);
+        if (averageV != -1) {
+            mVAverage = averageV;
             changeTextOfView(mVAverageCell, formatRealNumber(mVAverage));
         }
         recountP2Average();
@@ -1017,9 +1002,9 @@ public class Experiment12Activity extends AppCompatActivity implements Observer 
     }
 
     public void setUAAverage(float UAAverage) {
-        float sumUA = setNextValueAndReturnSum(mSeveralUA, UAAverage, NUM_OF_POINTS);
-        if (sumUA != -1) {
-            mUAAverage = sumUA / NUM_OF_POINTS;
+        float averageUA = setNextValueAndReturnAverage(mSeveralUA, UAAverage);
+        if (averageUA != -1) {
+            mUAAverage = averageUA;
         }
     }
 
@@ -1030,9 +1015,9 @@ public class Experiment12Activity extends AppCompatActivity implements Observer 
     }
 
     public void setUBAverage(float UBAverage) {
-        float sumUB = setNextValueAndReturnSum(mSeveralUB, UBAverage, NUM_OF_POINTS);
-        if (sumUB != -1) {
-            mUBAverage = sumUB / NUM_OF_POINTS;
+        float averageUB = setNextValueAndReturnAverage(mSeveralUB, UBAverage);
+        if (averageUB != -1) {
+            mUBAverage = averageUB;
         }
     }
 
@@ -1043,9 +1028,9 @@ public class Experiment12Activity extends AppCompatActivity implements Observer 
     }
 
     public void setUCAverage(float UCAverage) {
-        float sumUC = setNextValueAndReturnSum(mSeveralUC, UCAverage, NUM_OF_POINTS);
-        if (sumUC != -1) {
-            mUCAverage = sumUC / NUM_OF_POINTS;
+        float averageUC = setNextValueAndReturnAverage(mSeveralUC, UCAverage);
+        if (averageUC != -1) {
+            mUCAverage = averageUC;
             setUAverage();
         }
     }
@@ -1074,9 +1059,9 @@ public class Experiment12Activity extends AppCompatActivity implements Observer 
     }
 
     public void setIAAverage(float IAAverage) {
-        float sumIA = setNextValueAndReturnSum(mSeveralIA, IAAverage, NUM_OF_POINTS);
-        if (sumIA != -1) {
-            mIAAverage = sumIA / NUM_OF_POINTS;
+        float averageIA = setNextValueAndReturnAverage(mSeveralIA, IAAverage);
+        if (averageIA != -1) {
+            mIAAverage = averageIA;
         }
     }
 
@@ -1087,9 +1072,9 @@ public class Experiment12Activity extends AppCompatActivity implements Observer 
     }
 
     public void setIBAverage(float IBAverage) {
-        float sumIB = setNextValueAndReturnSum(mSeveralIB, IBAverage, NUM_OF_POINTS);
-        if (sumIB != -1) {
-            mIBAverage = sumIB / NUM_OF_POINTS;
+        float averageIB = setNextValueAndReturnAverage(mSeveralIB, IBAverage);
+        if (averageIB != -1) {
+            mIBAverage = averageIB;
         }
     }
 
@@ -1100,9 +1085,9 @@ public class Experiment12Activity extends AppCompatActivity implements Observer 
     }
 
     public void setICAverage(float ICAverage) {
-        float sumIC = setNextValueAndReturnSum(mSeveralIC, ICAverage, NUM_OF_POINTS);
-        if (sumIC != -1) {
-            mICAverage = sumIC / NUM_OF_POINTS;
+        float averageIC = setNextValueAndReturnAverage(mSeveralIC, ICAverage);
+        if (averageIC != -1) {
+            mICAverage = averageIC;
             setIAverage();
         }
     }
@@ -1119,9 +1104,9 @@ public class Experiment12Activity extends AppCompatActivity implements Observer 
     }
 
     public void setP1Average(float P1Average) {
-        float sumP1 = setNextValueAndReturnSum(mSeveralP1, P1Average, NUM_OF_POINTS);
-        if (sumP1 != -1) {
-            mP1Average = sumP1 / NUM_OF_POINTS;
+        float averageP1 = setNextValueAndReturnAverage(mSeveralP1, P1Average);
+        if (averageP1 != -1) {
+            mP1Average = averageP1;
             changeTextOfView(mP1AverageCell, formatRealNumber(mP1Average));
         }
     }
@@ -1133,9 +1118,9 @@ public class Experiment12Activity extends AppCompatActivity implements Observer 
     }
 
     public void setSAverage(float SAverage) {
-        float sumS = setNextValueAndReturnSum(mSeveralS, SAverage, NUM_OF_POINTS);
-        if (sumS != -1) {
-            mSAverage = sumS / NUM_OF_POINTS;
+        float averageS = setNextValueAndReturnAverage(mSeveralS, SAverage);
+        if (averageS != -1) {
+            mSAverage = averageS;
             changeTextOfView(mSAverageCell, formatRealNumber(mSAverage));
         }
     }
@@ -1147,9 +1132,9 @@ public class Experiment12Activity extends AppCompatActivity implements Observer 
     }
 
     public void setCosAverage(float CosAverage) {
-        float sumCos = setNextValueAndReturnSum(mSeveralCos, CosAverage, NUM_OF_POINTS);
-        if (sumCos != -1) {
-            mCosAverage = sumCos / NUM_OF_POINTS;
+        float averageCos = setNextValueAndReturnAverage(mSeveralCos, CosAverage);
+        if (averageCos != -1) {
+            mCosAverage = averageCos;
             changeTextOfView(mCosAverageCell, formatRealNumber(mCosAverage));
         }
     }
@@ -1174,9 +1159,9 @@ public class Experiment12Activity extends AppCompatActivity implements Observer 
     }
 
     public void setTempEngineAverage(float tempEngineAverage) {
-        float sumTempEngine = setNextValueAndReturnSum(mSeveralTempEngine, tempEngineAverage, NUM_OF_POINTS);
-        if (sumTempEngine != -1) {
-            mTempEngineAverage = sumTempEngine / NUM_OF_POINTS;
+        float averageTempEngine = setNextValueAndReturnAverage(mSeveralTempEngine, tempEngineAverage);
+        if (averageTempEngine != -1) {
+            mTempEngineAverage = averageTempEngine;
             changeTextOfView(mTempEngineAverageCell, formatRealNumber(mTempEngineAverage));
         }
     }

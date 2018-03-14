@@ -74,7 +74,7 @@
 
                 <TextView
                     android:background="@drawable/border_padding_gray"
-                    android:text="P, кВт"
+                    android:text="Pхх, кВт"
                     android:textSize="28sp"/>
 
                 <TextView
@@ -84,17 +84,17 @@
 
                 <TextView
                     android:background="@drawable/border_padding_gray"
-                    android:text="V, об/мин"
+                    android:text="Pмед, кВт"
                     android:textSize="28sp"/>
 
                 <TextView
                     android:background="@drawable/border_padding_gray"
-                    android:text="tокр.с., °C"
+                    android:text="Pм+Pст, кВт"
                     android:textSize="28sp"/>
 
                 <TextView
                     android:background="@drawable/border_padding_gray"
-                    android:text="tдвиг., °C"
+                    android:text="Pст, кВт"
                     android:textSize="28sp"/>
 
                 <TextView
@@ -182,17 +182,17 @@
                     android:textSize="28sp"/>
 
                 <TextView
-                    android:id="@+id/v_1_3"
+                    android:id="@+id/p_cop_1_3"
                     android:background="@drawable/border_padding"
                     android:textSize="28sp"/>
 
                 <TextView
-                    android:id="@+id/temp_1_3_ambient"
+                    android:id="@+id/p_m_p_st_1_3"
                     android:background="@drawable/border_padding"
                     android:textSize="28sp"/>
 
                 <TextView
-                    android:id="@+id/temp_1_3_engine"
+                    android:id="@+id/p_st_1_3"
                     android:background="@drawable/border_padding"
                     android:textSize="28sp"/>
 
@@ -373,17 +373,17 @@
                     android:textSize="28sp"/>
 
                 <TextView
-                    android:id="@+id/v_1_2"
+                    android:id="@+id/p_cop_1_2"
                     android:background="@drawable/border_padding"
                     android:textSize="28sp"/>
 
                 <TextView
-                    android:id="@+id/temp_1_2_ambient"
+                    android:id="@+id/p_m_p_st_1_2"
                     android:background="@drawable/border_padding"
                     android:textSize="28sp"/>
 
                 <TextView
-                    android:id="@+id/temp_1_2_engine"
+                    android:id="@+id/p_st_1_2"
                     android:background="@drawable/border_padding"
                     android:textSize="28sp"/>
 
@@ -564,17 +564,17 @@
                     android:textSize="28sp"/>
 
                 <TextView
-                    android:id="@+id/v_1_1"
+                    android:id="@+id/p_cop_1_1"
                     android:background="@drawable/border_padding"
                     android:textSize="28sp"/>
 
                 <TextView
-                    android:id="@+id/temp_1_1_ambient"
+                    android:id="@+id/p_m_p_st_1_1"
                     android:background="@drawable/border_padding"
                     android:textSize="28sp"/>
 
                 <TextView
-                    android:id="@+id/temp_1_1_engine"
+                    android:id="@+id/p_st_1_1"
                     android:background="@drawable/border_padding"
                     android:textSize="28sp"/>
 
@@ -755,17 +755,17 @@
                     android:textSize="28sp"/>
 
                 <TextView
-                    android:id="@+id/v_1_0"
+                    android:id="@+id/p_cop_1_0"
                     android:background="@drawable/border_padding"
                     android:textSize="28sp"/>
 
                 <TextView
-                    android:id="@+id/temp_1_0_ambient"
+                    android:id="@+id/p_m_p_st_1_0"
                     android:background="@drawable/border_padding"
                     android:textSize="28sp"/>
 
                 <TextView
-                    android:id="@+id/temp_1_0_engine"
+                    android:id="@+id/p_st_1_0"
                     android:background="@drawable/border_padding"
                     android:textSize="28sp"/>
 
@@ -946,17 +946,17 @@
                     android:textSize="28sp"/>
 
                 <TextView
-                    android:id="@+id/v_0_9"
+                    android:id="@+id/p_cop_0_9"
                     android:background="@drawable/border_padding"
                     android:textSize="28sp"/>
 
                 <TextView
-                    android:id="@+id/temp_0_9_ambient"
+                    android:id="@+id/p_m_p_st_0_9"
                     android:background="@drawable/border_padding"
                     android:textSize="28sp"/>
 
                 <TextView
-                    android:id="@+id/temp_0_9_engine"
+                    android:id="@+id/p_st_0_9"
                     android:background="@drawable/border_padding"
                     android:textSize="28sp"/>
 
@@ -1137,17 +1137,17 @@
                     android:textSize="28sp"/>
 
                 <TextView
-                    android:id="@+id/v_0_8"
+                    android:id="@+id/p_cop_0_8"
                     android:background="@drawable/border_padding"
                     android:textSize="28sp"/>
 
                 <TextView
-                    android:id="@+id/temp_0_8_ambient"
+                    android:id="@+id/p_m_p_st_0_8"
                     android:background="@drawable/border_padding"
                     android:textSize="28sp"/>
 
                 <TextView
-                    android:id="@+id/temp_0_8_engine"
+                    android:id="@+id/p_st_0_8"
                     android:background="@drawable/border_padding"
                     android:textSize="28sp"/>
 
@@ -1328,17 +1328,17 @@
                     android:textSize="28sp"/>
 
                 <TextView
-                    android:id="@+id/v_0_7"
+                    android:id="@+id/p_cop_0_7"
                     android:background="@drawable/border_padding"
                     android:textSize="28sp"/>
 
                 <TextView
-                    android:id="@+id/temp_0_7_ambient"
+                    android:id="@+id/p_m_p_st_0_7"
                     android:background="@drawable/border_padding"
                     android:textSize="28sp"/>
 
                 <TextView
-                    android:id="@+id/temp_0_7_engine"
+                    android:id="@+id/p_st_0_7"
                     android:background="@drawable/border_padding"
                     android:textSize="28sp"/>
 
@@ -1519,17 +1519,17 @@
                     android:textSize="28sp"/>
 
                 <TextView
-                    android:id="@+id/v_0_6"
+                    android:id="@+id/p_cop_0_6"
                     android:background="@drawable/border_padding"
                     android:textSize="28sp"/>
 
                 <TextView
-                    android:id="@+id/temp_0_6_ambient"
+                    android:id="@+id/p_m_p_st_0_6"
                     android:background="@drawable/border_padding"
                     android:textSize="28sp"/>
 
                 <TextView
-                    android:id="@+id/temp_0_6_engine"
+                    android:id="@+id/p_st_0_6"
                     android:background="@drawable/border_padding"
                     android:textSize="28sp"/>
 
@@ -1710,17 +1710,17 @@
                     android:textSize="28sp"/>
 
                 <TextView
-                    android:id="@+id/v_0_5"
+                    android:id="@+id/p_cop_0_5"
                     android:background="@drawable/border_padding"
                     android:textSize="28sp"/>
 
                 <TextView
-                    android:id="@+id/temp_0_5_ambient"
+                    android:id="@+id/p_m_p_st_0_5"
                     android:background="@drawable/border_padding"
                     android:textSize="28sp"/>
 
                 <TextView
-                    android:id="@+id/temp_0_5_engine"
+                    android:id="@+id/p_st_0_5"
                     android:background="@drawable/border_padding"
                     android:textSize="28sp"/>
 
@@ -1819,6 +1819,96 @@
 
                 <TextView
                     android:background="@drawable/border_padding_light_green"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:background="@drawable/border_padding_gray"
+                    android:text="Rхх, Ω"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:background="@drawable/border_padding_gray"
+                    android:text="Рмех, кВт"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:textSize="28sp"/>
+            </TableRow>
+
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:id="@+id/r"
+                    android:background="@drawable/border_padding"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:id="@+id/p_mech"
+                    android:background="@drawable/border_padding"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:background="@drawable/border_padding"
+                    android:textSize="28sp"/>
+
+                <TextView
+                    android:background="@drawable/border_padding"
                     android:textSize="28sp"/>
             </TableRow>
         </TableLayout>

@@ -221,13 +221,15 @@ public class DevicesController extends Observable implements Runnable {
     }
 
     private void resetDog() {
-        if (mLastOne) {
+//        if (mLastOne) {
             mBeckhoffController.write(WATCH_DOG_REGISTER, 1, 0);
-            mLastOne = false;
-        } else {
+            mBeckhoffController.write(WATCH_DOG_REGISTER, 1, 0);
+//            mLastOne = false;
+//        } else {
             mBeckhoffController.write(WATCH_DOG_REGISTER, 1, 1);
-            mLastOne = true;
-        }
+            mBeckhoffController.write(WATCH_DOG_REGISTER, 1, 1);
+//            mLastOne = true;
+//        }
     }
 
     private void resetTimer() {
@@ -329,9 +331,9 @@ public class DevicesController extends Observable implements Runnable {
 
     public void initDevicesFrom1To3And10And12Group() {
         connectMainBus();
-        mBeckhoffController.setNeedToRead(true);
-        mBeckhoffController.resetAttempts();
-        set5000PointsM40();
+        initBeckhoff();
+//        set5000PointsM40();
+        mM40Controller.write(AVERAGING_REGISTER, (short) 2000);
         mM40Controller.setNeedToRead(true);
         mM40Controller.resetAttempts();
         mFRA800ObjectController.setNeedToRead(true);
@@ -344,6 +346,12 @@ public class DevicesController extends Observable implements Runnable {
         mVEHATController.resetAttempts();
         mTRM201Controller.setNeedToRead(true);
         mTRM201Controller.resetAttempts();
+    }
+
+    public void initBeckhoff() {
+        connectMainBus();
+        mBeckhoffController.setNeedToRead(true);
+        mBeckhoffController.resetAttempts();
     }
 
     public void startObject() {
@@ -443,8 +451,7 @@ public class DevicesController extends Observable implements Runnable {
 
     public void initDevicesFrom4Group() {
         connectMainBus();
-        mBeckhoffController.setNeedToRead(true);
-        mBeckhoffController.resetAttempts();
+        initBeckhoff();
         mFRA800ObjectController.setNeedToRead(true);
         mFRA800ObjectController.resetAttempts();
         mPM130Controller.setNeedToRead(true);
@@ -486,12 +493,15 @@ public class DevicesController extends Observable implements Runnable {
 
     public void initDevicesFrom5And17Group() {
         connectMainBus();
-        mBeckhoffController.setNeedToRead(true);
-        mBeckhoffController.resetAttempts();
-        mIKASController.setNeedToRead(true);
-        mIKASController.resetAttempts();
+        initBeckhoff();
+        initIKAS();
         mTRM201Controller.setNeedToRead(true);
         mTRM201Controller.resetAttempts();
+    }
+
+    public void initIKAS() {
+        mIKASController.setNeedToRead(true);
+        mIKASController.resetAttempts();
     }
 
     public void onKMsFrom5And17Group() {
@@ -557,8 +567,7 @@ public class DevicesController extends Observable implements Runnable {
 
     public void initDevicesFrom6Group() {
         connectMainBus();
-        mBeckhoffController.setNeedToRead(true);
-        mBeckhoffController.resetAttempts();
+        initBeckhoff();
         mFRA800ObjectController.setNeedToRead(true);
         mFRA800ObjectController.resetAttempts();
         mPM130Controller.setNeedToRead(true);
@@ -584,10 +593,18 @@ public class DevicesController extends Observable implements Runnable {
         offRegisterInTheModule(0, 2);
     }
 
-    public void initDevicesFrom7To8Group() {
+    public void initDevices7Group() {
         connectMainBus();
-        mBeckhoffController.setNeedToRead(true);
-        mBeckhoffController.resetAttempts();
+        initBeckhoff();
+        mFRA800ObjectController.setNeedToRead(true);
+        mFRA800ObjectController.resetAttempts();
+        mPM130Controller.setNeedToRead(true);
+        mPM130Controller.resetAttempts();
+    }
+
+    public void initDevices8Group() {
+        connectMainBus();
+        initBeckhoff();
         mFRA800ObjectController.setNeedToRead(true);
         mFRA800ObjectController.resetAttempts();
         mPM130Controller.setNeedToRead(true);
@@ -622,8 +639,7 @@ public class DevicesController extends Observable implements Runnable {
 
     public void initDevicesFrom9Group() {
         connectMainBus();
-        mBeckhoffController.setNeedToRead(true);
-        mBeckhoffController.resetAttempts();
+        initBeckhoff();
         mFRA800ObjectController.setNeedToRead(true);
         mFRA800ObjectController.resetAttempts();
         mPM130Controller.setNeedToRead(true);
@@ -634,8 +650,7 @@ public class DevicesController extends Observable implements Runnable {
 
     public void initDevicesFrom11Group() {
         connectMainBus();
-        mBeckhoffController.setNeedToRead(true);
-        mBeckhoffController.resetAttempts();
+        initBeckhoff();
         mTRM201Controller.setNeedToRead(true);
         mTRM201Controller.resetAttempts();
     }
@@ -664,8 +679,7 @@ public class DevicesController extends Observable implements Runnable {
 
     public void initDevicesFrom13Group() {
         connectMainBus();
-        mBeckhoffController.setNeedToRead(true);
-        mBeckhoffController.resetAttempts();
+        initBeckhoff();
         mFRA800ObjectController.setNeedToRead(true);
         mFRA800ObjectController.resetAttempts();
         mPM130Controller.setNeedToRead(true);
@@ -681,8 +695,7 @@ public class DevicesController extends Observable implements Runnable {
 
     public void initDevicesFrom14Group() {
         connectMainBus();
-        mBeckhoffController.setNeedToRead(true);
-        mBeckhoffController.resetAttempts();
+        initBeckhoff();
         set5000PointsM40();
         mM40Controller.setNeedToRead(true);
         mM40Controller.resetAttempts();
@@ -732,8 +745,7 @@ public class DevicesController extends Observable implements Runnable {
 
     public void initDevicesFrom15Group() {
         connectMainBus();
-        mBeckhoffController.setNeedToRead(true);
-        mBeckhoffController.resetAttempts();
+        initBeckhoff();
         mFRA800ObjectController.setNeedToRead(true);
         mFRA800ObjectController.resetAttempts();
         mPM130ControllerIA.setNeedToRead(true);

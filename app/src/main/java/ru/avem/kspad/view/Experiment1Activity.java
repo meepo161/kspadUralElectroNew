@@ -55,6 +55,7 @@ import static ru.avem.kspad.communication.devices.DeviceController.VEHA_T_ID;
 import static ru.avem.kspad.utils.Utils.RU_LOCALE;
 import static ru.avem.kspad.utils.Utils.formatRealNumber;
 import static ru.avem.kspad.utils.Utils.getSyncV;
+import static ru.avem.kspad.utils.Utils.setNextValueAndReturnAverage;
 import static ru.avem.kspad.utils.Utils.sleep;
 import static ru.avem.kspad.utils.Visibility.onFullscreenMode;
 import static ru.avem.kspad.utils.Visibility.setViewAndChildrenVisibility;
@@ -77,8 +78,6 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
     private static final int STATE_200_TO_5_MULTIPLIER = 200 / 5;
     private static final int STATE_40_TO_5_MULTIPLIER = 40 / 5;
     private static final int STATE_5_TO_5_MULTIPLIER = 5 / 5;
-
-    private static final float NUM_OF_POINTS = 3f;
     //endregion
 
     //region Виджеты
@@ -622,7 +621,6 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
                     break;
             }
             mDataPoints.add(new DataPoint(xValue, yValue));
-//            mCurrentSeries.appendData(new DataPoint(xValue, yValue), true, 7);
         }
 
         Collections.sort(mDataPoints, new Comparator<DataPoint>() {
@@ -644,14 +642,9 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
         }
         Logger.withTag("Point").log("End series");
 
-//        mHandler.post(new Runnable() {
-//            @Override
-//            public void run() {
-                for (DataPoint dataPoint : mDataPoints) {
-                    mCurrentSeries.appendData(dataPoint, true, 7);
-                }
-//            }
-//        });
+        for (DataPoint dataPoint : mDataPoints) {
+            mCurrentSeries.appendData(dataPoint, true, 7);
+        }
 
         mGraph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter() {
             @Override
@@ -772,7 +765,7 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
         protected Void doInBackground(Void... voids) {
             if (isExperimentStart()) {
                 changeTextOfView(mStatus, "Испытание началось");
-                mDevicesController.initDevicesFrom1To3And10And12Group();
+                mDevicesController.initBeckhoff();
             }
             while (isExperimentStart() && !isBeckhoffResponding()) {
                 changeTextOfView(mStatus, "Нет связи с ПЛК");
@@ -790,7 +783,7 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
                 sleep(100);
             }
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 changeTextOfView(mStatus, "Инициализация...");
                 mDevicesController.onKMsFrom1To3And10And12Group();
                 m200to5State = true;
@@ -798,50 +791,50 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
                 mDevicesController.setObjectParams(mSpecifiedUK10, mIntSpecifiedFrequencyK100, mIntSpecifiedFrequencyK100);
                 mDevicesController.startObject();
             }
-            while (isExperimentStart() && !mFRA800ObjectReady && mStartState) {
+            while (isExperimentStart() && !mFRA800ObjectReady && mStartState && isDevicesResponding()) {
                 sleep(100);
                 changeTextOfView(mStatus, "Ожидаем, пока частотный преобразователь ОИ выйдет к заданным характеристикам");
             }
             int t = 5;
-            while (isExperimentStart() && (--t > 0) && mStartState) {
+            while (isExperimentStart() && (--t > 0) && mStartState && isDevicesResponding()) {
                 sleep(1000);
             }
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 mDevicesController.setObjectUMax(mSpecifiedUK10 + (int) (mSpecifiedUK10 - mUA * 10) + 15);
             }
 
             double f2 = mV * mZ1 * mSpecifiedFrequency / mV2 / mZ2;
             int fCurGenerator = (int) (f2 * 100);
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 mDevicesController.setGeneratorParams(mSpecifiedUK10, mIntSpecifiedFrequencyK100, fCurGenerator);
                 mDevicesController.startGenerator();
             }
-            while (isExperimentStart() && !mFRA800GeneratorReady && mStartState) {
+            while (isExperimentStart() && !mFRA800GeneratorReady && mStartState && isDevicesResponding()) {
                 sleep(100);
                 changeTextOfView(mStatus, "Ожидаем, пока частотный преобразователь генератора выйдет к заданным характеристикам");
             }
 
             int experimentTime = mExperimentTimeIdle;
-            while (isExperimentStart() && (experimentTime-- > 0) && mStartState) {
+            while (isExperimentStart() && (experimentTime-- > 0) && mStartState && isDevicesResponding()) {
                 sleep(1000);
                 changeTextOfView(mStatus, "Ждём заданное время обкатки на ХХ. Осталось: " + experimentTime);
                 changeTextOfView(mTCell, "" + experimentTime);
             }
             changeTextOfView(mTCell, "");
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 mDevicesController.onLoad();
             }
             sleep(500);
             int waits = 100;
-            while (isExperimentStart() && (mM < 0) && (waits-- > 0) && mStartState) {
+            while (isExperimentStart() && (mM < 0) && (waits-- > 0) && mStartState && isDevicesResponding()) {
                 sleep(50);
             }
 
 //            double limit = 0.05;
 //            while (isExperimentStart() &&
-//                    ((mIA < mSpecifiedAmperage * 0.8) || (mIA > mSpecifiedAmperage * 1.2)) && mStartState) {
+//                    ((mIA < mSpecifiedAmperage * 0.8) || (mIA > mSpecifiedAmperage * 1.2)) && mStartState && isDevicesResponding()) {
 //                if (mIA < mSpecifiedAmperage * 0.8) {
 //                    mDevicesController.setGeneratorFCur(fCurGenerator -= 5);
 //                } else if (mIA > mSpecifiedAmperage * 1.2) {
@@ -852,7 +845,7 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
 //                changeTextOfView(mStatus, "Выводим частоту генератора для получения номинального тока * 0.8");
 //            }
 //            while (isExperimentStart() &&
-//                    ((mIA < mSpecifiedAmperage * (1 - limit)) || (mIA > mSpecifiedAmperage * (1 + limit))) && mStartState) {
+//                    ((mIA < mSpecifiedAmperage * (1 - limit)) || (mIA > mSpecifiedAmperage * (1 + limit))) && mStartState && isDevicesResponding()) {
 //                if (mIA < mSpecifiedAmperage * (1 - limit)) {
 //                    mDevicesController.setGeneratorFCur(fCurGenerator -= 3);
 //                } else if (mIA > mSpecifiedAmperage * (1 + limit)) {
@@ -863,13 +856,13 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
 //                changeTextOfView(mStatus, "Выводим частоту генератора для получения номинального тока грубо");
 //            }
 //
-//            if (isExperimentStart() && mStartState) {
+//            if (isExperimentStart() && mStartState && isDevicesResponding()) {
 //                pickUpState();
 //            }
 //
 //            limit = 0.005;
 //            while (isExperimentStart() &&
-//                    ((mIAverage < mSpecifiedAmperage * (1 - limit)) || (mIAverage > mSpecifiedAmperage * (1 + limit))) && mStartState) {
+//                    ((mIAverage < mSpecifiedAmperage * (1 - limit)) || (mIAverage > mSpecifiedAmperage * (1 + limit))) && mStartState && isDevicesResponding()) {
 //                if (mIAverage < mSpecifiedAmperage * (1 - limit)) {
 //                    mDevicesController.setGeneratorFCur(fCurGenerator--);
 //                } else if (mIAverage > mSpecifiedAmperage * (1 + limit)) {
@@ -881,7 +874,7 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
 
             double limit = 0.05;
             while (isExperimentStart() &&
-                    ((mP2 < mSpecifiedP2 * 0.8) || (mP2 > mSpecifiedP2 * 1.2)) && mStartState) {
+                    ((mP2 < mSpecifiedP2 * 0.8) || (mP2 > mSpecifiedP2 * 1.2)) && mStartState && isDevicesResponding()) {
                 if (mP2 < mSpecifiedP2 * 0.8) {
                     mDevicesController.setGeneratorFCur(fCurGenerator -= 5);
                 } else if (mP2 > mSpecifiedP2 * 1.2) {
@@ -892,7 +885,7 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
                 changeTextOfView(mStatus, "Выводим частоту генератора для получения номинального P2 * 0.8");
             }
             while (isExperimentStart() &&
-                    ((mP2 < mSpecifiedP2 * (1 - limit)) || (mP2 > mSpecifiedP2 * (1 + limit))) && mStartState) {
+                    ((mP2 < mSpecifiedP2 * (1 - limit)) || (mP2 > mSpecifiedP2 * (1 + limit))) && mStartState && isDevicesResponding()) {
                 if (mP2 < mSpecifiedP2 * (1 - limit)) {
                     mDevicesController.setGeneratorFCur(fCurGenerator -= 3);
                 } else if (mP2 > mSpecifiedP2 * (1 + limit)) {
@@ -903,13 +896,13 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
                 changeTextOfView(mStatus, "Выводим частоту генератора для получения номинального P2 грубо");
             }
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 pickUpState();
             }
 
-            limit = 0.005;
+            limit = 0.02;
             while (isExperimentStart() &&
-                    ((mP2Average < mSpecifiedP2 * (1 - limit)) || (mP2Average > mSpecifiedP2 * (1 + limit))) && mStartState) {
+                    ((mP2Average < mSpecifiedP2 * (1 - limit)) || (mP2Average > mSpecifiedP2 * (1 + limit))) && mStartState && isDevicesResponding()) {
                 if (mP2Average < mSpecifiedP2 * (1 - limit)) {
                     mDevicesController.setGeneratorFCur(fCurGenerator--);
                 } else if (mP2Average > mSpecifiedP2 * (1 + limit)) {
@@ -920,17 +913,18 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
             }
 
             experimentTime = mExperimentTime;
-            while (isExperimentStart() && (experimentTime-- > 0) && mStartState) {
+            while (isExperimentStart() && (experimentTime-- > 0) && mStartState && isDevicesResponding()) {
                 sleep(1000);
                 changeTextOfView(mStatus, "Ждём заданное время под номинальной нагрузкой. Осталось: " + experimentTime);
                 changeTextOfView(mTCell, "" + experimentTime);
-                if (experimentTime < 5) {
+                if (experimentTime > 20) {
+                    if (mP2Average < mSpecifiedP2 * (1 - limit)) {
+                        mDevicesController.setGeneratorFCur(fCurGenerator--);
+                    } else if (mP2Average > mSpecifiedP2 * (1 + limit)) {
+                        mDevicesController.setGeneratorFCur(fCurGenerator++);
+                    }
+                } else if (experimentTime < 5) {
                     setNeededToSave(false);
-                }
-                if (mP2Average < mSpecifiedP2 * (1 - limit)) {
-                    mDevicesController.setGeneratorFCur(fCurGenerator--);
-                } else if (mP2Average > mSpecifiedP2 * (1 + limit)) {
-                    mDevicesController.setGeneratorFCur(fCurGenerator++);
                 }
             }
             setNeededToSave(false);
@@ -993,15 +987,15 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
                 sleep(100);
                 changeTextOfView(mStatus, "Включите кнопочный пост");
             }
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 mDevicesController.initDevicesFrom1To3And10And12Group();
             }
-            while (isExperimentStart() && !isDevicesResponding() && mStartState) {
+            while (isExperimentStart() && !isDevicesResponding() && mStartState && isDevicesResponding()) {
                 changeTextOfView(mStatus, "Нет связи с устройствами");
                 sleep(100);
             }
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 changeTextOfView(mStatus, "Инициализация...");
                 mDevicesController.onKMsFrom1To3And10And12Group();
                 m200to5State = true;
@@ -1009,44 +1003,44 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
                 mDevicesController.setObjectParams(mSpecifiedUK10, mIntSpecifiedFrequencyK100, mIntSpecifiedFrequencyK100);
                 mDevicesController.startObject();
             }
-            while (isExperimentStart() && !mFRA800ObjectReady && mStartState) {
+            while (isExperimentStart() && !mFRA800ObjectReady && mStartState && isDevicesResponding()) {
                 sleep(100);
                 changeTextOfView(mStatus, "Ожидаем, пока частотный преобразователь ОИ выйдет к заданным характеристикам");
             }
             int t = 5;
-            while (isExperimentStart() && (--t > 0) && mStartState) {
+            while (isExperimentStart() && (--t > 0) && mStartState && isDevicesResponding()) {
                 sleep(1000);
             }
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 mDevicesController.setObjectUMax(mSpecifiedUK10 + (int) (mSpecifiedUK10 - mUA * 10) + 15);
             }
 
             double f2 = mV * mZ1 * mSpecifiedFrequency / mV2 / mZ2;
             int fCurGenerator = (int) (f2 * 100);
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 mDevicesController.setGeneratorParams(mSpecifiedUK10, mIntSpecifiedFrequencyK100, fCurGenerator);
                 mDevicesController.startGenerator();
             }
-            while (isExperimentStart() && !mFRA800GeneratorReady && mStartState) {
+            while (isExperimentStart() && !mFRA800GeneratorReady && mStartState && isDevicesResponding()) {
                 sleep(100);
                 changeTextOfView(mStatus, "Ожидаем, пока частотный преобразователь генератора выйдет к заданным характеристикам");
             }
 
             int experimentTime = 10;
-            while (isExperimentStart() && (experimentTime-- > 0) && mStartState) {
+            while (isExperimentStart() && (experimentTime-- > 0) && mStartState && isDevicesResponding()) {
                 sleep(1000);
                 changeTextOfView(mStatus, "Ждём заданное время обкатки на ХХ. Осталось: " + experimentTime);
                 changeTextOfView(mTCell, "" + experimentTime);
             }
             changeTextOfView(mTCell, "");
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 mDevicesController.onLoad();
             }
             sleep(500);
             int waits = 100;
-            while (isExperimentStart() && (mM < 0) && (waits-- > 0) && mStartState) {
+            while (isExperimentStart() && (mM < 0) && (waits-- > 0) && mStartState && isDevicesResponding()) {
                 sleep(50);
             }
 
@@ -1054,7 +1048,7 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
 
             double limit = 0.05;
             while (isExperimentStart() &&
-                    ((mP2 < mCurrentSpecifiedP2 * 0.8) || (mP2 > mCurrentSpecifiedP2 * 1.2)) && mStartState) {
+                    ((mP2 < mCurrentSpecifiedP2 * 0.8) || (mP2 > mCurrentSpecifiedP2 * 1.2)) && mStartState && isDevicesResponding()) {
                 if (mP2 < mCurrentSpecifiedP2 * 0.8) {
                     mDevicesController.setGeneratorFCur(fCurGenerator -= 5);
                 } else if (mP2 > mCurrentSpecifiedP2 * 1.2) {
@@ -1065,7 +1059,7 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
                 changeTextOfView(mStatus, "Выводим частоту генератора для получения номинального P2 * 0.8");
             }
             while (isExperimentStart() &&
-                    ((mP2 < mCurrentSpecifiedP2 * (1 - limit)) || (mP2 > mCurrentSpecifiedP2 * (1 + limit))) && mStartState) {
+                    ((mP2 < mCurrentSpecifiedP2 * (1 - limit)) || (mP2 > mCurrentSpecifiedP2 * (1 + limit))) && mStartState && isDevicesResponding()) {
                 if (mP2 < mCurrentSpecifiedP2 * (1 - limit)) {
                     mDevicesController.setGeneratorFCur(fCurGenerator -= 3);
                 } else if (mP2 > mCurrentSpecifiedP2 * (1 + limit)) {
@@ -1076,7 +1070,7 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
                 changeTextOfView(mStatus, "Выводим частоту генератора для получения номинального P2 грубо");
             }
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 pickUpState();
             }
 
@@ -1135,7 +1129,7 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
         int experimentTime;
         limit = 0.01;
         while (isExperimentStart() &&
-                ((mP2 < mCurrentSpecifiedP2 * (1 - limit)) || (mP2 > mCurrentSpecifiedP2 * (1 + limit))) && mStartState) {
+                ((mP2 < mCurrentSpecifiedP2 * (1 - limit)) || (mP2 > mCurrentSpecifiedP2 * (1 + limit))) && mStartState && isDevicesResponding()) {
             if (mP2 < mCurrentSpecifiedP2 * (1 - limit)) {
                 fCurGenerator -= 4;
                 mDevicesController.setGeneratorFCur(fCurGenerator);
@@ -1148,13 +1142,13 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
         }
 
         experimentTime = 5;
-        while (isExperimentStart() && (experimentTime-- > 0) && mStartState) {
+        while (isExperimentStart() && (experimentTime-- > 0) && mStartState && isDevicesResponding()) {
             sleep(1000);
             changeTextOfView(mStatus, "Ждём заданное время под номинальной нагрузкой. Осталось: " + experimentTime);
             changeTextOfView(mTCell, "" + experimentTime);
         }
 
-        if (isExperimentStart() && mStartState) {
+        if (isExperimentStart() && mStartState && isDevicesResponding()) {
             saveCharacteristics();
         }
         return fCurGenerator;
@@ -1186,95 +1180,6 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
         mTempAmbientCharacteristics.add(TempAmbient);
         mTempEngineCharacteristics.add(TempEngine);
         mSkCharacteristics.add(Sk);
-
-        double xValue = 0;
-        switch (mX) {
-            case I:
-                xValue = IAverage;
-                break;
-            case U:
-                xValue = UAverage;
-                break;
-            case S:
-                xValue = S;
-                break;
-            case P1:
-                xValue = P1;
-                break;
-            case COS:
-                xValue = Cos;
-                break;
-            case M:
-                xValue = M;
-                break;
-            case V:
-                xValue = V;
-                break;
-            case P2:
-                xValue = P2;
-                break;
-            case NU:
-                xValue = Nu;
-                break;
-            case TEMP_AMBIENT:
-                xValue = TempAmbient;
-                break;
-            case TEMP_ENGINE:
-                xValue = TempEngine;
-                break;
-            case SK:
-                xValue = Sk;
-                break;
-        }
-
-        double yValue = 0;
-        switch (mY) {
-            case I:
-                yValue = IAverage;
-                break;
-            case U:
-                yValue = UAverage;
-                break;
-            case S:
-                yValue = S;
-                break;
-            case P1:
-                yValue = P1;
-                break;
-            case COS:
-                yValue = Cos;
-                break;
-            case M:
-                yValue = M;
-                break;
-            case V:
-                yValue = V;
-                break;
-            case P2:
-                yValue = P2;
-                break;
-            case NU:
-                yValue = Nu;
-                break;
-            case TEMP_AMBIENT:
-                yValue = TempAmbient;
-                break;
-            case TEMP_ENGINE:
-                yValue = TempEngine;
-                break;
-            case SK:
-                yValue = Sk;
-                break;
-        }
-
-//        final double finalXValue = xValue;
-//        final double finalYValue = yValue;
-//        mHandler.post(new Runnable() {
-//            @Override
-//            public void run() {
-//                mCurrentSeries.appendData(new DataPoint(finalXValue, finalYValue), true, 7);
-//            }
-//        });
 
         changeSeriesAndLabel();
     }
@@ -1530,9 +1435,9 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
     }
 
     public void setMAverage(float MAverage) {
-        float sumM = setNextValueAndReturnSum(mSeveralM, MAverage, NUM_OF_POINTS);
-        if (sumM != -1) {
-            mMAverage = sumM / NUM_OF_POINTS;
+        float averageM = setNextValueAndReturnAverage(mSeveralM, MAverage);
+        if (averageM != -1) {
+            mMAverage = averageM;
             changeTextOfView(mMAverageCell, formatRealNumber(mMAverage));
         }
         recountP2Average();
@@ -1555,20 +1460,6 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
     public void setNuAverage(double nuAverage) {
         mNuAverage = nuAverage;
         changeTextOfView(mNuAverageCell, formatRealNumber(nuAverage));
-    }
-
-    private float setNextValueAndReturnSum(List<Float> list, float value, float numOfPoints) {
-        if (list.size() < numOfPoints) {
-            list.add(value);
-            return -1f;
-        } else {
-            float sumV = 0;
-            for (Float v : list) {
-                sumV += v;
-            }
-            list.clear();
-            return sumV;
-        }
     }
 
     private void recountP2() {
@@ -1607,9 +1498,9 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
     }
 
     public void setVAverage(float VAverage) {
-        float sumV = setNextValueAndReturnSum(mSeveralV, VAverage, NUM_OF_POINTS);
-        if (sumV != -1) {
-            mVAverage = sumV / NUM_OF_POINTS;
+        float averageV = setNextValueAndReturnAverage(mSeveralV, VAverage);
+        if (averageV != -1) {
+            mVAverage = averageV;
             changeTextOfView(mVAverageCell, formatRealNumber(mVAverage));
         }
         recountP2Average();
@@ -1673,9 +1564,9 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
     }
 
     public void setUAAverage(float UAAverage) {
-        float sumUA = setNextValueAndReturnSum(mSeveralUA, UAAverage, NUM_OF_POINTS);
-        if (sumUA != -1) {
-            mUAAverage = sumUA / NUM_OF_POINTS;
+        float averageUA = setNextValueAndReturnAverage(mSeveralUA, UAAverage);
+        if (averageUA != -1) {
+            mUAAverage = averageUA;
         }
     }
 
@@ -1686,9 +1577,9 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
     }
 
     public void setUBAverage(float UBAverage) {
-        float sumUB = setNextValueAndReturnSum(mSeveralUB, UBAverage, NUM_OF_POINTS);
-        if (sumUB != -1) {
-            mUBAverage = sumUB / NUM_OF_POINTS;
+        float averageUB = setNextValueAndReturnAverage(mSeveralUB, UBAverage);
+        if (averageUB != -1) {
+            mUBAverage = averageUB;
         }
     }
 
@@ -1699,9 +1590,9 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
     }
 
     public void setUCAverage(float UCAverage) {
-        float sumUC = setNextValueAndReturnSum(mSeveralUC, UCAverage, NUM_OF_POINTS);
-        if (sumUC != -1) {
-            mUCAverage = sumUC / NUM_OF_POINTS;
+        float averageUC = setNextValueAndReturnAverage(mSeveralUC, UCAverage);
+        if (averageUC != -1) {
+            mUCAverage = averageUC;
             setUAverage();
         }
     }
@@ -1730,9 +1621,9 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
     }
 
     public void setIAAverage(float IAAverage) {
-        float sumIA = setNextValueAndReturnSum(mSeveralIA, IAAverage, NUM_OF_POINTS);
-        if (sumIA != -1) {
-            mIAAverage = sumIA / NUM_OF_POINTS;
+        float averageIA = setNextValueAndReturnAverage(mSeveralIA, IAAverage);
+        if (averageIA != -1) {
+            mIAAverage = averageIA;
         }
     }
 
@@ -1743,9 +1634,9 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
     }
 
     public void setIBAverage(float IBAverage) {
-        float sumIB = setNextValueAndReturnSum(mSeveralIB, IBAverage, NUM_OF_POINTS);
-        if (sumIB != -1) {
-            mIBAverage = sumIB / NUM_OF_POINTS;
+        float averageIB = setNextValueAndReturnAverage(mSeveralIB, IBAverage);
+        if (averageIB != -1) {
+            mIBAverage = averageIB;
         }
     }
 
@@ -1756,9 +1647,9 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
     }
 
     public void setICAverage(float ICAverage) {
-        float sumIC = setNextValueAndReturnSum(mSeveralIC, ICAverage, NUM_OF_POINTS);
-        if (sumIC != -1) {
-            mICAverage = sumIC / NUM_OF_POINTS;
+        float averageIC = setNextValueAndReturnAverage(mSeveralIC, ICAverage);
+        if (averageIC != -1) {
+            mICAverage = averageIC;
             setIAverage();
         }
     }
@@ -1775,9 +1666,9 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
     }
 
     public void setP1Average(float P1Average) {
-        float sumP1 = setNextValueAndReturnSum(mSeveralP1, P1Average, NUM_OF_POINTS);
-        if (sumP1 != -1) {
-            mP1Average = sumP1 / NUM_OF_POINTS;
+        float averageP1 = setNextValueAndReturnAverage(mSeveralP1, P1Average);
+        if (averageP1 != -1) {
+            mP1Average = averageP1;
             changeTextOfView(mP1AverageCell, formatRealNumber(mP1Average));
         }
     }
@@ -1789,9 +1680,9 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
     }
 
     public void setSAverage(float SAverage) {
-        float sumS = setNextValueAndReturnSum(mSeveralS, SAverage, NUM_OF_POINTS);
-        if (sumS != -1) {
-            mSAverage = sumS / NUM_OF_POINTS;
+        float averageS = setNextValueAndReturnAverage(mSeveralS, SAverage);
+        if (averageS != -1) {
+            mSAverage = averageS;
             changeTextOfView(mSAverageCell, formatRealNumber(mSAverage));
         }
     }
@@ -1803,9 +1694,9 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
     }
 
     public void setCosAverage(float CosAverage) {
-        float sumCos = setNextValueAndReturnSum(mSeveralCos, CosAverage, NUM_OF_POINTS);
-        if (sumCos != -1) {
-            mCosAverage = sumCos / NUM_OF_POINTS;
+        float averageCos = setNextValueAndReturnAverage(mSeveralCos, CosAverage);
+        if (averageCos != -1) {
+            mCosAverage = averageCos;
             changeTextOfView(mCosAverageCell, formatRealNumber(mCosAverage));
         }
     }
@@ -1830,9 +1721,9 @@ public class Experiment1Activity extends AppCompatActivity implements Observer {
     }
 
     public void setTempEngineAverage(float tempEngineAverage) {
-        float sumTempEngine = setNextValueAndReturnSum(mSeveralTempEngine, tempEngineAverage, NUM_OF_POINTS);
-        if (sumTempEngine != -1) {
-            mTempEngineAverage = sumTempEngine / NUM_OF_POINTS;
+        float averageTempEngine = setNextValueAndReturnAverage(mSeveralTempEngine, tempEngineAverage);
+        if (averageTempEngine != -1) {
+            mTempEngineAverage = averageTempEngine;
             changeTextOfView(mTempEngineAverageCell, formatRealNumber(mTempEngineAverage));
         }
     }

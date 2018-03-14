@@ -41,7 +41,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
-import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -145,7 +144,9 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     public static final int EXPERIMENT_17_ID = 17;
     //endregion
 
-    private static final float DEFAULT_VALUE = -1f;
+    private static final int DEFAULT_VALUE_INTEGER = -1;
+    private static final float DEFAULT_VALUE_FLOAT = -1f;
+    private static final double DEFAULT_VALUE_DOUBLE = -1.;
 
     //region Константы параметров
     public static class OUTPUT_PARAMETER {
@@ -190,6 +191,7 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
         static final String M_MIN_R = "MMinR";
         static final String M_START_R = "MStartR";
         static final String I_START_R = "IStartR";
+
         static final String I13_IDLE_R = "I13IdleR";
         static final String P13_IDLE_R = "P13IdleR";
         static final String I12_IDLE_R = "I12IdleR";
@@ -211,6 +213,9 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
         static final String I05_IDLE_R = "I05IdleR";
         static final String P05_IDLE_R = "P05IdleR";
         static final String U05_IDLE_R = "U05IdleR";
+        static final String P_ST_R = "PStR";
+        static final String P_MECH_R = "PMechR";
+
         static final String I10_SC_R = "I10SCR";
         static final String P10_SC_R = "P10SCR";
         static final String I09_SC_R = "I09SCR";
@@ -221,18 +226,24 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
         static final String P07_SC_R = "P07SCR";
         static final String I06_SC_R = "I06SCR";
         static final String P06_SC_R = "P06SCR";
+
         static final String TEMP_ENGINE_R = "TempEngineR";
         static final String TEMP_AMBIENT_R = "TempAmbientR";
-        static final String IKAS_R_COLD = "IkasRCold";
-        static final String IKAS_R_20 = "IkasR20";
-        static final String IKAS_R_TYPE = "IkasR20";
-        static final String IKAS_R_HOT = "IkasRHot";
+
+        static final String IKAS_R_COLD_R = "IkasRColdR";
+        static final String IKAS_R_20_R = "IkasR20R";
+        static final String IKAS_R_TYPE_R = "IkasRTypeR";
+        static final String IKAS_R_HOT_R = "IkasRHotR";
+
         static final String MGR_R = "MgrR";
+
         static final String I_MVZ1_R = "I1MVZR";
         static final String I_MVZ2_R = "I2MVZR";
         static final String I_MVZ3_R = "I3MVZR";
+
         static final String U_VIU_R = "UViuR";
         static final String T_VIU_R = "TViuR";
+
         static final String V_OVERLOAD_R = "VOverloadR";
         static final String T_OVERLOAD_R = "TOverloadR";
         static final String SPECIFIED_I_OVERLOAD_R = "SpecifiedIOverloadR";
@@ -627,12 +638,12 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     TextView mE7P13;
     @BindView(R.id.e7_cos_1_3)
     TextView mE7Cos13;
-    @BindView(R.id.e7_v_1_3)
-    TextView mE7V13;
-    @BindView(R.id.e7_temp_1_3_ambient)
-    TextView mE7Temp13Ambient;
-    @BindView(R.id.e7_temp_1_3_engine)
-    TextView mE7Temp13Engine;
+    @BindView(R.id.e7_p_cop_1_3)
+    TextView mE7PCop13;
+    @BindView(R.id.e7_p_m_p_st_1_3)
+    TextView mE7PmPst13;
+    @BindView(R.id.e7_p_st_1_3)
+    TextView mE7Pst13;
     @BindView(R.id.e7_t_1_3)
     TextView mE7T13;
     @BindView(R.id.e7_u_1_3_c)
@@ -655,12 +666,12 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     TextView mE7P12;
     @BindView(R.id.e7_cos_1_2)
     TextView mE7Cos12;
-    @BindView(R.id.e7_v_1_2)
-    TextView mE7V12;
-    @BindView(R.id.e7_temp_1_2_ambient)
-    TextView mE7Temp12Ambient;
-    @BindView(R.id.e7_temp_1_2_engine)
-    TextView mE7Temp12Engine;
+    @BindView(R.id.e7_p_cop_1_2)
+    TextView mE7PCop12;
+    @BindView(R.id.e7_p_m_p_st_1_2)
+    TextView mE7PmPst12;
+    @BindView(R.id.e7_p_st_1_2)
+    TextView mE7Pst12;
     @BindView(R.id.e7_t_1_2)
     TextView mE7T12;
     @BindView(R.id.e7_u_1_2_c)
@@ -683,12 +694,12 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     TextView mE7P11;
     @BindView(R.id.e7_cos_1_1)
     TextView mE7Cos11;
-    @BindView(R.id.e7_v_1_1)
-    TextView mE7V11;
-    @BindView(R.id.e7_temp_1_1_ambient)
-    TextView mE7Temp11Ambient;
-    @BindView(R.id.e7_temp_1_1_engine)
-    TextView mE7Temp11Engine;
+    @BindView(R.id.e7_p_cop_1_1)
+    TextView mE7PCop11;
+    @BindView(R.id.e7_p_m_p_st_1_1)
+    TextView mE7PmPst11;
+    @BindView(R.id.e7_p_st_1_1)
+    TextView mE7Pst11;
     @BindView(R.id.e7_t_1_1)
     TextView mE7T11;
     @BindView(R.id.e7_u_1_1_c)
@@ -711,12 +722,12 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     TextView mE7P10;
     @BindView(R.id.e7_cos_1_0)
     TextView mE7Cos10;
-    @BindView(R.id.e7_v_1_0)
-    TextView mE7V10;
-    @BindView(R.id.e7_temp_1_0_ambient)
-    TextView mE7Temp10Ambient;
-    @BindView(R.id.e7_temp_1_0_engine)
-    TextView mE7Temp10Engine;
+    @BindView(R.id.e7_p_cop_1_0)
+    TextView mE7PCop10;
+    @BindView(R.id.e7_p_m_p_st_1_0)
+    TextView mE7PmPst10;
+    @BindView(R.id.e7_p_st_1_0)
+    TextView mE7Pst10;
     @BindView(R.id.e7_t_1_0)
     TextView mE7T10;
     @BindView(R.id.e7_u_1_0_c)
@@ -739,12 +750,12 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     TextView mE7P09;
     @BindView(R.id.e7_cos_0_9)
     TextView mE7Cos09;
-    @BindView(R.id.e7_v_0_9)
-    TextView mE7V09;
-    @BindView(R.id.e7_temp_0_9_ambient)
-    TextView mE7Temp09Ambient;
-    @BindView(R.id.e7_temp_0_9_engine)
-    TextView mE7Temp09Engine;
+    @BindView(R.id.e7_p_cop_0_9)
+    TextView mE7PCop09;
+    @BindView(R.id.e7_p_m_p_st_0_9)
+    TextView mE7PmPst09;
+    @BindView(R.id.e7_p_st_0_9)
+    TextView mE7Pst09;
     @BindView(R.id.e7_t_0_9)
     TextView mE7T09;
     @BindView(R.id.e7_u_0_9_c)
@@ -767,12 +778,12 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     TextView mE7P08;
     @BindView(R.id.e7_cos_0_8)
     TextView mE7Cos08;
-    @BindView(R.id.e7_v_0_8)
-    TextView mE7V08;
-    @BindView(R.id.e7_temp_0_8_ambient)
-    TextView mE7Temp08Ambient;
-    @BindView(R.id.e7_temp_0_8_engine)
-    TextView mE7Temp08Engine;
+    @BindView(R.id.e7_p_cop_0_8)
+    TextView mE7PCop08;
+    @BindView(R.id.e7_p_m_p_st_0_8)
+    TextView mE7PmPst08;
+    @BindView(R.id.e7_p_st_0_8)
+    TextView mE7Pst08;
     @BindView(R.id.e7_t_0_8)
     TextView mE7T08;
     @BindView(R.id.e7_u_0_8_c)
@@ -795,12 +806,12 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     TextView mE7P07;
     @BindView(R.id.e7_cos_0_7)
     TextView mE7Cos07;
-    @BindView(R.id.e7_v_0_7)
-    TextView mE7V07;
-    @BindView(R.id.e7_temp_0_7_ambient)
-    TextView mE7Temp07Ambient;
-    @BindView(R.id.e7_temp_0_7_engine)
-    TextView mE7Temp07Engine;
+    @BindView(R.id.e7_p_cop_0_7)
+    TextView mE7PCop07;
+    @BindView(R.id.e7_p_m_p_st_0_7)
+    TextView mE7PmPst07;
+    @BindView(R.id.e7_p_st_0_7)
+    TextView mE7Pst07;
     @BindView(R.id.e7_t_0_7)
     TextView mE7T07;
     @BindView(R.id.e7_u_0_7_c)
@@ -823,12 +834,12 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     TextView mE7P06;
     @BindView(R.id.e7_cos_0_6)
     TextView mE7Cos06;
-    @BindView(R.id.e7_v_0_6)
-    TextView mE7V06;
-    @BindView(R.id.e7_temp_0_6_ambient)
-    TextView mE7Temp06Ambient;
-    @BindView(R.id.e7_temp_0_6_engine)
-    TextView mE7Temp06Engine;
+    @BindView(R.id.e7_p_cop_0_6)
+    TextView mE7PCop06;
+    @BindView(R.id.e7_p_m_p_st_0_6)
+    TextView mE7PmPst06;
+    @BindView(R.id.e7_p_st_0_6)
+    TextView mE7Pst06;
     @BindView(R.id.e7_t_0_6)
     TextView mE7T06;
     @BindView(R.id.e7_u_0_6_c)
@@ -851,12 +862,12 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     TextView mE7P05;
     @BindView(R.id.e7_cos_0_5)
     TextView mE7Cos05;
-    @BindView(R.id.e7_v_0_5)
-    TextView mE7V05;
-    @BindView(R.id.e7_temp_0_5_ambient)
-    TextView mE7Temp05Ambient;
-    @BindView(R.id.e7_temp_0_5_engine)
-    TextView mE7Temp05Engine;
+    @BindView(R.id.e7_p_cop_0_5)
+    TextView mE7PCop05;
+    @BindView(R.id.e7_p_m_p_st_0_5)
+    TextView mE7PmPst05;
+    @BindView(R.id.e7_p_st_0_5)
+    TextView mE7Pst05;
     @BindView(R.id.e7_t_0_5)
     TextView mE7T05;
     @BindView(R.id.e7_u_0_5_c)
@@ -867,6 +878,10 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     TextView mE7U05Average;
     @BindView(R.id.e7_i_0_5_average)
     TextView mE7I05Average;
+    @BindView(R.id.e7_r)
+    TextView mE7R;
+    @BindView(R.id.e7_p_mech)
+    TextView mE7PMech;
 
     @BindView(R.id.e8_u_a)
     TextView mE8UA;
@@ -1422,30 +1437,9 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
         mBroadcastReceiver = new BroadcastReceiver() {
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
-                UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-                if (ACTION_INIT_USB_PERMISSION.equals(action)) {
+                if (ACTION_INIT_USB_PERMISSION.equals(action) || ACTION_USB_ATTACHED.equals(action)) {
                     synchronized (this) {
                         getPermissionDevices();
-                    }
-                } else if (ACTION_USB_PERMISSION.equals(action)) {
-                    synchronized (this) {
-                        if (!intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-                            if (device != null) {
-                                if (Objects.equals(device.getProductName(), RS485_DEVICE_NAME) ||
-                                        (Objects.equals(device.getProductName(), MEGGER_DEVICE_NAME))) {
-                                    requestPermission(device);
-                                }
-                            }
-                        }
-                    }
-                } else if (ACTION_USB_ATTACHED.equals(action)) {
-                    synchronized (this) {
-                        if (device != null) {
-                            if ((Objects.equals(device.getProductName(), RS485_DEVICE_NAME)) ||
-                                    (Objects.equals(device.getProductName(), MEGGER_DEVICE_NAME))) {
-                                requestPermission(device);
-                            }
-                        }
                     }
                 }
             }
@@ -1463,14 +1457,6 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
                     usbManager.requestPermission(usbDevice, pi);
                 }
             }
-        }
-    }
-
-    private void requestPermission(UsbDevice device) {
-        UsbManager usbManager = (UsbManager) getSystemService(USB_SERVICE);
-        PendingIntent pi = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
-        if (usbManager != null) {
-            usbManager.requestPermission(device, pi);
         }
     }
 
@@ -1701,9 +1687,9 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
             mE7I13B.setText(experiments.getE7I13B());
             mE7P13.setText(experiments.getE7P13());
             mE7Cos13.setText(experiments.getE7Cos13());
-            mE7V13.setText(experiments.getE7V13());
-            mE7Temp13Ambient.setText(experiments.getE7Temp13Ambient());
-            mE7Temp13Engine.setText(experiments.getE7Temp13Engine());
+            mE7PCop13.setText(experiments.getE7PCop13());
+            mE7PmPst13.setText(experiments.getE7PmPst13());
+            mE7Pst13.setText(experiments.getE7Pst13());
             mE7T13.setText(experiments.getE7T13());
             mE7U13C.setText(experiments.getE7U13C());
             mE7I13C.setText(experiments.getE7I13C());
@@ -1715,9 +1701,9 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
             mE7I12B.setText(experiments.getE7I12B());
             mE7P12.setText(experiments.getE7P12());
             mE7Cos12.setText(experiments.getE7Cos12());
-            mE7V12.setText(experiments.getE7V12());
-            mE7Temp12Ambient.setText(experiments.getE7Temp12Ambient());
-            mE7Temp12Engine.setText(experiments.getE7Temp12Engine());
+            mE7PCop12.setText(experiments.getE7PCop12());
+            mE7PmPst12.setText(experiments.getE7PmPst12());
+            mE7Pst12.setText(experiments.getE7Pst12());
             mE7T12.setText(experiments.getE7T12());
             mE7U12C.setText(experiments.getE7U12C());
             mE7I12C.setText(experiments.getE7I12C());
@@ -1729,9 +1715,9 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
             mE7I11B.setText(experiments.getE7I11B());
             mE7P11.setText(experiments.getE7P11());
             mE7Cos11.setText(experiments.getE7Cos11());
-            mE7V11.setText(experiments.getE7V11());
-            mE7Temp11Ambient.setText(experiments.getE7Temp11Ambient());
-            mE7Temp11Engine.setText(experiments.getE7Temp11Engine());
+            mE7PCop11.setText(experiments.getE7PCop11());
+            mE7PmPst11.setText(experiments.getE7PmPst11());
+            mE7Pst11.setText(experiments.getE7Pst11());
             mE7T11.setText(experiments.getE7T11());
             mE7U11C.setText(experiments.getE7U11C());
             mE7I11C.setText(experiments.getE7I11C());
@@ -1743,9 +1729,9 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
             mE7I10B.setText(experiments.getE7I10B());
             mE7P10.setText(experiments.getE7P10());
             mE7Cos10.setText(experiments.getE7Cos10());
-            mE7V10.setText(experiments.getE7V10());
-            mE7Temp10Ambient.setText(experiments.getE7Temp10Ambient());
-            mE7Temp10Engine.setText(experiments.getE7Temp10Engine());
+            mE7PCop10.setText(experiments.getE7PCop10());
+            mE7PmPst10.setText(experiments.getE7PmPst10());
+            mE7Pst10.setText(experiments.getE7Pst10());
             mE7T10.setText(experiments.getE7T10());
             mE7U10C.setText(experiments.getE7U10C());
             mE7I10C.setText(experiments.getE7I10C());
@@ -1757,9 +1743,9 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
             mE7I09B.setText(experiments.getE7I09B());
             mE7P09.setText(experiments.getE7P09());
             mE7Cos09.setText(experiments.getE7Cos09());
-            mE7V09.setText(experiments.getE7V09());
-            mE7Temp09Ambient.setText(experiments.getE7Temp09Ambient());
-            mE7Temp09Engine.setText(experiments.getE7Temp09Engine());
+            mE7PCop09.setText(experiments.getE7PCop09());
+            mE7PmPst09.setText(experiments.getE7PmPst09());
+            mE7Pst09.setText(experiments.getE7Pst09());
             mE7T09.setText(experiments.getE7T09());
             mE7U09C.setText(experiments.getE7U09C());
             mE7I09C.setText(experiments.getE7I09C());
@@ -1771,9 +1757,9 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
             mE7I08B.setText(experiments.getE7I08B());
             mE7P08.setText(experiments.getE7P08());
             mE7Cos08.setText(experiments.getE7Cos08());
-            mE7V08.setText(experiments.getE7V08());
-            mE7Temp08Ambient.setText(experiments.getE7Temp08Ambient());
-            mE7Temp08Engine.setText(experiments.getE7Temp08Engine());
+            mE7PCop08.setText(experiments.getE7PCop08());
+            mE7PmPst08.setText(experiments.getE7PmPst08());
+            mE7Pst08.setText(experiments.getE7Pst08());
             mE7T08.setText(experiments.getE7T08());
             mE7U08C.setText(experiments.getE7U08C());
             mE7I08C.setText(experiments.getE7I08C());
@@ -1785,9 +1771,9 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
             mE7I07B.setText(experiments.getE7I07B());
             mE7P07.setText(experiments.getE7P07());
             mE7Cos07.setText(experiments.getE7Cos07());
-            mE7V07.setText(experiments.getE7V07());
-            mE7Temp07Ambient.setText(experiments.getE7Temp07Ambient());
-            mE7Temp07Engine.setText(experiments.getE7Temp07Engine());
+            mE7PCop07.setText(experiments.getE7PCop07());
+            mE7PmPst07.setText(experiments.getE7PmPst07());
+            mE7Pst07.setText(experiments.getE7Pst07());
             mE7T07.setText(experiments.getE7T07());
             mE7U07C.setText(experiments.getE7U07C());
             mE7I07C.setText(experiments.getE7I07C());
@@ -1799,9 +1785,9 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
             mE7I06B.setText(experiments.getE7I06B());
             mE7P06.setText(experiments.getE7P06());
             mE7Cos06.setText(experiments.getE7Cos06());
-            mE7V06.setText(experiments.getE7V06());
-            mE7Temp06Ambient.setText(experiments.getE7Temp06Ambient());
-            mE7Temp06Engine.setText(experiments.getE7Temp06Engine());
+            mE7PCop06.setText(experiments.getE7PCop06());
+            mE7PmPst06.setText(experiments.getE7PmPst06());
+            mE7Pst06.setText(experiments.getE7Pst06());
             mE7T06.setText(experiments.getE7T06());
             mE7U06C.setText(experiments.getE7U06C());
             mE7I06C.setText(experiments.getE7I06C());
@@ -1813,14 +1799,16 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
             mE7I05B.setText(experiments.getE7I05B());
             mE7P05.setText(experiments.getE7P05());
             mE7Cos05.setText(experiments.getE7Cos05());
-            mE7V05.setText(experiments.getE7V05());
-            mE7Temp05Ambient.setText(experiments.getE7Temp05Ambient());
-            mE7Temp05Engine.setText(experiments.getE7Temp05Engine());
+            mE7PCop05.setText(experiments.getE7PCop05());
+            mE7PmPst05.setText(experiments.getE7PmPst05());
+            mE7Pst05.setText(experiments.getE7Pst05());
             mE7T05.setText(experiments.getE7T05());
             mE7U05C.setText(experiments.getE7U05C());
             mE7I05C.setText(experiments.getE7I05C());
             mE7U05Average.setText(experiments.getE7U05Average());
             mE7I05Average.setText(experiments.getE7I05Average());
+            mE7R.setText(experiments.getE7R());
+            mE7PMech.setText(experiments.getE7PMech());
 
             mE8UA.setText(experiments.getE8UA());
             mE8IA.setText(experiments.getE8IA());
@@ -2473,6 +2461,8 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
                 intent.putExtra(OUTPUT_PARAMETER.SPECIFIED_T2, mModel.getTOnStageIdle()); // Время нахождения на каждой ступени ХХ
                 intent.putExtra(OUTPUT_PARAMETER.SPECIFIED_FREQUENCY, mModel.getFN()); // Номинальная частота сети
                 intent.putExtra(OUTPUT_PARAMETER.NUM_OF_STAGES_IDLE, mModel.getNumOfStagesIdle()); // Количество ступеней
+                intent.putExtra(OUTPUT_PARAMETER.SPECIFIED_R_TYPE, mModel.getIkasRType()); // Номер обмотки (1-3)
+                intent.putExtra(OUTPUT_PARAMETER.SPECIFIED_R, mModel.getRIkas()); // Среднее сопротивление ИКАС
                 startActivityForResult(intent, EXPERIMENT_7_ID);
                 break;
             case EXPERIMENT_8:
@@ -2564,98 +2554,100 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
         EventsHolder.addLine(String.format("%s Испытание \"%s\" завершилось", mTimeFormat.format(System.currentTimeMillis()), mExperimentType));
         switch (requestCode) {
             case EXPERIMENT_1_ID:
-                mModel.setP2R(data.getFloatExtra(INPUT_PARAMETER.P2_R, DEFAULT_VALUE));
-                mModel.setUR(data.getFloatExtra(INPUT_PARAMETER.U_R, DEFAULT_VALUE));
-                mModel.setIR(data.getFloatExtra(INPUT_PARAMETER.I_R, DEFAULT_VALUE));
-                mModel.setVR(data.getFloatExtra(INPUT_PARAMETER.V_R, DEFAULT_VALUE));
-                mModel.setSR(data.getFloatExtra(INPUT_PARAMETER.S_R, DEFAULT_VALUE));
-                mModel.setNuR(data.getFloatExtra(INPUT_PARAMETER.NU_R, DEFAULT_VALUE));
-                mModel.setCosR(data.getFloatExtra(INPUT_PARAMETER.COS_R, DEFAULT_VALUE));
-                mModel.setP1R(data.getFloatExtra(INPUT_PARAMETER.P1_R, DEFAULT_VALUE));
-                mModel.setMR(data.getFloatExtra(INPUT_PARAMETER.M_R, DEFAULT_VALUE));
+                mModel.setP2R(data.getFloatExtra(INPUT_PARAMETER.P2_R, DEFAULT_VALUE_FLOAT));
+                mModel.setUR(data.getFloatExtra(INPUT_PARAMETER.U_R, DEFAULT_VALUE_FLOAT));
+                mModel.setIR(data.getFloatExtra(INPUT_PARAMETER.I_R, DEFAULT_VALUE_FLOAT));
+                mModel.setVR(data.getFloatExtra(INPUT_PARAMETER.V_R, DEFAULT_VALUE_FLOAT));
+                mModel.setSR(data.getFloatExtra(INPUT_PARAMETER.S_R, DEFAULT_VALUE_FLOAT));
+                mModel.setNuR(data.getFloatExtra(INPUT_PARAMETER.NU_R, DEFAULT_VALUE_FLOAT));
+                mModel.setCosR(data.getFloatExtra(INPUT_PARAMETER.COS_R, DEFAULT_VALUE_FLOAT));
+                mModel.setP1R(data.getFloatExtra(INPUT_PARAMETER.P1_R, DEFAULT_VALUE_FLOAT));
+                mModel.setMR(data.getFloatExtra(INPUT_PARAMETER.M_R, DEFAULT_VALUE_FLOAT));
                 break;
             case EXPERIMENT_2_ID:
                 break;
             case EXPERIMENT_3_ID:
-                mModel.setSpecifiedIOverloadR(data.getFloatExtra(INPUT_PARAMETER.SPECIFIED_I_OVERLOAD_R, DEFAULT_VALUE));
-                mModel.setIOverloadR(data.getFloatExtra(INPUT_PARAMETER.I_OVERLOAD_R, DEFAULT_VALUE));
+                mModel.setSpecifiedIOverloadR(data.getFloatExtra(INPUT_PARAMETER.SPECIFIED_I_OVERLOAD_R, DEFAULT_VALUE_FLOAT));
+                mModel.setIOverloadR(data.getFloatExtra(INPUT_PARAMETER.I_OVERLOAD_R, DEFAULT_VALUE_FLOAT));
                 break;
             case EXPERIMENT_4_ID:
-                mModel.setUMVZ1R(data.getFloatExtra(INPUT_PARAMETER.I_MVZ1_R, DEFAULT_VALUE));
-                mModel.setUMVZ2R(data.getFloatExtra(INPUT_PARAMETER.I_MVZ2_R, DEFAULT_VALUE));
-                mModel.setUMVZ3R(data.getFloatExtra(INPUT_PARAMETER.I_MVZ3_R, DEFAULT_VALUE));
+                mModel.setUMVZ1R(data.getFloatExtra(INPUT_PARAMETER.I_MVZ1_R, DEFAULT_VALUE_FLOAT));
+                mModel.setUMVZ2R(data.getFloatExtra(INPUT_PARAMETER.I_MVZ2_R, DEFAULT_VALUE_FLOAT));
+                mModel.setUMVZ3R(data.getFloatExtra(INPUT_PARAMETER.I_MVZ3_R, DEFAULT_VALUE_FLOAT));
                 break;
             case EXPERIMENT_5_ID:
-                mModel.setIkasRCold(data.getFloatExtra(INPUT_PARAMETER.IKAS_R_COLD, DEFAULT_VALUE));
-                mModel.setIkasR20(data.getFloatExtra(INPUT_PARAMETER.IKAS_R_20, DEFAULT_VALUE));
-                mModel.setIkasRType(data.getIntExtra(INPUT_PARAMETER.IKAS_R_TYPE, 1));
+                mModel.setIkasRColdR(data.getFloatExtra(INPUT_PARAMETER.IKAS_R_COLD_R, DEFAULT_VALUE_FLOAT));
+                mModel.setIkasR20R(data.getFloatExtra(INPUT_PARAMETER.IKAS_R_20_R, DEFAULT_VALUE_FLOAT));
+                mModel.setIkasRTypeR(data.getIntExtra(INPUT_PARAMETER.IKAS_R_TYPE_R, DEFAULT_VALUE_INTEGER));
                 break;
             case EXPERIMENT_6_ID:
-                mModel.setUViuR(data.getFloatExtra(INPUT_PARAMETER.U_VIU_R, DEFAULT_VALUE));
-                mModel.setTViuR(data.getFloatExtra(INPUT_PARAMETER.T_VIU_R, DEFAULT_VALUE));
+                mModel.setUViuR(data.getFloatExtra(INPUT_PARAMETER.U_VIU_R, DEFAULT_VALUE_FLOAT));
+                mModel.setTViuR(data.getFloatExtra(INPUT_PARAMETER.T_VIU_R, DEFAULT_VALUE_FLOAT));
                 break;
             case EXPERIMENT_7_ID:
-                mModel.setI13IdleR(data.getFloatExtra(INPUT_PARAMETER.I13_IDLE_R, DEFAULT_VALUE));
-                mModel.setP13IdleR(data.getFloatExtra(INPUT_PARAMETER.P13_IDLE_R, DEFAULT_VALUE));
-                mModel.setI12IdleR(data.getFloatExtra(INPUT_PARAMETER.I12_IDLE_R, DEFAULT_VALUE));
-                mModel.setP12IdleR(data.getFloatExtra(INPUT_PARAMETER.P12_IDLE_R, DEFAULT_VALUE));
-                mModel.setI11IdleR(data.getFloatExtra(INPUT_PARAMETER.I11_IDLE_R, DEFAULT_VALUE));
-                mModel.setP11IdleR(data.getFloatExtra(INPUT_PARAMETER.P11_IDLE_R, DEFAULT_VALUE));
-                mModel.setI10IdleR(data.getFloatExtra(INPUT_PARAMETER.I10_IDLE_R, DEFAULT_VALUE));
-                mModel.setP10IdleR(data.getFloatExtra(INPUT_PARAMETER.P10_IDLE_R, DEFAULT_VALUE));
-                mModel.setI09IdleR(data.getFloatExtra(INPUT_PARAMETER.I09_IDLE_R, DEFAULT_VALUE));
-                mModel.setP09IdleR(data.getFloatExtra(INPUT_PARAMETER.P09_IDLE_R, DEFAULT_VALUE));
-                mModel.setI08IdleR(data.getFloatExtra(INPUT_PARAMETER.I08_IDLE_R, DEFAULT_VALUE));
-                mModel.setP08IdleR(data.getFloatExtra(INPUT_PARAMETER.P08_IDLE_R, DEFAULT_VALUE));
-                mModel.setI07IdleR(data.getFloatExtra(INPUT_PARAMETER.I07_IDLE_R, DEFAULT_VALUE));
-                mModel.setP07IdleR(data.getFloatExtra(INPUT_PARAMETER.P07_IDLE_R, DEFAULT_VALUE));
-                mModel.setU07IdleR(data.getFloatExtra(INPUT_PARAMETER.U07_IDLE_R, DEFAULT_VALUE));
-                mModel.setI06IdleR(data.getFloatExtra(INPUT_PARAMETER.I06_IDLE_R, DEFAULT_VALUE));
-                mModel.setP06IdleR(data.getFloatExtra(INPUT_PARAMETER.P06_IDLE_R, DEFAULT_VALUE));
-                mModel.setU06IdleR(data.getFloatExtra(INPUT_PARAMETER.U06_IDLE_R, DEFAULT_VALUE));
-                mModel.setI05IdleR(data.getFloatExtra(INPUT_PARAMETER.I05_IDLE_R, DEFAULT_VALUE));
-                mModel.setP05IdleR(data.getFloatExtra(INPUT_PARAMETER.P05_IDLE_R, DEFAULT_VALUE));
-                mModel.setU05IdleR(data.getFloatExtra(INPUT_PARAMETER.U05_IDLE_R, DEFAULT_VALUE));
+                mModel.setI13IdleR(data.getFloatExtra(INPUT_PARAMETER.I13_IDLE_R, DEFAULT_VALUE_FLOAT));
+                mModel.setP13IdleR(data.getFloatExtra(INPUT_PARAMETER.P13_IDLE_R, DEFAULT_VALUE_FLOAT));
+                mModel.setI12IdleR(data.getFloatExtra(INPUT_PARAMETER.I12_IDLE_R, DEFAULT_VALUE_FLOAT));
+                mModel.setP12IdleR(data.getFloatExtra(INPUT_PARAMETER.P12_IDLE_R, DEFAULT_VALUE_FLOAT));
+                mModel.setI11IdleR(data.getFloatExtra(INPUT_PARAMETER.I11_IDLE_R, DEFAULT_VALUE_FLOAT));
+                mModel.setP11IdleR(data.getFloatExtra(INPUT_PARAMETER.P11_IDLE_R, DEFAULT_VALUE_FLOAT));
+                mModel.setI10IdleR(data.getFloatExtra(INPUT_PARAMETER.I10_IDLE_R, DEFAULT_VALUE_FLOAT));
+                mModel.setP10IdleR(data.getFloatExtra(INPUT_PARAMETER.P10_IDLE_R, DEFAULT_VALUE_FLOAT));
+                mModel.setI09IdleR(data.getFloatExtra(INPUT_PARAMETER.I09_IDLE_R, DEFAULT_VALUE_FLOAT));
+                mModel.setP09IdleR(data.getFloatExtra(INPUT_PARAMETER.P09_IDLE_R, DEFAULT_VALUE_FLOAT));
+                mModel.setI08IdleR(data.getFloatExtra(INPUT_PARAMETER.I08_IDLE_R, DEFAULT_VALUE_FLOAT));
+                mModel.setP08IdleR(data.getFloatExtra(INPUT_PARAMETER.P08_IDLE_R, DEFAULT_VALUE_FLOAT));
+                mModel.setI07IdleR(data.getFloatExtra(INPUT_PARAMETER.I07_IDLE_R, DEFAULT_VALUE_FLOAT));
+                mModel.setP07IdleR(data.getFloatExtra(INPUT_PARAMETER.P07_IDLE_R, DEFAULT_VALUE_FLOAT));
+                mModel.setU07IdleR(data.getFloatExtra(INPUT_PARAMETER.U07_IDLE_R, DEFAULT_VALUE_FLOAT));
+                mModel.setI06IdleR(data.getFloatExtra(INPUT_PARAMETER.I06_IDLE_R, DEFAULT_VALUE_FLOAT));
+                mModel.setP06IdleR(data.getFloatExtra(INPUT_PARAMETER.P06_IDLE_R, DEFAULT_VALUE_FLOAT));
+                mModel.setU06IdleR(data.getFloatExtra(INPUT_PARAMETER.U06_IDLE_R, DEFAULT_VALUE_FLOAT));
+                mModel.setI05IdleR(data.getFloatExtra(INPUT_PARAMETER.I05_IDLE_R, DEFAULT_VALUE_FLOAT));
+                mModel.setP05IdleR(data.getFloatExtra(INPUT_PARAMETER.P05_IDLE_R, DEFAULT_VALUE_FLOAT));
+                mModel.setU05IdleR(data.getFloatExtra(INPUT_PARAMETER.U05_IDLE_R, DEFAULT_VALUE_FLOAT));
+                mModel.setPStR(data.getDoubleExtra(INPUT_PARAMETER.P_ST_R, DEFAULT_VALUE_DOUBLE));
+                mModel.setPMechR(data.getDoubleExtra(INPUT_PARAMETER.P_MECH_R, DEFAULT_VALUE_DOUBLE));
                 break;
             case EXPERIMENT_8_ID:
-                mModel.setVOverloadR(data.getFloatExtra(INPUT_PARAMETER.V_OVERLOAD_R, DEFAULT_VALUE));
-                mModel.setTOverloadR(data.getFloatExtra(INPUT_PARAMETER.T_OVERLOAD_R, DEFAULT_VALUE));
+                mModel.setVOverloadR(data.getFloatExtra(INPUT_PARAMETER.V_OVERLOAD_R, DEFAULT_VALUE_FLOAT));
+                mModel.setTOverloadR(data.getFloatExtra(INPUT_PARAMETER.T_OVERLOAD_R, DEFAULT_VALUE_FLOAT));
                 break;
             case EXPERIMENT_9_ID:
-                mModel.setI10SCR(data.getFloatExtra(INPUT_PARAMETER.I10_SC_R, DEFAULT_VALUE));
-                mModel.setP10SCR(data.getFloatExtra(INPUT_PARAMETER.P10_SC_R, DEFAULT_VALUE));
-                mModel.setI09SCR(data.getFloatExtra(INPUT_PARAMETER.I09_SC_R, DEFAULT_VALUE));
-                mModel.setP09SCR(data.getFloatExtra(INPUT_PARAMETER.P09_SC_R, DEFAULT_VALUE));
-                mModel.setI08SCR(data.getFloatExtra(INPUT_PARAMETER.I08_SC_R, DEFAULT_VALUE));
-                mModel.setP08SCR(data.getFloatExtra(INPUT_PARAMETER.P08_SC_R, DEFAULT_VALUE));
-                mModel.setI07SCR(data.getFloatExtra(INPUT_PARAMETER.I07_SC_R, DEFAULT_VALUE));
-                mModel.setP07SCR(data.getFloatExtra(INPUT_PARAMETER.P07_SC_R, DEFAULT_VALUE));
-                mModel.setI06SCR(data.getFloatExtra(INPUT_PARAMETER.I06_SC_R, DEFAULT_VALUE));
-                mModel.setP06SCR(data.getFloatExtra(INPUT_PARAMETER.P06_SC_R, DEFAULT_VALUE));
+                mModel.setI10SCR(data.getFloatExtra(INPUT_PARAMETER.I10_SC_R, DEFAULT_VALUE_FLOAT));
+                mModel.setP10SCR(data.getFloatExtra(INPUT_PARAMETER.P10_SC_R, DEFAULT_VALUE_FLOAT));
+                mModel.setI09SCR(data.getFloatExtra(INPUT_PARAMETER.I09_SC_R, DEFAULT_VALUE_FLOAT));
+                mModel.setP09SCR(data.getFloatExtra(INPUT_PARAMETER.P09_SC_R, DEFAULT_VALUE_FLOAT));
+                mModel.setI08SCR(data.getFloatExtra(INPUT_PARAMETER.I08_SC_R, DEFAULT_VALUE_FLOAT));
+                mModel.setP08SCR(data.getFloatExtra(INPUT_PARAMETER.P08_SC_R, DEFAULT_VALUE_FLOAT));
+                mModel.setI07SCR(data.getFloatExtra(INPUT_PARAMETER.I07_SC_R, DEFAULT_VALUE_FLOAT));
+                mModel.setP07SCR(data.getFloatExtra(INPUT_PARAMETER.P07_SC_R, DEFAULT_VALUE_FLOAT));
+                mModel.setI06SCR(data.getFloatExtra(INPUT_PARAMETER.I06_SC_R, DEFAULT_VALUE_FLOAT));
+                mModel.setP06SCR(data.getFloatExtra(INPUT_PARAMETER.P06_SC_R, DEFAULT_VALUE_FLOAT));
                 break;
             case EXPERIMENT_10_ID:
-                mModel.setMMaxR(data.getFloatExtra(INPUT_PARAMETER.M_MAX_R, DEFAULT_VALUE));
+                mModel.setMMaxR(data.getFloatExtra(INPUT_PARAMETER.M_MAX_R, DEFAULT_VALUE_FLOAT));
                 break;
             case EXPERIMENT_11_ID:
-                mModel.setMgrR(data.getFloatExtra(INPUT_PARAMETER.MGR_R, DEFAULT_VALUE));
+                mModel.setMgrR(data.getFloatExtra(INPUT_PARAMETER.MGR_R, DEFAULT_VALUE_FLOAT));
                 break;
             case EXPERIMENT_12_ID:
-                mModel.setTempEngineR(data.getFloatExtra(INPUT_PARAMETER.TEMP_ENGINE_R, DEFAULT_VALUE));
-                mModel.setTempAmbientR(data.getFloatExtra(INPUT_PARAMETER.TEMP_AMBIENT_R, DEFAULT_VALUE));
+                mModel.setTempEngineR(data.getFloatExtra(INPUT_PARAMETER.TEMP_ENGINE_R, DEFAULT_VALUE_FLOAT));
+                mModel.setTempAmbientR(data.getFloatExtra(INPUT_PARAMETER.TEMP_AMBIENT_R, DEFAULT_VALUE_FLOAT));
                 break;
             case EXPERIMENT_13_ID:
                 break;
             case EXPERIMENT_14_ID:
-                mModel.setMMinR(data.getFloatExtra(INPUT_PARAMETER.M_MIN_R, DEFAULT_VALUE));
+                mModel.setMMinR(data.getFloatExtra(INPUT_PARAMETER.M_MIN_R, DEFAULT_VALUE_FLOAT));
                 break;
             case EXPERIMENT_15_ID:
-                mModel.setMStartR(data.getFloatExtra(INPUT_PARAMETER.M_START_R, DEFAULT_VALUE));
-                mModel.setIStartR(data.getFloatExtra(INPUT_PARAMETER.I_START_R, DEFAULT_VALUE));
+                mModel.setMStartR(data.getFloatExtra(INPUT_PARAMETER.M_START_R, DEFAULT_VALUE_FLOAT));
+                mModel.setIStartR(data.getFloatExtra(INPUT_PARAMETER.I_START_R, DEFAULT_VALUE_FLOAT));
                 break;
             case EXPERIMENT_16_ID:
                 break;
             case EXPERIMENT_17_ID:
-                mModel.setIkasRHot(data.getFloatExtra(INPUT_PARAMETER.IKAS_R_HOT, DEFAULT_VALUE));
+                mModel.setIkasRHotR(data.getFloatExtra(INPUT_PARAMETER.IKAS_R_HOT_R, DEFAULT_VALUE_FLOAT));
                 break;
         }
 
@@ -2750,6 +2742,7 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
         mExperiment14.setVisibility(View.GONE);
         mExperiment15.setVisibility(View.GONE);
         mExperiment16.setVisibility(View.GONE);
+        mExperiment17.setVisibility(View.GONE);
     }
 
     @Override

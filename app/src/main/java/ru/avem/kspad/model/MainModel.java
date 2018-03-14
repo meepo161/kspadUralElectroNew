@@ -213,7 +213,7 @@ public class MainModel {
     }
 
     public int getIkasRType() {
-        return mProtocol.getIkasRType();
+        return mProtocol.getIkasRTypeR();
     }
 
 
@@ -357,6 +357,14 @@ public class MainModel {
         mProtocol.setU05IdleR(u05IdleR);
     }
 
+    public void setPStR(double PStR) {
+        mProtocol.setPStR(PStR);
+    }
+
+    public void setPMechR(double PMechR) {
+        mProtocol.setPMechR(PMechR);
+    }
+
     public void setI10SCR(float i10SCR) {
         mProtocol.setI10SCR(i10SCR);
     }
@@ -416,20 +424,20 @@ public class MainModel {
         mProtocol.setI3MVZR(UMVZ3R);
     }
 
-    public void setIkasRCold(float IkasRCold) {
-        mProtocol.setIkasRCold(IkasRCold);
+    public void setIkasRColdR(float IkasRColdR) {
+        mProtocol.setIkasRColdR(IkasRColdR);
     }
 
-    public void setIkasR20(float IkasR20) {
-        mProtocol.setIkasR20(IkasR20);
+    public void setIkasR20R(float IkasR20R) {
+        mProtocol.setIkasR20R(IkasR20R);
     }
 
-    public void setIkasRType(int IkasRType) {
-        mProtocol.setIkasRType(IkasRType);
+    public void setIkasRTypeR(int IkasRTypeR) {
+        mProtocol.setIkasRTypeR(IkasRTypeR);
     }
 
-    public void setIkasRHot(float IkasRHot) {
-        mProtocol.setIkasRHot(IkasRHot);
+    public void setIkasRHotR(float IkasRHotR) {
+        mProtocol.setIkasRHotR(IkasRHotR);
     }
 
     public void setUViuR(float UViuR) {

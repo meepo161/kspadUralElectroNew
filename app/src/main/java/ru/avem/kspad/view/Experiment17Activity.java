@@ -444,7 +444,7 @@ public class Experiment17Activity extends AppCompatActivity implements Observer 
 
     private void returnValues() {
         Intent data = new Intent();
-        data.putExtra(MainActivity.INPUT_PARAMETER.IKAS_R_HOT, mExtrapolatedR);
+        data.putExtra(MainActivity.INPUT_PARAMETER.IKAS_R_HOT_R, mExtrapolatedR);
         setResult(RESULT_OK, data);
     }
 
