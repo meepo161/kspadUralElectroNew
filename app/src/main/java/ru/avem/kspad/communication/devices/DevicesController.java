@@ -689,9 +689,11 @@ public class DevicesController extends Observable implements Runnable {
         mFRA800GeneratorController.resetAttempts();
         mVEHATController.setNeedToRead(true);
         mVEHATController.resetAttempts();
+        mPM130Controller.setNeedToRead(true);
+        mPM130Controller.resetAttempts();
     }
 
-    public void onKMsFrom14Group() {
+    public void onKMsFrom14GroupLoad() {
         onRegisterInTheModule(2, 1);
         onRegisterInTheModule(3, 1);
         if (mPlatformOneSelected) {
@@ -700,6 +702,17 @@ public class DevicesController extends Observable implements Runnable {
             onRegisterInTheModule(10, 1);
         }
     }
+
+    public void onKMsFrom14GroupObject() {
+        onRegisterInTheModule(2, 1);
+        onRegisterInTheModule(3, 1);
+        if (mPlatformOneSelected) {
+            onRegisterInTheModule(7, 1);
+        } else {
+            onRegisterInTheModule(6, 1);
+        }
+    }
+
 
     public void onObject() {
         if (mPlatformOneSelected) {
@@ -725,6 +738,13 @@ public class DevicesController extends Observable implements Runnable {
         } else {
             offRegisterInTheModule(10, 1);
         }
+    }
+
+    public void offAllKMs() {
+        mModule1 = 0;
+        mModule2 = 0;
+        writeToMod1Register(mModule1);
+        writeToMod1Register(mModule2);
     }
 
     public void initDevicesFrom15Group() {

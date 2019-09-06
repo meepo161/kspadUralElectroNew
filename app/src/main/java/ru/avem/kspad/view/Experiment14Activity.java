@@ -24,6 +24,7 @@ import ru.avem.kspad.communication.devices.DevicesController;
 import ru.avem.kspad.communication.devices.FR_A800.FRA800Model;
 import ru.avem.kspad.communication.devices.beckhoff.BeckhoffModel;
 import ru.avem.kspad.communication.devices.m40.M40Model;
+import ru.avem.kspad.communication.devices.pm130.PM130Model;
 import ru.avem.kspad.communication.devices.veha_t.VEHATModel;
 import ru.avem.kspad.database.model.Experiments;
 import ru.avem.kspad.model.ExperimentsHolder;
@@ -32,6 +33,7 @@ import static ru.avem.kspad.communication.devices.DeviceController.BECKHOFF_CONT
 import static ru.avem.kspad.communication.devices.DeviceController.FR_A800_GENERATOR_ID;
 import static ru.avem.kspad.communication.devices.DeviceController.FR_A800_OBJECT_ID;
 import static ru.avem.kspad.communication.devices.DeviceController.M40_ID;
+import static ru.avem.kspad.communication.devices.DeviceController.PM130_ID;
 import static ru.avem.kspad.communication.devices.DeviceController.VEHA_T_ID;
 import static ru.avem.kspad.utils.Utils.formatRealNumber;
 import static ru.avem.kspad.utils.Utils.sleep;
@@ -40,6 +42,11 @@ import static ru.avem.kspad.utils.Visibility.onFullscreenMode;
 public class Experiment14Activity extends AppCompatActivity implements Observer {
     //region Константы
     private static final String EXPERIMENT_NAME = "Определение минимального момента";
+    private static final int STATE_200_TO_5_MULTIPLIER = 200 / 5;
+    private static final int NEOPREDELENNO = -1;
+    private static final int FOUND = 0;
+    private static final int MALO = 1;
+    private static final int MNOGO = 2;
     //endregion
 
     //region Виджеты
@@ -81,6 +88,7 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
     private int mIntSpecifiedFrequencyK100;
     private int mSpecifiedU;
     private int mSpecifiedUK10;
+    private float initialP;
     private boolean mPlatformOneSelected;
 
     private boolean mBeckhoffResponding;
@@ -101,6 +109,9 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
     private boolean mFRA800GeneratorResponding;
     private boolean mFRA800GeneratorReady;
     private float mMDiff;
+
+    private boolean mPM130Responding;
+    private float pm130Power;
     //endregion
 
     @Override
@@ -219,38 +230,38 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
                 changeTextOfView(mStatus, getNotRespondingDevicesString("Нет связи с устройствами"));
                 sleep(100);
             }
-
+            if (isExperimentStart() && mStartState) {
+                getNominalP();
+            }
             changeTextOfView(mStatus, "Инициализация...");
             mDevicesController.setObjectParams(mSpecifiedUK10, mIntSpecifiedFrequencyK100, mIntSpecifiedFrequencyK100);
             mDevicesController.setGeneratorParams(1 * 10, mIntSpecifiedFrequencyK100, mIntSpecifiedFrequencyK100);
 
-            int result = 1;
-            int u = 90;
+            int result = NEOPREDELENNO;
+            int minU = 0;
+            int maxU = 380;
+            int attempts = 9;
             do {
+                int u = minU + (maxU - minU) / 2;
                 mMMax = 0;
-                if (result == 1) {
-                    u += 10;
-                    if (u > 400) {
-                        break;
-                    }
-                } else if (result == 2) {
-                    u -= 10;
-                    if (u <= 0) {
-                        break;
-                    }
+                if (result == MALO) {
+                    minU = u;
+                } else if (result == MNOGO) {
+                    maxU = u;
                 }
                 result = startNextIteration(u);
-            } while (isExperimentStart() && (result != 0) && mStartState && isDevicesResponding());
+            } while (isExperimentStart() && (result != FOUND) && mStartState && isDevicesResponding() && (attempts-- > 0));
 
 
             return null;
         }
 
         private String getNotRespondingDevicesString(String mainText) {
-            return String.format("%s %s%s%s%s%s",
+            return String.format("%s %s%s%s%s%s%s",
                     mainText,
                     isBeckhoffResponding() ? "" : "БСУ, ",
                     isM40Responding() ? "" : "Датчик момента, ",
+                    mPM130Responding ? "" : "PM130, ",
                     isFRA800ObjectResponding() ? "" : "ЧП ОИ, ",
                     isFRA800GeneratorResponding() ? "" : "ЧП генератора, ",
                     isVEHATResponding() ? "" : "ВЕХА-Т");
@@ -276,13 +287,39 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
         }
     }
 
+    private void getNominalP() {
+        if (isExperimentStart() && mStartState && isDevicesResponding()) {
+            mDevicesController.onKMsFrom14GroupObject();
+            sleep(500);
+            mDevicesController.startObject();
+        }
+
+        while (isExperimentStart() && !mFRA800ObjectReady && mStartState && isDevicesResponding()) {
+            sleep(100);
+            changeTextOfView(mStatus, "Ожидаем, пока частотный преобразователь ОИ выйдет к заданным характеристикам");
+        }
+
+        int t = 5;
+        while (isExperimentStart() && (--t > 0) && mStartState && isDevicesResponding()) {
+            changeTextOfView(mStatus, "Ждём 5 секунд. Осталось: " + t);
+            sleep(1000);
+        }
+
+        initialP = pm130Power;
+        changeTextOfView(mStatus, "Считываем P");
+
+        sleep(500);
+        mDevicesController.stopObject();
+        mDevicesController.offAllKMs();
+    }
+
     private int startNextIteration(int u) {
-        int result = -1;
+        int result = NEOPREDELENNO;
         changeTextOfView(mStatus, "При U=" + u);
         sleep(500);
 
         if (isExperimentStart() && mStartState && isDevicesResponding()) {
-            mDevicesController.onKMsFrom14Group();
+            mDevicesController.onKMsFrom14GroupLoad();
             sleep(500);
             mDevicesController.startObject();
         }
@@ -332,11 +369,11 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
 
         changeTextOfView(mStatus, "Сравниваем V");
         if ((mV > (mV1 * 0.2)) && (mV < (mV1 * 0.9))) {
-            result = 0;
-        } else if (mV >= (mV1 * 0.9)) {
-            result = 1;
-        } else if (mV <= (mV1 * 0.2)) {
-            result = 2;
+            result = FOUND;
+        } else if (pm130Power > initialP) {
+            result = MALO;
+        } else if (pm130Power < initialP) {
+            result = MNOGO;
         }
 
         changeTextOfView(mStatus, "Ожидаем");
@@ -365,7 +402,7 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
 
     private boolean isDevicesResponding() {
         return isBeckhoffResponding() && isM40Responding() && isFRA800ObjectResponding() &&
-                isFRA800GeneratorResponding() && isVEHATResponding();
+                isFRA800GeneratorResponding() && isVEHATResponding() && mPM130Responding;
     }
 
     @Override
@@ -452,6 +489,16 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
                         break;
                     case VEHATModel.ROTATION_FREQUENCY_PARAM:
                         setV((float) value);
+                        break;
+                }
+                break;
+            case PM130_ID:
+                switch (param) {
+                    case PM130Model.RESPONDING_PARAM:
+                        mPM130Responding = ((boolean) value);
+                        break;
+                    case PM130Model.P_PARAM:
+                        pm130Power = (float) value * STATE_200_TO_5_MULTIPLIER; //TODO какую ступень
                         break;
                 }
                 break;
