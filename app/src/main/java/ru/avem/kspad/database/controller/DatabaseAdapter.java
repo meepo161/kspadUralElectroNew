@@ -51,6 +51,10 @@ public class DatabaseAdapter {
         return mRealm.where(Subject.class).equalTo("mId", subjectId).findFirst();
     }
 
+    public Subject getSubjectByName(String name) {
+        return mRealm.where(Subject.class).equalTo("mName", name).findFirst();
+    }
+
     public void updateSubject(Subject subject) {
         mRealm.insertOrUpdate(subject);
     }

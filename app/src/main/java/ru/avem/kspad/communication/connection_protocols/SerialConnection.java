@@ -1,4 +1,4 @@
-package ru.avem.kspad.communication.serial;
+package ru.avem.kspad.communication.connection_protocols;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -19,7 +19,7 @@ import ru.avem.kspad.utils.Logger;
 
 import static ru.avem.kspad.communication.devices.DevicesController.ACTION_USB_PERMISSION;
 
-public class SerialConnection {
+public class SerialConnection implements Connection {
     private static final String TAG = "StatusActivity";
 
     private final Context mContext;
@@ -47,16 +47,22 @@ public class SerialConnection {
         mReadTimeout = readTimeout;
     }
 
-    public boolean initSerialPort() throws IOException {
+    @Override
+    public boolean initConnection() {
         UsbSerialDriver usbSerialDriver = getSerialDriver();
         if (usbSerialDriver != null) {
             UsbSerialPort port = usbSerialDriver.getPorts().get(0);
             UsbDeviceConnection usbConnection = getUsbConnection(usbSerialDriver);
             if (usbConnection != null) {
-                port.open(usbConnection);
-                port.setParameters(mBaudRate, mDataBits, mStopBits, mParity);
-                mPort = port;
-                Logger.withTag("DEBUG_TAG").log("mPort = port");
+                try {
+                    port.open(usbConnection);
+                    port.setParameters(mBaudRate, mDataBits, mStopBits, mParity);
+                    mPort = port;
+                    Logger.withTag("DEBUG_TAG").log("mPort = port");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Logger.withTag("DEBUG_TAG").log("mPort != port");
+                }
             } else {
                 return false;
             }
@@ -91,7 +97,9 @@ public class SerialConnection {
         return connection;
     }
 
-    public void closeSerialPort() {
+
+    @Override
+    public void closeConnection() {
         try {
             if (mPort != null) {
                 mPort.close();
@@ -118,6 +126,7 @@ public class SerialConnection {
         return builder.toString().toUpperCase().trim();
     }
 
+    @Override
     public int write(byte[] outputArray) {
         int numBytesWrite = 0;
         try {
@@ -136,6 +145,7 @@ public class SerialConnection {
         return numBytesWrite;
     }
 
+    @Override
     public int read(byte[] inputArray) {
         int numBytesRead = 0;
         try {
@@ -154,7 +164,9 @@ public class SerialConnection {
         return numBytesRead;
     }
 
-    public boolean isInitiated() {
+
+    @Override
+    public boolean isInitiatedConnection() {
         return mPort != null;
     }
 }

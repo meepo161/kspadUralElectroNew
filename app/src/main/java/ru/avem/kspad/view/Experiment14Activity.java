@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.CompoundButton;
 import android.widget.TextView;
@@ -42,6 +43,8 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
     //endregion
 
     //region Виджеты
+    @BindView(R.id.main_layout)
+    ConstraintLayout mMainLayout;
     @BindView(R.id.status)
     TextView mStatus;
     @BindView(R.id.experiment_switch)
@@ -70,6 +73,7 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
 
     //region Испытание
     private boolean mExperimentStart;
+    private String mCause = "";
 
     private double mV1;
     private float mSpecifiedTorque;
@@ -96,6 +100,7 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
 
     private boolean mFRA800GeneratorResponding;
     private boolean mFRA800GeneratorReady;
+    private float mMDiff;
     //endregion
 
     @Override
@@ -182,6 +187,15 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
             clearCells();
             setExperimentStart(true);
             mThreadOn = true;
+            setFRA800ObjectReady(false);
+            setFRA800GeneratorReady(false);
+            mMainLayout.setBackgroundColor(getResources().getColor(R.color.white));
+            mCause = "";
+            setBeckhoffResponding(true);
+            setM40Responding(true);
+            setVEHATResponding(true);
+            setFRA800ObjectResponding(true);
+            setFRA800GeneratorResponding(true);
         }
 
         @Override
@@ -202,7 +216,7 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
                 mDevicesController.initDevicesFrom14Group();
             }
             while (isExperimentStart() && !isDevicesResponding() && mStartState) {
-                changeTextOfView(mStatus, "Нет связи с устройствами");
+                changeTextOfView(mStatus, getNotRespondingDevicesString("Нет связи с устройствами"));
                 sleep(100);
             }
 
@@ -226,10 +240,20 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
                     }
                 }
                 result = startNextIteration(u);
-            } while (isExperimentStart() && (result != 0) && mStartState);
+            } while (isExperimentStart() && (result != 0) && mStartState && isDevicesResponding());
 
 
             return null;
+        }
+
+        private String getNotRespondingDevicesString(String mainText) {
+            return String.format("%s %s%s%s%s%s",
+                    mainText,
+                    isBeckhoffResponding() ? "" : "БСУ, ",
+                    isM40Responding() ? "" : "Датчик момента, ",
+                    isFRA800ObjectResponding() ? "" : "ЧП ОИ, ",
+                    isFRA800GeneratorResponding() ? "" : "ЧП генератора, ",
+                    isVEHATResponding() ? "" : "ВЕХА-Т");
         }
 
         @Override
@@ -237,7 +261,15 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
             super.onPostExecute(aVoid);
             mDevicesController.diversifyDevices();
             mExperimentSwitch.setChecked(false);
-            mStatus.setText("Испытание закончено");
+            if (!mCause.equals("")) {
+                mStatus.setText(String.format("Испытание прервано по причине: %s", mCause));
+                mMainLayout.setBackgroundColor(getResources().getColor(R.color.red));
+            } else if (!isDevicesResponding()) {
+                changeTextOfView(mStatus, getNotRespondingDevicesString("Потеряна связь с устройствами"));
+                mMainLayout.setBackgroundColor(getResources().getColor(R.color.red));
+            } else {
+                mStatus.setText("Испытание закончено");
+            }
             changeTextOfView(mMCell, formatRealNumber(mMMax));
             mM = mMMax;
             mThreadOn = false;
@@ -249,47 +281,47 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
         changeTextOfView(mStatus, "При U=" + u);
         sleep(500);
 
-        if (isExperimentStart() && mStartState) {
+        if (isExperimentStart() && mStartState && isDevicesResponding()) {
             mDevicesController.onKMsFrom14Group();
             sleep(500);
             mDevicesController.startObject();
         }
 
-        while (isExperimentStart() && !mFRA800ObjectReady && mStartState) {
+        while (isExperimentStart() && !mFRA800ObjectReady && mStartState && isDevicesResponding()) {
             sleep(100);
             changeTextOfView(mStatus, "Ожидаем, пока частотный преобразователь ОИ выйдет к заданным характеристикам");
         }
 
         int t = 5;
-        while (isExperimentStart() && (--t > 0) && mStartState) {
+        while (isExperimentStart() && (--t > 0) && mStartState && isDevicesResponding()) {
             changeTextOfView(mStatus, "Ждём 5 секунд. Осталось: " + t);
             sleep(1000);
         }
 
-        if (isExperimentStart() && mStartState) {
+        if (isExperimentStart() && mStartState && isDevicesResponding()) {
             mDevicesController.setGeneratorUMax(u * 10);
             mDevicesController.startReversGenerator();
         }
 
-        while (isExperimentStart() && !mFRA800GeneratorReady && mStartState) {
+        while (isExperimentStart() && !mFRA800GeneratorReady && mStartState && isDevicesResponding()) {
             sleep(100);
             changeTextOfView(mStatus, "Ожидаем, пока частотный преобразователь генератора выйдет к заданным характеристикам");
         }
 
-        t = 5;
-        while (isExperimentStart() && (--t > 0) && mStartState) {
-            changeTextOfView(mStatus, "Ждём 5 секунд. Осталось: " + t);
+        t = 10;
+        while (isExperimentStart() && (--t > 0) && mStartState && isDevicesResponding()) {
+            changeTextOfView(mStatus, "Ждём 10 секунд. Осталось: " + t);
             sleep(1000);
         }
 
         changeTextOfView(mStatus, "Запустили ЧП ОИ");
 
-        if (isExperimentStart() && mStartState) {
+        if (isExperimentStart() && mStartState && isDevicesResponding()) {
             mDevicesController.onObject();
         }
 
         t = 10;
-        while (isExperimentStart() && (--t > 0) && mStartState) {
+        while (isExperimentStart() && (--t > 0) && mStartState && isDevicesResponding()) {
             changeTextOfView(mStatus, "Ждём 10 секунд. Осталось: " + t);
             sleep(1000);
             if (t == 3) {
@@ -299,11 +331,11 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
         mIsNeedToFixMMax = false;
 
         changeTextOfView(mStatus, "Сравниваем V");
-        if ((mV > (mV1 * 0.3)) && (mV < (mV1 * 0.9))) {
+        if ((mV > (mV1 * 0.2)) && (mV < (mV1 * 0.9))) {
             result = 0;
-        } else if (mV > (mV1 * 0.9)) {
+        } else if (mV >= (mV1 * 0.9)) {
             result = 1;
-        } else if (mV < (mV1 * 0.3)) {
+        } else if (mV <= (mV1 * 0.2)) {
             result = 2;
         }
 
@@ -314,7 +346,7 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
         mDevicesController.stopGenerator();
         mDevicesController.offKMsFrom14Group();
         t = 6;
-        while (isExperimentStart() && (--t > 0) && mStartState) {
+        while (isExperimentStart() && (--t > 0) && mStartState && isDevicesResponding()) {
             changeTextOfView(mStatus, "Ждём 6 секунд. Осталось: " + t);
             sleep(1000);
         }
@@ -351,15 +383,35 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
                     case BeckhoffModel.START_PARAM:
                         setStartState((boolean) value);
                         break;
-                    case BeckhoffModel.DOOR_S_PARAM:
+                    case BeckhoffModel.DOOR_S_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "открылась дверь шкафа";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.I_PROTECTION_OBJECT_PARAM:
+                    case BeckhoffModel.I_PROTECTION_OBJECT_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "сработала токовая защита объекта испытания";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.I_PROTECTION_VIU_PARAM:
+                    case BeckhoffModel.I_PROTECTION_VIU_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "сработала токовая защита ВИУ";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.I_PROTECTION_IN_PARAM:
+                    case BeckhoffModel.I_PROTECTION_IN_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "сработала токовая защита по входу";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.DOOR_Z_PARAM:
+                    case BeckhoffModel.DOOR_Z_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "открылась дверь зоны";
+                            setExperimentStart(false);
+                        }
                         break;
                 }
                 break;
@@ -427,10 +479,13 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
     }
 
     public void setM(float M) {
-        mM = M;
-        changeTextOfView(mMCell, formatRealNumber(M));
-        if ((M > mMMax) && mIsNeedToFixMMax) {
-            mMMax = M;
+        if (mMDiff == 0) {
+            mMDiff = M;
+        }
+        mM = M - mMDiff;
+        changeTextOfView(mMCell, formatRealNumber(mM));
+        if ((mM > mMMax) && mIsNeedToFixMMax) {
+            mMMax = mM;
         }
     }
 

@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.CompoundButton;
 import android.widget.TextView;
@@ -52,6 +53,8 @@ public class Experiment2Activity extends AppCompatActivity implements Observer {
     //endregion
 
     //region Виджеты
+    @BindView(R.id.main_layout)
+    ConstraintLayout mMainLayout;
     @BindView(R.id.status)
     TextView mStatus;
     @BindView(R.id.experiment_switch)
@@ -155,6 +158,7 @@ public class Experiment2Activity extends AppCompatActivity implements Observer {
 
     //region Испытание
     private boolean mExperimentStart;
+    private String mCause = "";
     private boolean mNeededToSave;
 
     private double mZ1;
@@ -255,6 +259,8 @@ public class Experiment2Activity extends AppCompatActivity implements Observer {
     private float mTempEngine;
     private List<Float> mSeveralTempEngine = new ArrayList<>();
     private float mTempEngineAverage;
+    private int mFCurGeneratorK100;
+    private float mMDiff;
     //endregion
 
     @Override
@@ -402,6 +408,17 @@ public class Experiment2Activity extends AppCompatActivity implements Observer {
             setExperimentStart(true);
             setNeededToSave(true);
             mThreadOn = true;
+            setFRA800ObjectReady(false);
+            setFRA800GeneratorReady(false);
+            mMainLayout.setBackgroundColor(getResources().getColor(R.color.white));
+            mCause = "";
+            setBeckhoffResponding(true);
+            setM40Responding(true);
+            setVEHATResponding(true);
+            setFRA800ObjectResponding(true);
+            setFRA800GeneratorResponding(true);
+            setPM130Responding(true);
+            setTRM201Responding(true);
         }
 
         @Override
@@ -422,11 +439,11 @@ public class Experiment2Activity extends AppCompatActivity implements Observer {
                 mDevicesController.initDevicesFrom1To3And10And12Group();
             }
             while (isExperimentStart() && !isDevicesResponding() && mStartState) {
-                changeTextOfView(mStatus, "Нет связи с устройствами");
+                changeTextOfView(mStatus, getNotRespondingDevicesString("Нет связи с устройствами"));
                 sleep(100);
             }
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 changeTextOfView(mStatus, "Инициализация...");
                 mDevicesController.onKMsFrom1To3And10And12Group();
                 m200to5State = true;
@@ -435,13 +452,13 @@ public class Experiment2Activity extends AppCompatActivity implements Observer {
                 mDevicesController.startObject();
             }
 
-            while (isExperimentStart() && !mFRA800ObjectReady && mStartState) {
+            while (isExperimentStart() && !mFRA800ObjectReady && mStartState && isDevicesResponding()) {
                 sleep(100);
                 changeTextOfView(mStatus, "Ожидаем, пока частотный преобразователь ОИ выйдет к заданным характеристикам");
             }
 
             int t = 5;
-            while (isExperimentStart() && (--t > 0) && mStartState) {
+            while (isExperimentStart() && (--t > 0) && mStartState && isDevicesResponding()) {
                 sleep(1000);
             }
 
@@ -450,63 +467,61 @@ public class Experiment2Activity extends AppCompatActivity implements Observer {
             }
 
             double f2 = mV * mZ1 * mSpecifiedFrequency / mV2 / mZ2;
-            int fCurGenerator = (int) (f2 * 100);
+            mFCurGeneratorK100 = (int) (f2 * 100);
 
-            if (isExperimentStart() && mStartState) {
-                mDevicesController.setGeneratorParams(mSpecifiedUK10, mIntSpecifiedFrequencyK100, fCurGenerator);
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
+                mDevicesController.setGeneratorParams(mSpecifiedUK10, mIntSpecifiedFrequencyK100, mFCurGeneratorK100);
                 mDevicesController.startGenerator();
             }
 
-            while (isExperimentStart() && !mFRA800GeneratorReady && mStartState) {
+            while (isExperimentStart() && !mFRA800GeneratorReady && mStartState && isDevicesResponding()) {
                 sleep(100);
                 changeTextOfView(mStatus, "Ожидаем, пока частотный преобразователь генератора выйдет к заданным характеристикам");
             }
 
             int experimentTime = mExperimentTimeIdle;
-            while (isExperimentStart() && (experimentTime-- > 0) && mStartState) {
+            while (isExperimentStart() && (experimentTime-- > 0) && mStartState && isDevicesResponding()) {
                 sleep(1000);
                 changeTextOfView(mStatus, "Ждём заданное время обкатки на ХХ. Осталось: " + experimentTime);
                 changeTextOfView(mTCell, "" + experimentTime);
             }
             changeTextOfView(mTCell, "");
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 mDevicesController.onLoad();
             }
             sleep(500);
             int waits = 100;
-            while (isExperimentStart() && (mM < 0) && (waits-- > 0) && mStartState) {
+            while (isExperimentStart() && (mM < 0) && (waits-- > 0) && mStartState && isDevicesResponding()) {
                 sleep(50);
             }
 
-            double limit = 2;
-            while (isExperimentStart() && ((mM < mSpecifiedTorque * 0.8) || (mM > mSpecifiedTorque * 1.2)) && mStartState) {
+            double limit = 0.05;
+            while (isExperimentStart() && ((mM < mSpecifiedTorque * 0.8) || (mM > mSpecifiedTorque * 1.2)) && mStartState && isDevicesResponding()) {
                 if (mM < mSpecifiedTorque * 0.8) {
-                    mDevicesController.setGeneratorFCur(fCurGenerator -= 10);
+                    mDevicesController.setGeneratorFCur(mFCurGeneratorK100 -= 10);
                 } else if (mM > mSpecifiedTorque * 1.2) {
-                    mDevicesController.setGeneratorFCur(fCurGenerator += 10);
+                    mDevicesController.setGeneratorFCur(mFCurGeneratorK100 += 10);
                 }
                 sleep(100);
-                pickUpStateRoughly();
                 changeTextOfView(mStatus, "Выводим частоту генератора для получения заданного момента * 0.9");
             }
-            while (isExperimentStart() && ((mM < mSpecifiedTorque - limit) || (mM > mSpecifiedTorque + limit)) && mStartState) {
-                if (mM < mSpecifiedTorque - limit) {
-                    mDevicesController.setGeneratorFCur(fCurGenerator -= 5);
-                } else if (mM > mSpecifiedTorque + limit) {
-                    mDevicesController.setGeneratorFCur(fCurGenerator += 5);
+            while (isExperimentStart() && ((mM < mSpecifiedTorque * (1 - limit)) || (mM > mSpecifiedTorque * (1 + limit))) && mStartState && isDevicesResponding()) {
+                if (mM < mSpecifiedTorque * (1 - limit)) {
+                    mDevicesController.setGeneratorFCur(mFCurGeneratorK100 -= 1);
+                } else if (mM > mSpecifiedTorque * (1 + limit)) {
+                    mDevicesController.setGeneratorFCur(mFCurGeneratorK100 += 1);
                 }
                 sleep(200);
-                pickUpStateRoughly();
                 changeTextOfView(mStatus, "Выводим частоту генератора для получения заданного момента");
             }
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 pickUpState();
             }
 
             experimentTime = mExperimentTime;
-            while (isExperimentStart() && (experimentTime-- > 0) && mStartState) {
+            while (isExperimentStart() && (experimentTime-- > 0) && mStartState && isDevicesResponding()) {
                 sleep(1000);
                 changeTextOfView(mStatus, "Ждём заданное время под номинальной нагрузкой. Осталось: " + experimentTime);
                 changeTextOfView(mTCell, "" + experimentTime);
@@ -528,12 +543,32 @@ public class Experiment2Activity extends AppCompatActivity implements Observer {
             return null;
         }
 
+        private String getNotRespondingDevicesString(String mainText) {
+            return String.format("%s %s%s%s%s%s%s%s",
+                    mainText,
+                    isBeckhoffResponding() ? "" : "БСУ, ",
+                    isM40Responding() ? "" : "Датчик момента, ",
+                    isFRA800ObjectResponding() ? "" : "ЧП ОИ, ",
+                    isFRA800GeneratorResponding() ? "" : "ЧП генератора, ",
+                    isPM130Responding() ? "" : "PM130, ",
+                    isVEHATResponding() ? "" : "ВЕХА-Т, ",
+                    isTRM201Responding() ? "" : "ТРМ");
+        }
+
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             mDevicesController.diversifyDevices();
             mExperimentSwitch.setChecked(false);
-            mStatus.setText("Испытание закончено");
+            if (!mCause.equals("")) {
+                mStatus.setText(String.format("Испытание прервано по причине: %s", mCause));
+                mMainLayout.setBackgroundColor(getResources().getColor(R.color.red));
+            } else if (!isDevicesResponding()) {
+                changeTextOfView(mStatus, getNotRespondingDevicesString("Потеряна связь с устройствами"));
+                mMainLayout.setBackgroundColor(getResources().getColor(R.color.red));
+            } else {
+                mStatus.setText("Испытание закончено");
+            }
             mThreadOn = false;
         }
     }
@@ -548,49 +583,18 @@ public class Experiment2Activity extends AppCompatActivity implements Observer {
     }
 
     private void pickUpState() {
-        if (mIAverage < 45) {
+        if (mIA < 45) {
             mDevicesController.on40To5();
             m40to5State = true;
             m200to5State = false;
+            m5to5State = false;
             sleep(3 * 1000);
-            if (mIAverage < 6) {
+            if (mIA < 6) {
                 mDevicesController.on5To5();
                 m5to5State = true;
                 m40to5State = false;
-                sleep(3 * 1000);
-            }
-        }
-    }
-
-    private void pickUpStateRoughly() {
-        if (m200to5State) {
-            if (mIAverage < 32) {
-                mDevicesController.on40To5();
-                m40to5State = true;
                 m200to5State = false;
-                sleep(5 * 1000);
-            }
-        }
-        if (m40to5State) {
-            if (mIAverage > 48) {
-                mDevicesController.on200To5();
-                m200to5State = true;
-                m40to5State = false;
-                sleep(5 * 1000);
-            }
-            if (mIAverage < 4) {
-                mDevicesController.on5To5();
-                m5to5State = true;
-                m40to5State = false;
-                sleep(5 * 1000);
-            }
-        }
-        if (m5to5State) {
-            if (mIAverage > 5.5f) {
-                mDevicesController.on40To5();
-                m40to5State = true;
-                m5to5State = true;
-                sleep(5 * 1000);
+                sleep(3 * 1000);
             }
         }
     }
@@ -619,15 +623,35 @@ public class Experiment2Activity extends AppCompatActivity implements Observer {
                     case BeckhoffModel.START_PARAM:
                         setStartState((boolean) value);
                         break;
-                    case BeckhoffModel.DOOR_S_PARAM:
+                    case BeckhoffModel.DOOR_S_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "открылась дверь шкафа";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.I_PROTECTION_OBJECT_PARAM:
+                    case BeckhoffModel.I_PROTECTION_OBJECT_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "сработала токовая защита объекта испытания";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.I_PROTECTION_VIU_PARAM:
+                    case BeckhoffModel.I_PROTECTION_VIU_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "сработала токовая защита ВИУ";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.I_PROTECTION_IN_PARAM:
+                    case BeckhoffModel.I_PROTECTION_IN_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "сработала токовая защита по входу";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.DOOR_Z_PARAM:
+                    case BeckhoffModel.DOOR_Z_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "открылась дверь зоны";
+                            setExperimentStart(false);
+                        }
                         break;
                 }
                 break;
@@ -782,9 +806,12 @@ public class Experiment2Activity extends AppCompatActivity implements Observer {
     }
 
     public void setM(float M) {
-        mM = M;
-        changeTextOfView(mMCell, formatRealNumber(M));
-        setMAverage(M);
+        if (mMDiff == 0) {
+            mMDiff = M;
+        }
+        mM = M - mMDiff;
+        changeTextOfView(mMCell, formatRealNumber(mM));
+        setMAverage(mM);
         recountP2();
     }
 

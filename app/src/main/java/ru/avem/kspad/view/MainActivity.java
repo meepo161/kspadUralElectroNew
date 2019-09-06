@@ -79,20 +79,25 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     private static final String SUBJECT_TAB_LABEL = "Объект";
     private static final int SUBJECT_TAB_INDEX = 0;
 
-    private static final String EXPERIMENTS_TAB_TAG = "Experiments";
-    private static final int EXPERIMENTS_VIEW_ID = R.id.tab_experiments;
-    private static final String EXPERIMENTS_TAB_LABEL = "Испытания";
-    private static final int EXPERIMENTS_TAB_INDEX = 1;
+    private static final String PI_EXPERIMENTS_TAB_TAG = "PIExperiments";
+    private static final int PI_EXPERIMENTS_VIEW_ID = R.id.tab_pi_experiments;
+    private static final String PI_EXPERIMENTS_TAB_LABEL = "ПИ";
+    private static final int PI_EXPERIMENTS_TAB_INDEX = 1;
+
+    private static final String PSI_EXPERIMENTS_TAB_TAG = "PSIExperiments";
+    private static final int PSI_EXPERIMENTS_VIEW_ID = R.id.tab_psi_experiments;
+    private static final String PSI_EXPERIMENTS_TAB_LABEL = "ПСИ";
+    private static final int PSI_EXPERIMENTS_TAB_INDEX = 2;
 
     private static final String RESULTS_TAB_TAG = "Results";
     private static final int RESULTS_VIEW_ID = R.id.tab_results;
     private static final String RESULTS_TAB_LABEL = "Результаты";
-    private static final int RESULTS_TAB_INDEX = 2;
+    private static final int RESULTS_TAB_INDEX = 3;
 
     private static final String PROTOCOL_TAB_TAG = "Protocol";
     private static final int PROTOCOL_VIEW_ID = R.id.tab_protocol;
     private static final String PROTOCOL_TAB_LABEL = "Протокол";
-    private static final int PROTOCOL_TAB_INDEX = 3;
+    private static final int PROTOCOL_TAB_INDEX = 4;
     //endregion
 
     //region Константы доступа устройств
@@ -215,6 +220,7 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
         static final String U05_IDLE_R = "U05IdleR";
         static final String P_ST_R = "PStR";
         static final String P_MECH_R = "PMechR";
+        static final String U_TURN_R = "UTurnR";
 
         static final String I10_SC_R = "I10SCR";
         static final String P10_SC_R = "P10SCR";
@@ -248,6 +254,14 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
         static final String T_OVERLOAD_R = "TOverloadR";
         static final String SPECIFIED_I_OVERLOAD_R = "SpecifiedIOverloadR";
         static final String I_OVERLOAD_R = "IOverloadR";
+
+        static final String NOISE_R = "NoisedR";
+        static final String X1_R = "X1R";
+        static final String Y1_R = "Y1R";
+        static final String Z1_R = "Z1R";
+        static final String X2_R = "X2R";
+        static final String Y2_R = "Y2R";
+        static final String Z2_R = "Z2R";
     }
     //endregion
     //endregion
@@ -295,14 +309,21 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     Button mSubjectNext;
     //endregion
 
-    //region Вкладка 2 Испытания
-    @BindView(R.id.tab_experiments)
-    LinearLayout mTabExperiments;
-    @BindView(R.id.experiments_list)
-    ListView mExperimentsList;
+    //region Вкладка 2 ПИ
+    @BindView(R.id.tab_pi_experiments)
+    LinearLayout mTabPIExperiments;
+    @BindView(R.id.pi_experiments_list)
+    ListView mPIExperimentsList;
     //endregion
 
-    //region Вкладка 3 Результаты
+    //region Вкладка 3 ПСИ
+    @BindView(R.id.tab_psi_experiments)
+    LinearLayout mTabPSIExperiments;
+    @BindView(R.id.psi_experiments_list)
+    ListView mPSIExperimentsList;
+    //endregion
+
+    //region Вкладка 4 Результаты
     @BindView(R.id.experiments_selector)
     Spinner mExperimentsSelector;
     @BindView(R.id.experiment1)
@@ -1287,20 +1308,20 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     @BindView(R.id.e15_m)
     TextView mE15M;
 
-    @BindView(R.id.e16_i_b)
-    TextView mE16IB;
-    @BindView(R.id.e16_u_b)
-    TextView mE16UB;
-    @BindView(R.id.e16_s)
-    TextView mE16S;
-    @BindView(R.id.e16_p1)
-    TextView mE16P1;
-    @BindView(R.id.e16_cos)
-    TextView mE16Cos;
-    @BindView(R.id.e16_m)
-    TextView mE16M;
-    @BindView(R.id.e16_v)
-    TextView mE16V;
+    @BindView(R.id.e16_noise)
+    TextView mE16Noise;
+    @BindView(R.id.e16_x1)
+    TextView mE16X1;
+    @BindView(R.id.e16_y1)
+    TextView mE16Y1;
+    @BindView(R.id.e16_z1)
+    TextView mE16Z1;
+    @BindView(R.id.e16_x2)
+    TextView mE16X2;
+    @BindView(R.id.e16_y2)
+    TextView mE16Y2;
+    @BindView(R.id.e16_z2)
+    TextView mE16Z2;
     @BindView(R.id.e16_i_specified)
     TextView mE16ISpecified;
     @BindView(R.id.e16_u_specified)
@@ -1332,7 +1353,7 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     TextView mE17AverageRSpecified;
     //endregion
 
-    //region Вкладка 4 Протокол
+    //region Вкладка 5 Протокол
     @BindView(R.id.review_layout)
     GridLayout mReviewLayout;
 
@@ -1382,6 +1403,8 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     private final SimpleDateFormat mDateFormat = new SimpleDateFormat("dd.MM.yyyy", mRuLocale);
     private final SimpleDateFormat mTimeFormat = new SimpleDateFormat("HH:mm:ss", mRuLocale);
 
+    private boolean isNextPIExperiment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -1406,8 +1429,13 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     }
 
     @Override
-    public SparseBooleanArray getExperiment() {
-        return mExperimentsList.getCheckedItemPositions();
+    public SparseBooleanArray getPIExperiment() {
+        return mPIExperimentsList.getCheckedItemPositions();
+    }
+
+    @Override
+    public SparseBooleanArray getPSIExperiment() {
+        return mPSIExperimentsList.getCheckedItemPositions();
     }
 
     private long getStartDate(String s) {
@@ -1507,19 +1535,20 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     private void initializeTabHost() {
         mTabHost.setup();
         addTabToTabHost(mTabHost, SUBJECT_TAB_TAG, SUBJECT_VIEW_ID, SUBJECT_TAB_LABEL);
-        addTabToTabHost(mTabHost, EXPERIMENTS_TAB_TAG, EXPERIMENTS_VIEW_ID, EXPERIMENTS_TAB_LABEL);
+        addTabToTabHost(mTabHost, PI_EXPERIMENTS_TAB_TAG, PI_EXPERIMENTS_VIEW_ID, PI_EXPERIMENTS_TAB_LABEL);
+        addTabToTabHost(mTabHost, PSI_EXPERIMENTS_TAB_TAG, PSI_EXPERIMENTS_VIEW_ID, PSI_EXPERIMENTS_TAB_LABEL);
         addTabToTabHost(mTabHost, RESULTS_TAB_TAG, RESULTS_VIEW_ID, RESULTS_TAB_LABEL);
         addTabToTabHost(mTabHost, PROTOCOL_TAB_TAG, PROTOCOL_VIEW_ID, PROTOCOL_TAB_LABEL);
         mTabHost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
             @Override
             public void onTabChanged(String tag) {
                 switch (tag) {
+                    case RESULTS_TAB_TAG:
+                        refillResults();
+                        break;
                     case PROTOCOL_TAB_TAG:
                         mMainPresenter.protocolTabSelected(MainActivity.this, mProtocols,
                                 getStartDate(mSelectDate.getText().toString()), getEndDate(mSelectDate.getText().toString()));
-                        break;
-                    case RESULTS_TAB_TAG:
-                        refillResults();
                         break;
                 }
             }
@@ -2016,20 +2045,20 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
             mE15I.setText(experiments.getE15I());
             mE15M.setText(experiments.getE15M());
 
-            mE16IB.setText(experiments.getE16IB());
-            mE16UB.setText(experiments.getE16UB());
-            mE16S.setText(experiments.getE16S());
-            mE16P1.setText(experiments.getE16P1());
-            mE16Cos.setText(experiments.getE16Cos());
-            mE16M.setText(experiments.getE16M());
-            mE16V.setText(experiments.getE16V());
-            mE16ISpecified.setText(experiments.getE16ISpecified());
-            mE16USpecified.setText(experiments.getE16USpecified());
-            mE16SSpecified.setText(experiments.getE16SSpecified());
-            mE16P1Specified.setText(experiments.getE16P1Specified());
-            mE16CosSpecified.setText(experiments.getE16CosSpecified());
-            mE16MSpecified.setText(experiments.getE16MSpecified());
-            mE16VSpecified.setText(experiments.getE16VSpecified());
+            mE16Noise.setText(experiments.getE16Noise());
+            mE16X1.setText(experiments.getE16X1());
+            mE16Y1.setText(experiments.getE16Y1());
+            mE16Z1.setText(experiments.getE16Z1());
+            mE16X2.setText(experiments.getE16X2());
+            mE16Y2.setText(experiments.getE16Y2());
+            mE16Z2.setText(experiments.getE16Z2());
+//            mE16ISpecified.setText(experiments.getE16ISpecified());
+//            mE16USpecified.setText(experiments.getE16USpecified());
+//            mE16SSpecified.setText(experiments.getE16SSpecified());
+//            mE16P1Specified.setText(experiments.getE16P1Specified());
+//            mE16CosSpecified.setText(experiments.getE16CosSpecified());
+//            mE16MSpecified.setText(experiments.getE16MSpecified());
+//            mE16VSpecified.setText(experiments.getE16VSpecified());
 
             mE17Ab.setText(experiments.getE17Ab());
             mE17Bc.setText(experiments.getE17Bc());
@@ -2056,7 +2085,8 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
         mSaveLayout.setVisibility(View.VISIBLE);
         changeTabToProtocol();
         switchTabState(mTabs, SUBJECT_TAB_INDEX, false, mTabHost);
-        switchTabState(mTabs, EXPERIMENTS_TAB_INDEX, false, mTabHost);
+        switchTabState(mTabs, PI_EXPERIMENTS_TAB_INDEX, false, mTabHost);
+        switchTabState(mTabs, PSI_EXPERIMENTS_TAB_INDEX, false, mTabHost);
     }
 
     @Override
@@ -2076,7 +2106,7 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     }
 
     private void initializeExperimentsSelector() {
-        setSpinnerAdapterFromResources(this, mExperimentsSelector, R.array.experiments);
+        setSpinnerAdapterFromResources(this, mExperimentsSelector, R.array.pi_experiments);
     }
 
     @OnItemSelected(R.id.protocols)
@@ -2104,9 +2134,14 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
         mMainPresenter.serialNumberEnterClicked(state);
     }
 
-    @OnCheckedChanged(R.id.select_all)
-    public void onCheckedSelectAllChanged(boolean state) {
-        mMainPresenter.selectAllClicked(state);
+    @OnCheckedChanged(R.id.select_all_pi)
+    public void onCheckedSelectAllPiChanged(boolean state) {
+        mMainPresenter.selectAllPIClicked(state);
+    }
+
+    @OnCheckedChanged(R.id.select_all_psi)
+    public void onCheckedSelectAllPsiChanged(boolean state) {
+        mMainPresenter.selectAllPSIClicked(state);
     }
 
     @OnClick({R.id.exit,
@@ -2114,7 +2149,8 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
             R.id.subject_enter,
             R.id.subject_cancel,
             R.id.subject_next,
-            R.id.start_experiments,
+            R.id.start_pi_experiments,
+            R.id.start_psi_experiments,
             R.id.save,
             R.id.preview,
             R.id.save_on_flash})
@@ -2133,8 +2169,11 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
             case R.id.subject_next:
                 mMainPresenter.subjectNext();
                 break;
-            case R.id.start_experiments:
-                mMainPresenter.startFirstExperiment();
+            case R.id.start_pi_experiments:
+                mMainPresenter.startFirstPIExperiment();
+                break;
+            case R.id.start_psi_experiments:
+                mMainPresenter.startFirstPSIExperiment();
                 break;
             case R.id.save:
                 if (fieldsAreFilled()) {
@@ -2153,7 +2192,8 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
                     mMainPresenter.subjectCancel();
                     uncheckSerialNumberEnter();
                     switchTabState(mTabs, SUBJECT_TAB_INDEX, true, mTabHost);
-                    switchTabState(mTabs, EXPERIMENTS_TAB_INDEX, true, mTabHost);
+                    switchTabState(mTabs, PI_EXPERIMENTS_TAB_INDEX, true, mTabHost);
+                    switchTabState(mTabs, PSI_EXPERIMENTS_TAB_INDEX, true, mTabHost);
                     EventsHolder.addLine(String.format("%s Результаты сохранены", mTimeFormat.format(System.currentTimeMillis())));
                 } else {
                     Toast.makeText(this, "Заполните все поля", Toast.LENGTH_LONG).show();
@@ -2251,8 +2291,10 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     @Override
     public void changeTabToExperiments() {
         EventsHolder.addLine(String.format("%s Испытания начались", mTimeFormat.format(System.currentTimeMillis())));
-        setViewAndChildrenVisibility(mTabExperiments, View.VISIBLE);
-        mTabHost.setCurrentTab(EXPERIMENTS_TAB_INDEX);
+        setViewAndChildrenVisibility(mTabPIExperiments, View.VISIBLE);
+        setViewAndChildrenVisibility(mTabPSIExperiments, View.VISIBLE);
+        mTabHost.setCurrentTab(PI_EXPERIMENTS_TAB_INDEX);
+        mTabHost.setCurrentTab(PSI_EXPERIMENTS_TAB_INDEX);
     }
 
     private void initializeDateButton() {
@@ -2283,7 +2325,8 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     }
 
     private void initializeExperimentsList() {
-        setListViewAdapterFromResources(this, mExperimentsList, R.array.experiments);
+        setListViewAdapterFromResources(this, mPIExperimentsList, R.array.pi_experiments);
+        setListViewAdapterFromResources(this, mPSIExperimentsList, R.array.psi_experiments);
     }
 
     private void changeTabToProtocol() {
@@ -2325,20 +2368,31 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
 
     @Override
     public void hideExperimentsViews() {
-        setViewAndChildrenVisibility(mTabExperiments, View.GONE);
+        setViewAndChildrenVisibility(mTabPIExperiments, View.GONE);
+        setViewAndChildrenVisibility(mTabPSIExperiments, View.GONE);
     }
 
     @Override
-    public void setNextExperimentType(int experimentType) {
-        setExperimentType((String) mExperimentsList.getAdapter().getItem(experimentType));
+    public void setNextPIExperimentType(int experimentType) {
+        setPIExperimentType((String) mPIExperimentsList.getAdapter().getItem(experimentType));
     }
 
-    public void setExperimentType(String experimentType) {
+    @Override
+    public void setNextPSIExperimentType(int experimentType) {
+        setPSIExperimentType((String) mPSIExperimentsList.getAdapter().getItem(experimentType));
+    }
+
+    public void setPIExperimentType(String experimentType) {
         mExperimentType = experimentType;
-        showAlertDialogOfPeople(experimentType);
+        showPIAlertDialogOfPeople(experimentType);
     }
 
-    public void showAlertDialogOfPeople(final String experimentType) {
+    public void setPSIExperimentType(String experimentType) {
+        mExperimentType = experimentType;
+        showPSIAlertDialogOfPeople(experimentType);
+    }
+
+    public void showPIAlertDialogOfPeople(final String experimentType) {
         new AlertDialog.Builder(this)
                 .setTitle(experimentType)
                 .setMessage("В испытательной зоне есть люди?")
@@ -2346,20 +2400,41 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
                 .setPositiveButton("Да", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        showAlertDialogOfPeople(experimentType);
+                        showPIAlertDialogOfPeople(experimentType);
                     }
                 })
                 .setNegativeButton("Нет", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        showAlertDialogOfStart(experimentType);
+                        showPIAlertDialogOfStart(experimentType);
                     }
                 })
                 .create()
                 .show();
     }
 
-    public void showAlertDialogOfStart(String experimentType) {
+    public void showPSIAlertDialogOfPeople(final String experimentType) {
+        new AlertDialog.Builder(this)
+                .setTitle(experimentType)
+                .setMessage("В испытательной зоне есть люди?")
+                .setIcon(R.drawable.ic_warning_black_48dp)
+                .setPositiveButton("Да", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        showPSIAlertDialogOfPeople(experimentType);
+                    }
+                })
+                .setNegativeButton("Нет", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        showPSIAlertDialogOfStart(experimentType);
+                    }
+                })
+                .create()
+                .show();
+    }
+
+    public void showPIAlertDialogOfStart(String experimentType) {
         new AlertDialog.Builder(this)
                 .setTitle(experimentType)
                 .setMessage("Приступить к испытанию?")
@@ -2368,12 +2443,35 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         startNextExperiment();
+                        isNextPIExperiment = true;
                     }
                 })
                 .setNegativeButton("Нет", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mMainPresenter.startNextExperiment();
+                        mMainPresenter.startNextPIExperiment();
+                    }
+                })
+                .create()
+                .show();
+    }
+
+    public void showPSIAlertDialogOfStart(String experimentType) {
+        new AlertDialog.Builder(this)
+                .setTitle(experimentType)
+                .setMessage("Приступить к испытанию?")
+                .setIcon(R.drawable.ic_help_outline_black_48dp)
+                .setPositiveButton("Да", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startNextExperiment();
+                        isNextPIExperiment = false;
+                    }
+                })
+                .setNegativeButton("Нет", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mMainPresenter.startNextPSIExperiment();
                     }
                 })
                 .create()
@@ -2608,6 +2706,7 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
                 mModel.setU05IdleR(data.getFloatExtra(INPUT_PARAMETER.U05_IDLE_R, DEFAULT_VALUE_FLOAT));
                 mModel.setPStR(data.getDoubleExtra(INPUT_PARAMETER.P_ST_R, DEFAULT_VALUE_DOUBLE));
                 mModel.setPMechR(data.getDoubleExtra(INPUT_PARAMETER.P_MECH_R, DEFAULT_VALUE_DOUBLE));
+                mModel.setUTurnR(data.getFloatExtra(INPUT_PARAMETER.U_TURN_R, DEFAULT_VALUE_FLOAT));
                 break;
             case EXPERIMENT_8_ID:
                 mModel.setVOverloadR(data.getFloatExtra(INPUT_PARAMETER.V_OVERLOAD_R, DEFAULT_VALUE_FLOAT));
@@ -2645,20 +2744,36 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
                 mModel.setIStartR(data.getFloatExtra(INPUT_PARAMETER.I_START_R, DEFAULT_VALUE_FLOAT));
                 break;
             case EXPERIMENT_16_ID:
+                mModel.setNoiseR(data.getFloatExtra(INPUT_PARAMETER.NOISE_R, DEFAULT_VALUE_FLOAT));
+                mModel.setX1R(data.getFloatExtra(INPUT_PARAMETER.X1_R, DEFAULT_VALUE_FLOAT));
+                mModel.setY1R(data.getFloatExtra(INPUT_PARAMETER.Y1_R, DEFAULT_VALUE_FLOAT));
+                mModel.setZ1R(data.getFloatExtra(INPUT_PARAMETER.Z1_R, DEFAULT_VALUE_FLOAT));
+                mModel.setX2R(data.getFloatExtra(INPUT_PARAMETER.X2_R, DEFAULT_VALUE_FLOAT));
+                mModel.setY2R(data.getFloatExtra(INPUT_PARAMETER.Y2_R, DEFAULT_VALUE_FLOAT));
+                mModel.setZ2R(data.getFloatExtra(INPUT_PARAMETER.Z2_R, DEFAULT_VALUE_FLOAT));
                 break;
             case EXPERIMENT_17_ID:
                 mModel.setIkasRHotR(data.getFloatExtra(INPUT_PARAMETER.IKAS_R_HOT_R, DEFAULT_VALUE_FLOAT));
                 break;
         }
 
-        if (requestCode != EXPERIMENT_6_ID) {
-            mMainPresenter.startNextExperiment();
+        if (isNextPIExperiment) {
+            if (requestCode != EXPERIMENT_6_ID) {
+                mMainPresenter.startNextPIExperiment();
+            } else {
+                showPIAlertDialogOfVIU();
+            }
         } else {
-            showAlertDialogOfVIU();
+            if (requestCode != EXPERIMENT_6_ID) {
+                mMainPresenter.startNextPSIExperiment();
+            } else {
+                showPSIAlertDialogOfVIU();
+            }
         }
+
     }
 
-    private void showAlertDialogOfVIU() {
+    private void showPIAlertDialogOfVIU() {
         new AlertDialog.Builder(this)
                 .setTitle("Внимание")
                 .setMessage("Отключите высоковольтный крокодил от объекта испытания")
@@ -2666,7 +2781,22 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mMainPresenter.startNextExperiment();
+                        mMainPresenter.startNextPIExperiment();
+                    }
+                })
+                .create()
+                .show();
+    }
+
+    private void showPSIAlertDialogOfVIU() {
+        new AlertDialog.Builder(this)
+                .setTitle("Внимание")
+                .setMessage("Отключите высоковольтный крокодил от объекта испытания")
+                .setIcon(R.drawable.ic_warning_black_48dp)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mMainPresenter.startNextPSIExperiment();
                     }
                 })
                 .create()
@@ -2674,9 +2804,9 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     }
 
     @Override
-    public boolean atLeastOneExperimentWasSelected() {
-        for (int i = 0; i < mExperimentsList.getAdapter().getCount(); i++) {
-            if (mExperimentsList.isItemChecked(i)) {
+    public boolean atLeastOnePIExperimentWasSelected() {
+        for (int i = 0; i < mPIExperimentsList.getAdapter().getCount(); i++) {
+            if (mPIExperimentsList.isItemChecked(i)) {
                 return true;
             }
         }
@@ -2684,22 +2814,51 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     }
 
     @Override
-    public void selectAllExperiments() {
-        for (int i = 0; i < mExperimentsList.getAdapter().getCount(); i++) {
-            mExperimentsList.setItemChecked(i, true);
+    public boolean atLeastOnePSIExperimentWasSelected() {
+        for (int i = 0; i < mPSIExperimentsList.getAdapter().getCount(); i++) {
+            if (mPSIExperimentsList.isItemChecked(i)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void selectAllPIExperiments() {
+        for (int i = 0; i < mPIExperimentsList.getAdapter().getCount(); i++) {
+            mPIExperimentsList.setItemChecked(i, true);
         }
     }
 
     @Override
-    public void unselectAllExperiments() {
-        for (int i = 0; i < mExperimentsList.getAdapter().getCount(); i++) {
-            mExperimentsList.setItemChecked(i, false);
+    public void selectAllPSIExperiments() {
+        for (int i = 0; i < mPSIExperimentsList.getAdapter().getCount(); i++) {
+            mPSIExperimentsList.setItemChecked(i, true);
         }
     }
 
     @Override
-    public void invalidate() {
-        mExperimentsList.invalidateViews();
+    public void unselectAllPIExperiments() {
+        for (int i = 0; i < mPIExperimentsList.getAdapter().getCount(); i++) {
+            mPIExperimentsList.setItemChecked(i, false);
+        }
+    }
+
+    @Override
+    public void unselectAllPSIExperiments() {
+        for (int i = 0; i < mPSIExperimentsList.getAdapter().getCount(); i++) {
+            mPSIExperimentsList.setItemChecked(i, false);
+        }
+    }
+
+    @Override
+    public void PIExperimentsInvalidate() {
+        mPIExperimentsList.invalidateViews();
+    }
+
+    @Override
+    public void PSIExperimentsInvalidate() {
+        mPSIExperimentsList.invalidateViews();
     }
 
     @Override

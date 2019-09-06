@@ -488,20 +488,13 @@ public class Experiments extends RealmObject {
     private String mE15I = "";
     private String mE15M = "";
 
-    private String mE16IB = "";
-    private String mE16UB = "";
-    private String mE16S = "";
-    private String mE16P1 = "";
-    private String mE16Cos = "";
-    private String mE16M = "";
-    private String mE16V = "";
-    private String mE16ISpecified = "";
-    private String mE16USpecified = "";
-    private String mE16SSpecified = "";
-    private String mE16P1Specified = "";
-    private String mE16CosSpecified = "";
-    private String mE16MSpecified = "";
-    private String mE16VSpecified = "";
+    private String mE16Noise = "";
+    private String mE16X1 = "";
+    private String mE16Y1 = "";
+    private String mE16Z1 = "";
+    private String mE16X2 = "";
+    private String mE16Y2 = "";
+    private String mE16Z2 = "";
 
     private String mE17Ab = "";
     private String mE17Bc = "";
@@ -4261,116 +4254,62 @@ public class Experiments extends RealmObject {
     }
 
 
-    public String getE16IB() {
-        return mE16IB;
+
+
+    public String getE16Noise() {
+        return mE16Noise;
     }
 
-    public void setE16IB(String e16IB) {
-        mE16IB = e16IB;
+    public void setE16Noise(String e16Noise) {
+        mE16Noise = e16Noise;
     }
 
-    public String getE16UB() {
-        return mE16UB;
+    public String getE16X1() {
+        return mE16X1;
     }
 
-    public void setE16UB(String e16UB) {
-        mE16UB = e16UB;
+    public void setE16X1(String e16X1) {
+        mE16X1 = e16X1;
     }
 
-    public String getE16S() {
-        return mE16S;
+    public String getE16Y1() {
+        return mE16Y1;
     }
 
-    public void setE16S(String e16S) {
-        mE16S = e16S;
+    public void setE16Y1(String e16Y1) {
+        mE16Y1 = e16Y1;
     }
 
-    public String getE16P1() {
-        return mE16P1;
+    public String getE16Z1() {
+        return mE16Z1;
     }
 
-    public void setE16P1(String e16P1) {
-        mE16P1 = e16P1;
+    public void setE16Z1(String e16Z1) {
+        mE16Z1 = e16Z1;
     }
 
-    public String getE16Cos() {
-        return mE16Cos;
+    public String getE16X2() {
+        return mE16X2;
     }
 
-    public void setE16Cos(String e16Cos) {
-        mE16Cos = e16Cos;
+    public void setE16X2(String e16X2) {
+        mE16X2 = e16X2;
     }
 
-    public String getE16M() {
-        return mE16M;
+    public String getE16Y2() {
+        return mE16Y2;
     }
 
-    public void setE16M(String e16M) {
-        mE16M = e16M;
+    public void setE16Y2(String e16Y2) {
+        mE16Y2 = e16Y2;
     }
 
-    public String getE16V() {
-        return mE16V;
+    public String getE16Z2() {
+        return mE16Z2;
     }
 
-    public void setE16V(String e16V) {
-        mE16V = e16V;
-    }
-
-    public String getE16ISpecified() {
-        return mE16ISpecified;
-    }
-
-    public void setE16ISpecified(String e16ISpecified) {
-        mE16ISpecified = e16ISpecified;
-    }
-
-    public String getE16USpecified() {
-        return mE16USpecified;
-    }
-
-    public void setE16USpecified(String e16USpecified) {
-        mE16USpecified = e16USpecified;
-    }
-
-    public String getE16SSpecified() {
-        return mE16SSpecified;
-    }
-
-    public void setE16SSpecified(String e16SSpecified) {
-        mE16SSpecified = e16SSpecified;
-    }
-
-    public String getE16P1Specified() {
-        return mE16P1Specified;
-    }
-
-    public void setE16P1Specified(String e16P1Specified) {
-        mE16P1Specified = e16P1Specified;
-    }
-
-    public String getE16CosSpecified() {
-        return mE16CosSpecified;
-    }
-
-    public void setE16CosSpecified(String e16CosSpecified) {
-        mE16CosSpecified = e16CosSpecified;
-    }
-
-    public String getE16MSpecified() {
-        return mE16MSpecified;
-    }
-
-    public void setE16MSpecified(String e16MSpecified) {
-        mE16MSpecified = e16MSpecified;
-    }
-
-    public String getE16VSpecified() {
-        return mE16VSpecified;
-    }
-
-    public void setE16VSpecified(String e16VSpecified) {
-        mE16VSpecified = e16VSpecified;
+    public void setE16Z2(String e16Z2) {
+        mE16Z2 = e16Z2;
     }
 
     public String getE17Ab() {

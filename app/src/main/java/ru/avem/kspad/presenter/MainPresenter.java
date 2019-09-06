@@ -32,12 +32,14 @@ import static ru.avem.kspad.view.MainActivity.EXPERIMENT_8;
 import static ru.avem.kspad.view.MainActivity.EXPERIMENT_9;
 
 public class MainPresenter extends Observable {
-    public static final int NUM_OF_EXPERIMENTS = 16;
+    public static final int NUM_OF_PI_EXPERIMENTS = 17;
+    public static final int NUM_OF_PSI_EXPERIMENTS = 6;
 
     private final MainPresenterView mView;
     private final MainModel mModel;
 
-    private SparseBooleanArray mExperiments;
+    private SparseBooleanArray mPIExperiments;
+    private SparseBooleanArray mPSIExperiments;
 
     private boolean mNeedToSave;
     private Protocol mProtocolForInteraction;
@@ -52,7 +54,8 @@ public class MainPresenter extends Observable {
         mView.getPermissionDevices();
         mView.setBroadcastReceiver();
         mView.initializeViews();
-        mExperiments = mView.getExperiment();
+        mPIExperiments = mView.getPIExperiment();
+        mPSIExperiments = mView.getPSIExperiment();
     }
 
     public void exitPressed() {
@@ -140,31 +143,61 @@ public class MainPresenter extends Observable {
         return mModel.getAllSubjectsFromDB();
     }
 
-    public void startFirstExperiment() {
-        if (mView.atLeastOneExperimentWasSelected()) {
-            startNextExperiment();
+    public void startFirstPIExperiment() {
+        if (mView.atLeastOnePIExperimentWasSelected()) {
+            mModel.setPISelected(true);
+            startNextPIExperiment();
         } else {
             mView.toast("Выберите хотя бы одно испытание");
         }
     }
 
-    public void startNextExperiment() {
-        for (int i = 0; i < NUM_OF_EXPERIMENTS; i++) {
-            if (mExperiments.get(i)) {
-                mExperiments.put(i, false);
-                mView.invalidate();
-                mView.setNextExperimentType(i);
+    public void startFirstPSIExperiment() {
+        if (mView.atLeastOnePSIExperimentWasSelected()) {
+            mModel.setPISelected(false);
+            startNextPSIExperiment();
+        } else {
+            mView.toast("Выберите хотя бы одно испытание");
+        }
+    }
+
+    public void startNextPIExperiment() {
+        for (int i = 0; i < NUM_OF_PI_EXPERIMENTS; i++) {
+            if (mPIExperiments.get(i)) {
+                mPIExperiments.put(i, false);
+                mView.PIExperimentsInvalidate();
+                mView.setNextPIExperimentType(i);
                 return;
             }
         }
         mView.showAllExperimentsCompletedDialog();
     }
 
-    public void selectAllClicked(boolean state) {
+    public void startNextPSIExperiment() {
+        for (int i = 0; i < NUM_OF_PSI_EXPERIMENTS; i++) {
+            if (mPSIExperiments.get(i)) {
+                mPSIExperiments.put(i, false);
+                mView.PSIExperimentsInvalidate();
+                mView.setNextPSIExperimentType(i);
+                return;
+            }
+        }
+        mView.showAllExperimentsCompletedDialog();
+    }
+
+    public void selectAllPIClicked(boolean state) {
         if (state) {
-            mView.selectAllExperiments();
+            mView.selectAllPIExperiments();
         } else {
-            mView.unselectAllExperiments();
+            mView.unselectAllPIExperiments();
+        }
+    }
+
+    public void selectAllPSIClicked(boolean state) {
+        if (state) {
+            mView.selectAllPSIExperiments();
+        } else {
+            mView.unselectAllPSIExperiments();
         }
     }
 
@@ -235,7 +268,10 @@ public class MainPresenter extends Observable {
     }
 
     public void continueProtocolSelected(Protocol protocol) {
+        mModel.setNewSubjectDataToProtocol(protocol);
+
         mModel.setProtocol(protocol);
+
         mView.showNames(protocol.getSerialNumber(), protocol.getSubjectName());
         mView.showNextCancelButtons();
     }

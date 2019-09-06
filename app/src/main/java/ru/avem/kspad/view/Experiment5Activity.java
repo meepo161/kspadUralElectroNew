@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.CompoundButton;
 import android.widget.TextView;
@@ -38,6 +39,8 @@ import static ru.avem.kspad.utils.Visibility.onFullscreenMode;
 public class Experiment5Activity extends AppCompatActivity implements Observer {
     private static final String EXPERIMENT_NAME = "Определение сопротивления обмоток при постоянном токе в практически холодном состоянии";
 
+    @BindView(R.id.main_layout)
+    ConstraintLayout mMainLayout;
     @BindView(R.id.status)
     TextView mStatus;
     @BindView(R.id.experiment_switch)
@@ -69,6 +72,7 @@ public class Experiment5Activity extends AppCompatActivity implements Observer {
     private BroadcastReceiver mBroadcastReceiver;
 
     private boolean mExperimentStart;
+    private String mCause = "";
     private float mSpecifiedAverageR;
     private boolean mPlatformOneSelected;
 
@@ -150,9 +154,6 @@ public class Experiment5Activity extends AppCompatActivity implements Observer {
 
     public void setExperimentStart(boolean experimentStart) {
         mExperimentStart = experimentStart;
-        if (!experimentStart) {
-            mStatus.setText("В ожидании начала испытания");
-        }
     }
 
     private class ExperimentTask extends AsyncTask<Integer, Void, Void> {
@@ -161,6 +162,13 @@ public class Experiment5Activity extends AppCompatActivity implements Observer {
             super.onPreExecute();
             clearCells();
             setExperimentStart(true);
+            mAverageR = -1f;
+            mR20 = -1f;
+            mMainLayout.setBackgroundColor(getResources().getColor(R.color.white));
+            mCause = "";
+            setBeckhoffResponding(true);
+            setIKASResponding(true);
+            setTRM201Responding(true);
         }
 
         @Override
@@ -179,33 +187,33 @@ public class Experiment5Activity extends AppCompatActivity implements Observer {
                 mDevicesController.initDevicesFrom5And17Group();
             }
             while (isExperimentStart() && !isDevicesResponding() && mStartState) {
-                changeTextOfView(mStatus, "Нет связи с устройствами");
+                changeTextOfView(mStatus, getNotRespondingDevicesString("Нет связи с устройствами"));
                 sleep(100);
             }
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 changeTextOfView(mStatus, "Инициализация...");
                 mDevicesController.onKMsFrom5And17Group();
             }
 
-            while (isExperimentStart() && (mIKASReady != 0f) && (mIKASReady != 1f) && (mIKASReady != 101f) && mStartState) {
+            while (isExperimentStart() && (mIKASReady != 0f) && (mIKASReady != 1f) && (mIKASReady != 101f) && mStartState && isDevicesResponding()) {
                 sleep(100);
                 changeTextOfView(mStatus, "Ожидаем, пока ИКАС подготовится");
             }
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 mFirstTime = System.currentTimeMillis();
                 showCurrentTime("Начало AB");
                 mDevicesController.startMeasuringAB(mSpecifiedAverageR);
                 sleep(2000);
             }
 
-            while (isExperimentStart() && (mIKASReady != 0f) && (mIKASReady != 101f) && mStartState) {
+            while (isExperimentStart() && (mIKASReady != 0f) && (mIKASReady != 101f) && mStartState && isDevicesResponding()) {
                 sleep(100);
                 changeTextOfView(mStatus, "Ожидаем, пока 1 измерение закончится");
             }
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 sleep(500);
                 showCurrentTime("Конец AB");
                 setAB(mMeasurable);
@@ -215,12 +223,12 @@ public class Experiment5Activity extends AppCompatActivity implements Observer {
                 sleep(2000);
             }
 
-            while (isExperimentStart() && (mIKASReady != 0f) && (mIKASReady != 101f) && mStartState) {
+            while (isExperimentStart() && (mIKASReady != 0f) && (mIKASReady != 101f) && mStartState && isDevicesResponding()) {
                 sleep(100);
                 changeTextOfView(mStatus, "Ожидаем, пока 2 измерение закончится");
             }
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 sleep(500);
                 showCurrentTime("Конец BC");
                 setBC(mMeasurable);
@@ -230,12 +238,12 @@ public class Experiment5Activity extends AppCompatActivity implements Observer {
                 sleep(2000);
             }
 
-            while (isExperimentStart() && (mIKASReady != 0f) && (mIKASReady != 101f) && mStartState) {
+            while (isExperimentStart() && (mIKASReady != 0f) && (mIKASReady != 101f) && mStartState && isDevicesResponding()) {
                 sleep(100);
                 changeTextOfView(mStatus, "Ожидаем, пока 3 измерение закончится");
             }
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 sleep(500);
                 showCurrentTime("Конец AC");
                 setAC(mMeasurable);
@@ -266,12 +274,28 @@ public class Experiment5Activity extends AppCompatActivity implements Observer {
             return null;
         }
 
+        private String getNotRespondingDevicesString(String mainText) {
+            return String.format("%s %s%s%s",
+                    mainText,
+                    isBeckhoffResponding() ? "" : "БСУ, ",
+                    isIKASResponding() ? "" : "ИКАС, ",
+                    isTRM201Responding() ? "" : "ТРМ");
+        }
+
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             mDevicesController.diversifyDevices();
             mExperimentSwitch.setChecked(false);
-            mStatus.setText("Испытание закончено");
+            if (!mCause.equals("")) {
+                mStatus.setText(String.format("Испытание прервано по причине: %s", mCause));
+                mMainLayout.setBackgroundColor(getResources().getColor(R.color.red));
+            } else if (!isDevicesResponding()) {
+                changeTextOfView(mStatus, getNotRespondingDevicesString("Потеряна связь с устройствами"));
+                mMainLayout.setBackgroundColor(getResources().getColor(R.color.red));
+            } else {
+                mStatus.setText("Испытание закончено");
+            }
         }
     }
 
@@ -308,15 +332,35 @@ public class Experiment5Activity extends AppCompatActivity implements Observer {
                     case BeckhoffModel.START_PARAM:
                         setStartState((boolean) value);
                         break;
-                    case BeckhoffModel.DOOR_S_PARAM:
+                    case BeckhoffModel.DOOR_S_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "открылась дверь шкафа";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.I_PROTECTION_OBJECT_PARAM:
+                    case BeckhoffModel.I_PROTECTION_OBJECT_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "сработала токовая защита объекта испытания";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.I_PROTECTION_VIU_PARAM:
+                    case BeckhoffModel.I_PROTECTION_VIU_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "сработала токовая защита ВИУ";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.I_PROTECTION_IN_PARAM:
+                    case BeckhoffModel.I_PROTECTION_IN_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "сработала токовая защита по входу";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.DOOR_Z_PARAM:
+                    case BeckhoffModel.DOOR_Z_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "открылась дверь зоны";
+                            setExperimentStart(false);
+                        }
                         break;
                 }
                 break;
@@ -375,18 +419,33 @@ public class Experiment5Activity extends AppCompatActivity implements Observer {
     }
 
     public void setAB(float AB) {
-        mAB = AB;
-        changeTextOfView(mABCell, formatRealNumber(AB));
+        if (AB < 10000) {
+            mAB = AB;
+            changeTextOfView(mABCell, formatRealNumber(AB));
+        } else {
+            mAB = -1f;
+            changeTextOfView(mABCell, "Обрыв");
+        }
     }
 
     public void setBC(float BC) {
-        mBC = BC;
-        changeTextOfView(mBCCell, formatRealNumber(BC));
+        if (BC < 10000) {
+            mBC = BC;
+            changeTextOfView(mBCCell, formatRealNumber(BC));
+        } else {
+            mBC = -1f;
+            changeTextOfView(mBCCell, "Обрыв");
+        }
     }
 
     public void setAC(float AC) {
-        mAC = AC;
-        changeTextOfView(mACCell, formatRealNumber(AC));
+        if (AC < 10000) {
+            mAC = AC;
+            changeTextOfView(mACCell, formatRealNumber(AC));
+        } else {
+            mAC = -1f;
+            changeTextOfView(mACCell, "Обрыв");
+        }
         setAverageR();
     }
 

@@ -33,21 +33,33 @@ public interface MainPresenterView {
 
     void hideExperimentsViews();
 
-    void selectAllExperiments();
+    void selectAllPIExperiments();
 
-    void unselectAllExperiments();
+    void selectAllPSIExperiments();
 
-    boolean atLeastOneExperimentWasSelected();
+    void unselectAllPIExperiments();
 
-    void setNextExperimentType(int experimentType);
+    void unselectAllPSIExperiments();
+
+    boolean atLeastOnePIExperimentWasSelected();
+
+    boolean atLeastOnePSIExperimentWasSelected();
+
+    void setNextPIExperimentType(int experimentType);
+
+    void setNextPSIExperimentType(int experimentType);
 
     void getPermissionDevices();
 
     void setBroadcastReceiver();
 
-    SparseBooleanArray getExperiment();
+    SparseBooleanArray getPIExperiment();
 
-    void invalidate();
+    SparseBooleanArray getPSIExperiment();
+
+    void PIExperimentsInvalidate();
+
+    void PSIExperimentsInvalidate();
 
     void showAllExperimentsCompletedDialog();
 

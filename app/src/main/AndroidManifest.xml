@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="ru.avem.kspad">
 
+
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
@@ -15,7 +17,7 @@
         android:theme="@style/WithoutHeadTheme">
         <activity
             android:name=".view.MainActivity"
-            android:screenOrientation="locked">
+            android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -24,76 +26,76 @@
         </activity>
         <activity
             android:name=".view.Experiment1Activity"
-            android:screenOrientation="locked">
+            android:screenOrientation="landscape">
         </activity>
         <activity
             android:name=".view.Experiment2Activity"
-            android:screenOrientation="locked">
+            android:screenOrientation="landscape">
         </activity>
         <activity
             android:name=".view.Experiment3Activity"
-            android:screenOrientation="locked">
+            android:screenOrientation="landscape">
         </activity>
         <activity
             android:name=".view.Experiment4Activity"
-            android:screenOrientation="locked">
+            android:screenOrientation="landscape">
         </activity>
         <activity
             android:name=".view.Experiment5Activity"
-            android:screenOrientation="locked">
+            android:screenOrientation="landscape">
         </activity>
         <activity
             android:name=".view.Experiment6Activity"
-            android:screenOrientation="locked">
+            android:screenOrientation="landscape">
         </activity>
         <activity
             android:name=".view.Experiment7Activity"
-            android:screenOrientation="locked">
+            android:screenOrientation="landscape">
         </activity>
         <activity
             android:name=".view.Experiment8Activity"
-            android:screenOrientation="locked">
+            android:screenOrientation="landscape">
         </activity>
         <activity
             android:name=".view.Experiment9Activity"
-            android:screenOrientation="locked">
+            android:screenOrientation="landscape">
         </activity>
         <activity
             android:name=".view.Experiment10Activity"
-            android:screenOrientation="locked">
+            android:screenOrientation="landscape">
         </activity>
         <activity
             android:name=".view.Experiment11Activity"
-            android:screenOrientation="locked">
+            android:screenOrientation="landscape">
         </activity>
         <activity
             android:name=".view.Experiment12Activity"
-            android:screenOrientation="locked">
+            android:screenOrientation="landscape">
         </activity>
         <activity
             android:name=".view.Experiment13Activity"
-            android:screenOrientation="locked">
+            android:screenOrientation="landscape">
         </activity>
         <activity
             android:name=".view.Experiment14Activity"
-            android:screenOrientation="locked">
+            android:screenOrientation="landscape">
         </activity>
         <activity
             android:name=".view.Experiment15Activity"
-            android:screenOrientation="locked">
+            android:screenOrientation="landscape">
         </activity>
         <activity
             android:name=".view.Experiment16Activity"
-            android:screenOrientation="locked">
+            android:screenOrientation="landscape">
         </activity>
         <activity
             android:name=".view.Experiment17Activity"
-            android:screenOrientation="locked">
+            android:screenOrientation="landscape">
         </activity>
         <activity
             android:name=".database.view.DatabaseActivity"
             android:label="База данных к КСПАД"
-            android:screenOrientation="locked"
+            android:screenOrientation="landscape"
             android:theme="@style/WithHeadTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -104,29 +106,29 @@
         <activity
             android:name=".database.view.SubjectActivity"
             android:label="Редактор объекта"
-            android:screenOrientation="locked"
+            android:screenOrientation="landscape"
             android:theme="@style/WithHeadTheme">
         </activity>
 
         <activity
             android:name=".view.DevicesStatusActivity"
             android:label="Состояние устройств"
-            android:screenOrientation="locked"
+            android:screenOrientation="landscape"
             android:theme="@style/WithHeadTheme">
         </activity>
         <activity android:name=".view.SubjectPassiveActivity"
                   android:label="Объект испытания"
-                  android:screenOrientation="locked"
+                  android:screenOrientation="landscape"
                   android:theme="@style/WithHeadTheme">
         </activity>
         <activity android:name=".view.ProtectionsActivity"
                   android:label="Состояние защит"
-                  android:screenOrientation="locked"
+                  android:screenOrientation="landscape"
                   android:theme="@style/WithHeadTheme">
         </activity>
         <activity android:name=".view.EventsActivity"
                   android:label="Журнал событий"
-                  android:screenOrientation="locked"
+                  android:screenOrientation="landscape"
                   android:theme="@style/WithHeadTheme">
         </activity>
 

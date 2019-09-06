@@ -34,7 +34,7 @@ public class M40Controller implements DeviceController {
             if (status.equals(ModbusController.RequestStatus.FRAME_RECEIVED)) {
                 mModel.setResponding(true);
                 resetAttempts();
-                mModel.setTorque(convertToMidLittleEndian(inputBuffer.getInt()));
+                mModel.setTorque(convertToMidLittleEndian(inputBuffer.getInt()) * 1.025f);
 //                mModel.setRotationFrequency(convertToMidLittleEndian(inputBuffer.getInt()));
             } else {
                 read(args);

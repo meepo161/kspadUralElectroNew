@@ -9,7 +9,6 @@ import android.hardware.usb.UsbManager;
 
 import com.hoho.android.usbserial.driver.UsbSerialPort;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +16,8 @@ import java.util.Objects;
 import java.util.Observable;
 import java.util.Observer;
 
+import ru.avem.kspad.communication.connection_protocols.Connection;
+import ru.avem.kspad.communication.connection_protocols.SerialConnection;
 import ru.avem.kspad.communication.devices.FR_A800.FRA800Controller;
 import ru.avem.kspad.communication.devices.beckhoff.BeckhoffController;
 import ru.avem.kspad.communication.devices.cs02021.CS02021Controller;
@@ -29,7 +30,6 @@ import ru.avem.kspad.communication.devices.veha_t.VEHATController;
 import ru.avem.kspad.communication.devices.voltmeter.VoltmeterController;
 import ru.avem.kspad.communication.protocol.modbus.ModbusController;
 import ru.avem.kspad.communication.protocol.modbus.RTUController;
-import ru.avem.kspad.communication.serial.SerialConnection;
 import ru.avem.kspad.utils.Logger;
 import ru.avem.kspad.view.OnBroadcastCallback;
 
@@ -43,6 +43,7 @@ import static ru.avem.kspad.communication.devices.beckhoff.BeckhoffController.LI
 import static ru.avem.kspad.communication.devices.beckhoff.BeckhoffController.MOD_1_REGISTER;
 import static ru.avem.kspad.communication.devices.beckhoff.BeckhoffController.MOD_2_REGISTER;
 import static ru.avem.kspad.communication.devices.beckhoff.BeckhoffController.RESET_CONNECTION_REGISTER;
+import static ru.avem.kspad.communication.devices.beckhoff.BeckhoffController.RESET_TRIGGERS_REGISTER;
 import static ru.avem.kspad.communication.devices.beckhoff.BeckhoffController.SOUND_REGISTER;
 import static ru.avem.kspad.communication.devices.beckhoff.BeckhoffController.WATCH_DOG_REGISTER;
 import static ru.avem.kspad.communication.devices.ikas.IKASController.MEASURABLE_TYPE_AB;
@@ -50,11 +51,8 @@ import static ru.avem.kspad.communication.devices.ikas.IKASController.MEASURABLE
 import static ru.avem.kspad.communication.devices.ikas.IKASController.MEASURABLE_TYPE_BC;
 import static ru.avem.kspad.communication.devices.ikas.IKASController.MEASURABLE_TYPE_REGISTER;
 import static ru.avem.kspad.communication.devices.ikas.IKASController.RANGE_R_REGISTER;
-import static ru.avem.kspad.communication.devices.ikas.IKASController.RANGE_TYPE_LESS_8;
-import static ru.avem.kspad.communication.devices.ikas.IKASController.RANGE_TYPE_MORE_200;
-import static ru.avem.kspad.communication.devices.ikas.IKASController.RANGE_TYPE_MORE_8_LESS_200;
-import static ru.avem.kspad.communication.devices.ikas.IKASController.TYPE_OF_RANGE_R_REGISTER;
 import static ru.avem.kspad.communication.devices.ikas.IKASController.START_MEASURABLE_REGISTER;
+import static ru.avem.kspad.communication.devices.ikas.IKASController.TYPE_OF_RANGE_R_REGISTER;
 import static ru.avem.kspad.communication.devices.m40.M40Controller.AVERAGING_REGISTER;
 
 public class DevicesController extends Observable implements Runnable {
@@ -65,13 +63,14 @@ public class DevicesController extends Observable implements Runnable {
     private static final String ACTION_USB_DETACHED =
             "android.hardware.usb.action.USB_DEVICE_DETACHED";
 
-    private static final int WRITE_TIMEOUT = 100;//25
+    private static final int WRITE_TIMEOUT = 100;
     private static final int READ_TIMEOUT = 100;
 
     private static final String RS485_DEVICE_NAME = "CP2103 USB to RS-485";
     private static final int BAUD_RATE = 38400;
 
-    private SerialConnection mRS485Connection;
+    private Connection mRS485Connection;
+//    private Connection mEthernetConnection;
 
     private List<DeviceController> mDevicesControllers = new ArrayList<>();
 
@@ -90,7 +89,6 @@ public class DevicesController extends Observable implements Runnable {
 
     private int mModule1;
     private int mModule2;
-//    private int mModule3;
 
     private boolean mLastOne;
     private boolean mPlatformOneSelected;
@@ -102,7 +100,9 @@ public class DevicesController extends Observable implements Runnable {
         mRS485Connection = new SerialConnection(context, RS485_DEVICE_NAME, BAUD_RATE,
                 UsbSerialPort.DATABITS_8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE,
                 WRITE_TIMEOUT, READ_TIMEOUT);
+//        mEthernetConnection = new EthernetConnection("10.10.100.254", 8899);
         ModbusController modbusController = new RTUController(mRS485Connection);
+//        ModbusController modbusController = new RTUController(mEthernetConnection);
 
         mBeckhoffController = new BeckhoffController(observer, modbusController);
         mDevicesControllers.add(mBeckhoffController);
@@ -134,7 +134,7 @@ public class DevicesController extends Observable implements Runnable {
         mPM130ControllerIA = new PM130ControllerIA(observer, modbusController);
         mDevicesControllers.add(mPM130ControllerIA);
 
-        mCS02021Controller = new CS02021Controller(context);
+        mCS02021Controller = new CS02021Controller(context, (byte) 0x04, observer);
 
         Thread continuousReadingThread = new Thread(this);
         continuousReadingThread.start();
@@ -153,9 +153,6 @@ public class DevicesController extends Observable implements Runnable {
                                 if (Objects.equals(device.getProductName(), RS485_DEVICE_NAME)) {
                                     resetDevicesAttempts();
                                 }
-//                                } else if (isDeviceFlashMassStorage(device)) {
-//                                    Logging.saveFileOnFlashMassStorage(context, mModel.getProtocolForInteraction());
-//                                }
                             }
                         } else {
                             if (device != null) {
@@ -169,15 +166,6 @@ public class DevicesController extends Observable implements Runnable {
                     synchronized (this) {
                         disconnectMainBus();
                         connectMainBus();
-//                        if (ACTION_USB_ATTACHED.equals(action) && isDeviceFlashMassStorage(device)) {
-//                            synchronized (this) {
-//                                UsbManager usbManager = (UsbManager) context.getSystemService(USB_SERVICE);
-//                                PendingIntent pi = PendingIntent.getBroadcast(context, 0, new Intent(ACTION_USB_PERMISSION), 0);
-//                                if (usbManager != null) {
-//                                    usbManager.requestPermission(device, pi);
-//                                }
-//                            }
-//                        }
                     }
                 }
             }
@@ -208,7 +196,7 @@ public class DevicesController extends Observable implements Runnable {
                         deviceController.read();
                     }
 //                    if (deviceController instanceof BeckhoffController) {
-                        resetDog();
+                    resetDog();
 //                    }
                 }
             }
@@ -221,15 +209,11 @@ public class DevicesController extends Observable implements Runnable {
     }
 
     private void resetDog() {
-//        if (mLastOne) {
-            mBeckhoffController.write(WATCH_DOG_REGISTER, 1, 0);
-            mBeckhoffController.write(WATCH_DOG_REGISTER, 1, 0);
-//            mLastOne = false;
-//        } else {
-            mBeckhoffController.write(WATCH_DOG_REGISTER, 1, 1);
-            mBeckhoffController.write(WATCH_DOG_REGISTER, 1, 1);
-//            mLastOne = true;
-//        }
+        mBeckhoffController.write(WATCH_DOG_REGISTER, 1, 0);
+        mBeckhoffController.write(WATCH_DOG_REGISTER, 1, 1);
+
+        mBeckhoffController.write(WATCH_DOG_REGISTER, 1, 0);
+        mBeckhoffController.write(WATCH_DOG_REGISTER, 1, 1);
     }
 
     private void resetTimer() {
@@ -245,10 +229,10 @@ public class DevicesController extends Observable implements Runnable {
     }
 
     public void diversifyDevices() {
+        offLight();
         for (DeviceController devicesController : mDevicesControllers) {
             devicesController.setNeedToRead(false);
         }
-        offLight();
     }
 
     private void offLight() {
@@ -257,17 +241,23 @@ public class DevicesController extends Observable implements Runnable {
 
     private void connectMainBus() {
         Logger.withTag("DEBUG_TAG").log("connectMainBus");
-        if (!mRS485Connection.isInitiated()) {
-            Logger.withTag("DEBUG_TAG").log("!isInitiated");
-            try {
-                mRS485Connection.initSerialPort();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        if (!mRS485Connection.isInitiatedConnection()) {
+            Logger.withTag("DEBUG_TAG").log("!isInitiatedConnection");
+            mRS485Connection.initConnection();
         }
+//        if (!mEthernetConnection.isInitiatedConnection()) {
+//            Logger.withTag("DEBUG_TAG").log("!isInitiatedConnection");
+//            mEthernetConnection.initConnection();
+//        }
         resetTimer();
+        resetTriggers();
         makeSound();
         onLight();
+    }
+
+    private void resetTriggers() {
+        mBeckhoffController.write(RESET_TRIGGERS_REGISTER, 1, 1);
+        mBeckhoffController.write(RESET_TRIGGERS_REGISTER, 1, 0);
     }
 
     private void makeSound() {
@@ -288,7 +278,8 @@ public class DevicesController extends Observable implements Runnable {
     }
 
     private void disconnectMainBus() {
-        mRS485Connection.closeSerialPort();
+        mRS485Connection.closeConnection();
+//        mEthernetConnection.closeConnection();
     }
 
     private void onRegisterInTheModule(int numberOfRegister, int module) {
@@ -325,14 +316,8 @@ public class DevicesController extends Observable implements Runnable {
         mBeckhoffController.write(MOD_2_REGISTER, 1, value);
     }
 
-//    private void writeToMod3Register(int value) {
-//        mBeckhoffController.write(MOD_3_REGISTER, 1, value);
-//    }
-
     public void initDevicesFrom1To3And10And12Group() {
-        connectMainBus();
         initBeckhoff();
-//        set5000PointsM40();
         mM40Controller.write(AVERAGING_REGISTER, (short) 2000);
         mM40Controller.setNeedToRead(true);
         mM40Controller.resetAttempts();
@@ -430,15 +415,25 @@ public class DevicesController extends Observable implements Runnable {
         offRegisterInTheModule(5, 1);
     }
 
+    public void on200To5() {
+        Logger.withTag("stages").log("on200To5");
+        onRegisterInTheModule(3, 1);
+        offRegisterInTheModule(4, 1);
+        offRegisterInTheModule(5, 1);
+    }
+
     public void on40To5() {
+        Logger.withTag("stages").log("on40To5");
         onRegisterInTheModule(4, 1);
         offRegisterInTheModule(3, 1);
         offRegisterInTheModule(5, 1);
     }
 
     public void on5To5() {
+        Logger.withTag("stages").log("on5To5");
         onRegisterInTheModule(5, 1);
         offRegisterInTheModule(4, 1);
+        offRegisterInTheModule(3, 1);
     }
 
     public void offLoad() {
@@ -450,7 +445,6 @@ public class DevicesController extends Observable implements Runnable {
     }
 
     public void initDevicesFrom4Group() {
-        connectMainBus();
         initBeckhoff();
         mFRA800ObjectController.setNeedToRead(true);
         mFRA800ObjectController.resetAttempts();
@@ -473,11 +467,6 @@ public class DevicesController extends Observable implements Runnable {
         mFRA800ObjectController.write(MAX_VOLTAGE_REGISTER, 1, voltageMax);
     }
 
-    public void on200To5() {
-        onRegisterInTheModule(3, 1);
-        offRegisterInTheModule(4, 1);
-    }
-
     public void offKMsFrom4And7And13Group() {
         offRegisterInTheModule(1, 1);
         offRegisterInTheModule(3, 2);
@@ -492,7 +481,6 @@ public class DevicesController extends Observable implements Runnable {
     }
 
     public void initDevicesFrom5And17Group() {
-        connectMainBus();
         initBeckhoff();
         initIKAS();
         mTRM201Controller.setNeedToRead(true);
@@ -524,15 +512,7 @@ public class DevicesController extends Observable implements Runnable {
     }
 
     private int getRangeType(float supposedValue) {
-        int rangeType = 1;
-        if (supposedValue < 8) {
-            rangeType = RANGE_TYPE_LESS_8;
-        } else if (supposedValue > 8 && supposedValue < 200) {
-            rangeType = RANGE_TYPE_MORE_8_LESS_200;
-        } else if (supposedValue > 200) {
-            rangeType = RANGE_TYPE_MORE_200;
-        }
-        return rangeType;
+        return IKASController.getRangeType(supposedValue);
     }
 
     public void startMeasuringBC(float supposedValue) {
@@ -566,7 +546,6 @@ public class DevicesController extends Observable implements Runnable {
     }
 
     public void initDevicesFrom6Group() {
-        connectMainBus();
         initBeckhoff();
         mFRA800ObjectController.setNeedToRead(true);
         mFRA800ObjectController.resetAttempts();
@@ -594,16 +573,16 @@ public class DevicesController extends Observable implements Runnable {
     }
 
     public void initDevices7Group() {
-        connectMainBus();
         initBeckhoff();
         mFRA800ObjectController.setNeedToRead(true);
         mFRA800ObjectController.resetAttempts();
         mPM130Controller.setNeedToRead(true);
         mPM130Controller.resetAttempts();
+        mVEHATController.setNeedToRead(true);
+        mVEHATController.resetAttempts();
     }
 
     public void initDevices8Group() {
-        connectMainBus();
         initBeckhoff();
         mFRA800ObjectController.setNeedToRead(true);
         mFRA800ObjectController.resetAttempts();
@@ -638,7 +617,6 @@ public class DevicesController extends Observable implements Runnable {
     }
 
     public void initDevicesFrom9Group() {
-        connectMainBus();
         initBeckhoff();
         mFRA800ObjectController.setNeedToRead(true);
         mFRA800ObjectController.resetAttempts();
@@ -649,7 +627,6 @@ public class DevicesController extends Observable implements Runnable {
     }
 
     public void initDevicesFrom11Group() {
-        connectMainBus();
         initBeckhoff();
         mTRM201Controller.setNeedToRead(true);
         mTRM201Controller.resetAttempts();
@@ -666,6 +643,7 @@ public class DevicesController extends Observable implements Runnable {
     }
 
     public void setUMgr(int u) {
+        setCS02021ExperimentRun(true);
         mCS02021Controller.setVoltage(u);
     }
 
@@ -673,12 +651,19 @@ public class DevicesController extends Observable implements Runnable {
         return mCS02021Controller.readData();
     }
 
+    public void setCS02021ExperimentRun(boolean b) {
+        mCS02021Controller.setExperimentRun(b);
+    }
+
+    public boolean isCS02021Responding() {
+        return mCS02021Controller.isResponding();
+    }
+
     public void setObjectFCur(int fCur) {
         mFRA800ObjectController.write(CURRENT_FREQUENCY_REGISTER, 1, fCur);
     }
 
     public void initDevicesFrom13Group() {
-        connectMainBus();
         initBeckhoff();
         mFRA800ObjectController.setNeedToRead(true);
         mFRA800ObjectController.resetAttempts();
@@ -694,7 +679,6 @@ public class DevicesController extends Observable implements Runnable {
     }
 
     public void initDevicesFrom14Group() {
-        connectMainBus();
         initBeckhoff();
         set5000PointsM40();
         mM40Controller.setNeedToRead(true);
@@ -744,7 +728,6 @@ public class DevicesController extends Observable implements Runnable {
     }
 
     public void initDevicesFrom15Group() {
-        connectMainBus();
         initBeckhoff();
         mFRA800ObjectController.setNeedToRead(true);
         mFRA800ObjectController.resetAttempts();
@@ -778,5 +761,10 @@ public class DevicesController extends Observable implements Runnable {
 
     public void set100PointsM40() {
         mM40Controller.write(AVERAGING_REGISTER, (short) 100);
+    }
+
+    public void resetMegger() {
+        mCS02021Controller.closeSerialPort();
+        mCS02021Controller.initSerialPort();
     }
 }

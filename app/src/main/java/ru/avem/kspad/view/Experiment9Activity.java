@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.CompoundButton;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -41,6 +43,8 @@ public class Experiment9Activity extends AppCompatActivity implements Observer {
     private static final int STATE_40_TO_5_MULTIPLIER = 40 / 5;
     private static final int STATE_5_TO_5_MULTIPLIER = 5 / 5;
 
+    @BindView(R.id.main_layout)
+    ScrollView mMainLayout;
     @BindView(R.id.status)
     TextView mStatus;
     @BindView(R.id.experiment_switch)
@@ -188,6 +192,7 @@ public class Experiment9Activity extends AppCompatActivity implements Observer {
     private BroadcastReceiver mBroadcastReceiver;
 
     private boolean mExperimentStart;
+    private String mCause = "";
 
     private int mCurrentStage;
 
@@ -380,9 +385,6 @@ public class Experiment9Activity extends AppCompatActivity implements Observer {
 
     public void setExperimentStart(boolean experimentStart) {
         mExperimentStart = experimentStart;
-        if (!experimentStart) {
-            mStatus.setText("В ожидании начала испытания");
-        }
     }
 
     private class ExperimentTask extends AsyncTask<Void, Void, Void> {
@@ -393,6 +395,13 @@ public class Experiment9Activity extends AppCompatActivity implements Observer {
             clearCells();
             setExperimentStart(true);
             mCurrentStage = 10;
+            setFRA800ObjectReady(false);
+            mMainLayout.setBackgroundColor(getResources().getColor(R.color.white));
+            mCause = "";
+            setBeckhoffResponding(true);
+            setFRA800ObjectResponding(true);
+            setPM130Responding(true);
+            setTRM201Responding(true);
         }
 
         @Override
@@ -413,11 +422,11 @@ public class Experiment9Activity extends AppCompatActivity implements Observer {
             }
 
             while (isExperimentStart() && !isDevicesResponding() && mStartState) {
-                changeTextOfView(mStatus, "Нет связи с устройствами");
+                changeTextOfView(mStatus, getNotRespondingDevicesString("Нет связи с устройствами"));
                 sleep(100);
             }
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 changeTextOfView(mStatus, "Инициализация...");
                 mDevicesController.onKMsFrom8To9Group();
                 m200to5State = true;
@@ -425,11 +434,11 @@ public class Experiment9Activity extends AppCompatActivity implements Observer {
                 mDevicesController.setObjectParams(100, mIntSpecifiedFrequencyK100, mIntSpecifiedFrequencyK100);
             }
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 mDevicesController.startObject();
                 sleep(2000);
             }
-            while (isExperimentStart() && !mFRA800ObjectReady && mStartState) {
+            while (isExperimentStart() && !mFRA800ObjectReady && mStartState && isDevicesResponding()) {
                 sleep(100);
                 changeTextOfView(mStatus, "Ожидаем, пока частотный преобразователь выйдет к заданным характеристикам");
             }
@@ -439,7 +448,7 @@ public class Experiment9Activity extends AppCompatActivity implements Observer {
             if (mNumOfStages > 1) {
                 mCurrentStage = 9;
 
-                if (isExperimentStart() && mStartState) {
+                if (isExperimentStart() && mStartState && isDevicesResponding()) {
                     stateToBack();
                 }
 
@@ -447,7 +456,7 @@ public class Experiment9Activity extends AppCompatActivity implements Observer {
 
                 mCurrentStage = 8;
 
-                if (isExperimentStart() && mStartState) {
+                if (isExperimentStart() && mStartState && isDevicesResponding()) {
                     stateToBack();
                 }
 
@@ -455,7 +464,7 @@ public class Experiment9Activity extends AppCompatActivity implements Observer {
 
                 mCurrentStage = 7;
 
-                if (isExperimentStart() && mStartState) {
+                if (isExperimentStart() && mStartState && isDevicesResponding()) {
                     stateToBack();
                 }
 
@@ -463,16 +472,18 @@ public class Experiment9Activity extends AppCompatActivity implements Observer {
 
                 mCurrentStage = 6;
 
-                if (isExperimentStart() && mStartState) {
+                if (isExperimentStart() && mStartState && isDevicesResponding()) {
                     stateToBack();
                 }
 
                 lastLevel = regulation();
 
                 mCurrentStage = 5;
+            } else {
+                mCurrentStage = 5;
             }
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 for (int i = lastLevel; i > 0; i -= 40) {
                     if (i > 0) {
                         mDevicesController.setObjectUMax(i);
@@ -490,13 +501,29 @@ public class Experiment9Activity extends AppCompatActivity implements Observer {
             return null;
         }
 
+        private String getNotRespondingDevicesString(String mainText) {
+            return String.format("%s %s%s%s%s",
+                    mainText,
+                    isBeckhoffResponding() ? "" : "БСУ, ",
+                    isFRA800ObjectResponding() ? "" : "ЧП ОИ, ",
+                    isPM130Responding() ? "" : "PM130, ",
+                    isTRM201Responding() ? "" : "ТРМ");
+        }
+
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             mDevicesController.diversifyDevices();
             mExperimentSwitch.setChecked(false);
-            mStatus.setText("Испытание закончено");
-            mCurrentStage = 10;
+            if (!mCause.equals("")) {
+                mStatus.setText(String.format("Испытание прервано по причине: %s", mCause));
+                mMainLayout.setBackgroundColor(getResources().getColor(R.color.red));
+            } else if (!isDevicesResponding()) {
+                changeTextOfView(mStatus, getNotRespondingDevicesString("Потеряна связь с устройствами"));
+                mMainLayout.setBackgroundColor(getResources().getColor(R.color.red));
+            } else {
+                mStatus.setText("Испытание закончено");
+            }
         }
     }
 
@@ -527,11 +554,14 @@ public class Experiment9Activity extends AppCompatActivity implements Observer {
             mDevicesController.on40To5();
             m40to5State = true;
             m200to5State = false;
-            sleep(3000);
+            m5to5State = false;
+            sleep(3 * 1000);
             if (mPM130I1 < 6) {
                 mDevicesController.on5To5();
                 m5to5State = true;
                 m40to5State = false;
+                m200to5State = false;
+                sleep(3 * 1000);
             }
         }
     }
@@ -551,7 +581,7 @@ public class Experiment9Activity extends AppCompatActivity implements Observer {
 
     private int regulation() {
         int uInt = 0;
-        if (isExperimentStart() && mStartState) {
+        if (isExperimentStart() && mStartState && isDevicesResponding()) {
             switch (mCurrentStage) {
                 case 10:
                     uInt = ((int) (mSpecifiedU10 * 100)) / 10;
@@ -579,12 +609,12 @@ public class Experiment9Activity extends AppCompatActivity implements Observer {
             mDevicesController.setObjectUMax(uInt);
         }
 
-        if (isExperimentStart() && mStartState) {
+        if (isExperimentStart() && mStartState && isDevicesResponding()) {
             pickUpState();
         }
 
         int experimentTime = mSpecifiedT;
-        while (isExperimentStart() && (experimentTime > 0) && mStartState) {
+        while (isExperimentStart() && (experimentTime > 0) && mStartState && isDevicesResponding()) {
             experimentTime--;
             sleep(1000);
             changeTextOfView(mStatus, "Ждём заданное T. Осталось: " + experimentTime);
@@ -614,15 +644,35 @@ public class Experiment9Activity extends AppCompatActivity implements Observer {
                     case BeckhoffModel.START_PARAM:
                         setStartState((boolean) value);
                         break;
-                    case BeckhoffModel.DOOR_S_PARAM:
+                    case BeckhoffModel.DOOR_S_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "открылась дверь шкафа";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.I_PROTECTION_OBJECT_PARAM:
+                    case BeckhoffModel.I_PROTECTION_OBJECT_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "сработала токовая защита объекта испытания";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.I_PROTECTION_VIU_PARAM:
+                    case BeckhoffModel.I_PROTECTION_VIU_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "сработала токовая защита ВИУ";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.I_PROTECTION_IN_PARAM:
+                    case BeckhoffModel.I_PROTECTION_IN_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "сработала токовая защита по входу";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.DOOR_Z_PARAM:
+                    case BeckhoffModel.DOOR_Z_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "открылась дверь зоны";
+                            setExperimentStart(false);
+                        }
                         break;
                 }
                 break;

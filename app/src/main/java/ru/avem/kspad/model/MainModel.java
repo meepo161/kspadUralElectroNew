@@ -13,6 +13,7 @@ public class MainModel {
 
     private Protocol mProtocol;
     private long mSubjectId;
+    private boolean PISelected;
 
     public MainModel(OnRealmReceiverCallback onRealmReceiverCallback) {
         mDatabaseAdapter = new DatabaseAdapter(onRealmReceiverCallback);
@@ -365,6 +366,10 @@ public class MainModel {
         mProtocol.setPMechR(PMechR);
     }
 
+    public void setUTurnR(float UTurnR) {
+        mProtocol.setUTurnR(UTurnR);
+    }
+
     public void setI10SCR(float i10SCR) {
         mProtocol.setI10SCR(i10SCR);
     }
@@ -408,6 +413,7 @@ public class MainModel {
     public void setSpecifiedIOverloadR(float SpecifiedIOverloadR) {
         mProtocol.setSpecifiedIOverloadR(SpecifiedIOverloadR);
     }
+
     public void setIOverloadR(float IOverloadR) {
         mProtocol.setIOverloadR(IOverloadR);
     }
@@ -468,7 +474,56 @@ public class MainModel {
         mProtocol.setTempAmbientR(TempAmbientR);
     }
 
+    public void setNoiseR(float NoiseR) {
+        mProtocol.setNoiseR(NoiseR);
+    }
+
+    public void setX1R(float X1R) {
+        mProtocol.setX1R(X1R);
+    }
+
+    public void setY1R(float Y1R) {
+        mProtocol.setY1R(Y1R);
+    }
+
+    public void setZ1R(float Z1R) {
+        mProtocol.setZ1R(Z1R);
+    }
+
+    public void setX2R(float X2R) {
+        mProtocol.setX2R(X2R);
+    }
+
+    public void setY2R(float Y2R) {
+        mProtocol.setY2R(Y2R);
+    }
+
+    public void setZ2R(float Z2R) {
+        mProtocol.setZ2R(Z2R);
+    }
+
     public long getSubjectId() {
         return mSubjectId;
+    }
+
+    public void setPISelected(boolean piSelected) {
+        this.PISelected = piSelected;
+    }
+
+    public boolean getPISelected() {
+        return PISelected;
+    }
+
+    public void setNewSubjectDataToProtocol(Protocol protocol) {
+        mDatabaseAdapter.open();
+        Subject subjectByName = getSubjectByName(protocol.getSubjectName());
+        if (subjectByName != null) {
+            protocol.setSubject(subjectByName);
+        }
+        mDatabaseAdapter.close();
+    }
+
+    private Subject getSubjectByName(String name) {
+        return mDatabaseAdapter.getSubjectByName(name);
     }
 }

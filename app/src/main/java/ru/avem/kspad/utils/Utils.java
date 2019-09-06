@@ -40,6 +40,7 @@ public class Utils {
     }
 
     public static String formatRealNumber(double num) {
+        num = Math.abs(num);
         String format = "%.0f";
         if (num == 0) {
             format = "%.0f";

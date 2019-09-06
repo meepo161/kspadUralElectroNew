@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="ru.avem.kspad.view.Experiment16Activity">
 
     <TextView
         android:id="@+id/status"
-        android:textSize="24sp"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
     <TextView
         android:id="@+id/name_of_experiment"
@@ -26,18 +26,17 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0"/>
+        app:layout_constraintVertical_bias="0" />
 
-    <ToggleButton
+    <Button
         android:id="@+id/experiment_switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:textOff="Запустить испытание"
-        android:textOn="Остановить испытание"
+        android:text="Записать значения"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/name_of_experiment"/>
+        app:layout_constraintTop_toBottomOf="@+id/name_of_experiment" />
 
     <TableLayout
         android:id="@+id/table"
@@ -51,64 +50,65 @@
 
             <TextView
                 android:background="@drawable/border_padding_gray"
-                android:textSize="20sp"/>
+                android:textSize="20sp" />
 
             <TextView
                 android:background="@drawable/border_padding_gray"
                 android:text="Шум, дБ"
-                android:textSize="20sp"/>
+                android:textSize="20sp" />
 
             <TextView
+                android:layout_span="3"
                 android:background="@drawable/border_padding_gray"
                 android:text="Вибрация с датчика 1, мм/с"
-                android:layout_span="3"
-                android:textSize="20sp"/>
+                android:textSize="20sp" />
 
             <TextView
+                android:layout_span="3"
                 android:background="@drawable/border_padding_gray"
                 android:text="Вибрация с датчика 2, мм/с"
-                android:layout_span="3"
-                android:textSize="20sp"/>
+                android:textSize="20sp" />
         </TableRow>
+
         <TableRow>
 
             <TextView
                 android:background="@drawable/border_padding_gray"
-                android:textSize="20sp"/>
+                android:textSize="20sp" />
 
             <TextView
                 android:background="@drawable/border_padding_gray"
-                android:textSize="20sp"/>
-
-            <TextView
-                android:background="@drawable/border_padding_gray"
-                android:text="Ось X      "
-                android:textSize="20sp"/>
-
-            <TextView
-                android:background="@drawable/border_padding_gray"
-                android:text="Ось Y      "
-                android:textSize="20sp"/>
-
-            <TextView
-                android:background="@drawable/border_padding_gray"
-                android:text="Ось Z      "
-                android:textSize="20sp"/>
+                android:textSize="20sp" />
 
             <TextView
                 android:background="@drawable/border_padding_gray"
                 android:text="Ось X      "
-                android:textSize="20sp"/>
+                android:textSize="20sp" />
 
             <TextView
                 android:background="@drawable/border_padding_gray"
                 android:text="Ось Y      "
-                android:textSize="20sp"/>
+                android:textSize="20sp" />
 
             <TextView
                 android:background="@drawable/border_padding_gray"
                 android:text="Ось Z      "
-                android:textSize="20sp"/>
+                android:textSize="20sp" />
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="Ось X      "
+                android:textSize="20sp" />
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="Ось Y      "
+                android:textSize="20sp" />
+
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="Ось Z      "
+                android:textSize="20sp" />
         </TableRow>
 
 
@@ -117,45 +117,52 @@
             <TextView
                 android:background="@drawable/border_padding_gray"
                 android:text="Изм. хар."
-                android:textSize="20sp"/>
+                android:textSize="20sp" />
 
-            <TextView
-                android:id="@+id/i_b"
+            <EditText
+                android:id="@+id/noise"
                 android:background="@drawable/border_padding"
-                android:textSize="20sp"/>
+                android:inputType="numberDecimal"
+                android:textSize="20sp" />
 
-            <TextView
-                android:id="@+id/u_b"
+            <EditText
+                android:id="@+id/x1"
                 android:background="@drawable/border_padding"
-                android:textSize="20sp"/>
+                android:inputType="numberDecimal"
+                android:textSize="20sp" />
 
-            <TextView
-                android:id="@+id/s"
+            <EditText
+                android:id="@+id/y1"
                 android:background="@drawable/border_padding"
-                android:textSize="20sp"/>
+                android:inputType="numberDecimal"
+                android:textSize="20sp" />
 
-            <TextView
-                android:id="@+id/p1"
+            <EditText
+                android:id="@+id/z1"
                 android:background="@drawable/border_padding"
-                android:textSize="20sp"/>
+                android:inputType="numberDecimal"
+                android:textSize="20sp" />
 
-            <TextView
-                android:id="@+id/cos"
+            <EditText
+                android:id="@+id/x2"
+                android:layout_height="match_parent"
                 android:background="@drawable/border_padding"
-                android:textSize="20sp"/>
+                android:inputType="numberDecimal"
+                android:textSize="20sp" />
 
-            <TextView
-                android:id="@+id/m"
+            <EditText
+                android:id="@+id/y2"
                 android:background="@drawable/border_padding"
-                android:textSize="20sp"/>
+                android:inputType="numberDecimal"
+                android:textSize="20sp" />
 
-            <TextView
-                android:id="@+id/v"
+            <EditText
+                android:id="@+id/z2"
                 android:background="@drawable/border_padding"
-                android:textSize="20sp"/>
+                android:inputType="numberDecimal"
+                android:textSize="20sp" />
 
         </TableRow>
-
 
 
         <TableRow>
@@ -163,42 +170,42 @@
             <TextView
                 android:background="@drawable/border_padding_light_red"
                 android:text="Ном. хар."
-                android:textSize="20sp"/>
+                android:textSize="20sp" />
 
             <TextView
-                android:id="@+id/i_specified"
+                android:id="@+id/noise_specified"
                 android:background="@drawable/border_padding_light_red"
-                android:textSize="20sp"/>
+                android:textSize="20sp" />
 
             <TextView
-                android:id="@+id/u_specified"
+                android:id="@+id/x1_specified"
                 android:background="@drawable/border_padding_light_red"
-                android:textSize="20sp"/>
+                android:textSize="20sp" />
 
             <TextView
-                android:id="@+id/s_specified"
+                android:id="@+id/y1_specified"
                 android:background="@drawable/border_padding_light_red"
-                android:textSize="20sp"/>
+                android:textSize="20sp" />
 
             <TextView
-                android:id="@+id/p1_specified"
+                android:id="@+id/z1_specified"
                 android:background="@drawable/border_padding_light_red"
-                android:textSize="20sp"/>
+                android:textSize="20sp" />
 
             <TextView
-                android:id="@+id/cos_specified"
+                android:id="@+id/x2_specified"
                 android:background="@drawable/border_padding_light_red"
-                android:textSize="20sp"/>
+                android:textSize="20sp" />
 
             <TextView
-                android:id="@+id/m_specified"
+                android:id="@+id/y2_specified"
                 android:background="@drawable/border_padding_light_red"
-                android:textSize="20sp"/>
+                android:textSize="20sp" />
 
             <TextView
-                android:id="@+id/v_specified"
+                android:id="@+id/z2_specified"
                 android:background="@drawable/border_padding_light_red"
-                android:textSize="20sp"/>
+                android:textSize="20sp" />
 
         </TableRow>
     </TableLayout>

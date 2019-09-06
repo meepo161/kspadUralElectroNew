@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/tab_experiments"
+    android:id="@+id/tab_psi_experiments"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:visibility="gone"
@@ -9,14 +9,14 @@
     android:orientation="vertical">
 
     <Button
-        android:id="@+id/start_experiments"
+        android:id="@+id/start_psi_experiments"
         android:layout_width="match_parent"
         android:visibility="gone"
         android:layout_height="wrap_content"
         android:text="Начать испытания"/>
 
     <ToggleButton
-        android:id="@+id/select_all"
+        android:id="@+id/select_all_psi"
         android:layout_width="match_parent"
         android:visibility="gone"
         android:layout_height="wrap_content"
@@ -24,9 +24,9 @@
         android:textOff="Выбрать все испытания"/>
 
     <ListView
-        android:id="@+id/experiments_list"
-        android:visibility="gone"
+        android:id="@+id/psi_experiments_list"
         android:layout_width="match_parent"
+        android:visibility="gone"
         android:layout_height="wrap_content"
         android:choiceMode="multipleChoice"/>
 </LinearLayout>

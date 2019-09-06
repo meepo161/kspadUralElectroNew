@@ -2,7 +2,7 @@ package ru.avem.kspad.communication.devices;
 
 public interface DeviceController {
     int INPUT_BUFFER_SIZE = 256;
-    int NUMBER_OF_ATTEMPTS = 120;
+    int NUMBER_OF_ATTEMPTS = 5;
 
     int BECKHOFF_CONTROL_ID = 0;
     int M40_ID = 1;
@@ -13,6 +13,7 @@ public interface DeviceController {
     int TRM201_ID = 6;
     int IKAS_ID = 7;
     int VEHA_T_ID = 8;
+    int MEGGER_ID = 9;
 
     void read(Object... args);
 

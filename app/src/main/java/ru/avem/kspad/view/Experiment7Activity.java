@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.CompoundButton;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -24,6 +26,7 @@ import ru.avem.kspad.communication.devices.FR_A800.FRA800Model;
 import ru.avem.kspad.communication.devices.beckhoff.BeckhoffModel;
 import ru.avem.kspad.communication.devices.ikas.IKASModel;
 import ru.avem.kspad.communication.devices.pm130.PM130Model;
+import ru.avem.kspad.communication.devices.veha_t.VEHATModel;
 import ru.avem.kspad.database.model.Experiments;
 import ru.avem.kspad.model.ExperimentsHolder;
 import ru.avem.kspad.utils.Logger;
@@ -32,6 +35,7 @@ import static ru.avem.kspad.communication.devices.DeviceController.BECKHOFF_CONT
 import static ru.avem.kspad.communication.devices.DeviceController.FR_A800_OBJECT_ID;
 import static ru.avem.kspad.communication.devices.DeviceController.IKAS_ID;
 import static ru.avem.kspad.communication.devices.DeviceController.PM130_ID;
+import static ru.avem.kspad.communication.devices.DeviceController.VEHA_T_ID;
 import static ru.avem.kspad.utils.Utils.formatRealNumber;
 import static ru.avem.kspad.utils.Utils.sleep;
 import static ru.avem.kspad.utils.Visibility.onFullscreenMode;
@@ -42,6 +46,8 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     private static final int STATE_40_TO_5_MULTIPLIER = 40 / 5;
     private static final int STATE_5_TO_5_MULTIPLIER = 5 / 5;
 
+    @BindView(R.id.main_layout)
+    ScrollView mMainLayout;
     @BindView(R.id.status)
     TextView mStatus;
     @BindView(R.id.experiment_switch)
@@ -59,6 +65,8 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     TextView mP13Cell;
     @BindView(R.id.cos_1_3)
     TextView mCos13Cell;
+    @BindView(R.id.v_1_3)
+    TextView mV13Cell;
     @BindView(R.id.p_cop_1_3)
     TextView mPCop13Cell;
     @BindView(R.id.p_m_p_st_1_3)
@@ -88,6 +96,8 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     TextView mP12Cell;
     @BindView(R.id.cos_1_2)
     TextView mCos12Cell;
+    @BindView(R.id.v_1_2)
+    TextView mV12Cell;
     @BindView(R.id.p_cop_1_2)
     TextView mPCop12Cell;
     @BindView(R.id.p_m_p_st_1_2)
@@ -117,6 +127,8 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     TextView mP11Cell;
     @BindView(R.id.cos_1_1)
     TextView mCos11Cell;
+    @BindView(R.id.v_1_1)
+    TextView mV11Cell;
     @BindView(R.id.p_cop_1_1)
     TextView mPCop11Cell;
     @BindView(R.id.p_m_p_st_1_1)
@@ -146,6 +158,8 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     TextView mP10Cell;
     @BindView(R.id.cos_1_0)
     TextView mCos10Cell;
+    @BindView(R.id.v_1_0)
+    TextView mV10Cell;
     @BindView(R.id.p_cop_1_0)
     TextView mPCop10Cell;
     @BindView(R.id.p_m_p_st_1_0)
@@ -175,6 +189,8 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     TextView mP09Cell;
     @BindView(R.id.cos_0_9)
     TextView mCos09Cell;
+    @BindView(R.id.v_0_9)
+    TextView mV09Cell;
     @BindView(R.id.p_cop_0_9)
     TextView mPCop09Cell;
     @BindView(R.id.p_m_p_st_0_9)
@@ -204,6 +220,8 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     TextView mP08Cell;
     @BindView(R.id.cos_0_8)
     TextView mCos08Cell;
+    @BindView(R.id.v_0_8)
+    TextView mV08Cell;
     @BindView(R.id.p_cop_0_8)
     TextView mPCop08Cell;
     @BindView(R.id.p_m_p_st_0_8)
@@ -233,6 +251,8 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     TextView mP07Cell;
     @BindView(R.id.cos_0_7)
     TextView mCos07Cell;
+    @BindView(R.id.v_0_7)
+    TextView mV07Cell;
     @BindView(R.id.p_cop_0_7)
     TextView mPCop07Cell;
     @BindView(R.id.p_m_p_st_0_7)
@@ -262,6 +282,8 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     TextView mP06Cell;
     @BindView(R.id.cos_0_6)
     TextView mCos06Cell;
+    @BindView(R.id.v_0_6)
+    TextView mV06Cell;
     @BindView(R.id.p_cop_0_6)
     TextView mPCop06Cell;
     @BindView(R.id.p_m_p_st_0_6)
@@ -291,6 +313,8 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     TextView mP05Cell;
     @BindView(R.id.cos_0_5)
     TextView mCos05Cell;
+    @BindView(R.id.v_0_5)
+    TextView mV05Cell;
     @BindView(R.id.p_cop_0_5)
     TextView mPCop05Cell;
     @BindView(R.id.p_m_p_st_0_5)
@@ -324,6 +348,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     private BroadcastReceiver mBroadcastReceiver;
 
     private boolean mExperimentStart;
+    private String mCause = "";
 
     private int mCurrentStage;
 
@@ -376,6 +401,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     private float mI13B;
     private float mP13 = -1f;
     private float mCos13;
+    private float mV13;
     private float mPCop13;
     private float mPmPst13;
     private double mPst13;
@@ -391,6 +417,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     private float mI12B;
     private float mP12 = -1f;
     private float mCos12;
+    private float mV12;
     private float mPCop12;
     private float mPmPst12;
     private double mPst12;
@@ -406,6 +433,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     private float mI11B;
     private float mP11 = -1f;
     private float mCos11;
+    private float mV11;
     private float mPCop11;
     private float mPmPst11;
     private double mPst11;
@@ -421,6 +449,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     private float mI10B;
     private float mP10 = -1f;
     private float mCos10;
+    private float mV10;
     private float mPCop10;
     private float mPmPst10;
     private double mPst10 = -1.;
@@ -436,6 +465,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     private float mI09B;
     private float mP09 = -1f;
     private float mCos09;
+    private float mV09;
     private float mPCop09;
     private float mPmPst09;
     private double mPst09;
@@ -451,6 +481,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     private float mI08B;
     private float mP08 = -1f;
     private float mCos08;
+    private float mV08;
     private float mPCop08;
     private float mPmPst08;
     private double mPst08;
@@ -466,6 +497,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     private float mI07B;
     private float mP07 = -1f;
     private float mCos07;
+    private float mV07;
     private float mPCop07;
     private float mPmPst07;
     private double mPst07;
@@ -481,6 +513,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     private float mI06B;
     private float mP06 = -1f;
     private float mCos06;
+    private float mV06;
     private float mPCop06;
     private float mPmPst06;
     private double mPst06;
@@ -496,6 +529,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     private float mI05B;
     private float mP05 = -1f;
     private float mCos05;
+    private float mV05;
     private float mPCop05;
     private float mPmPst05;
     private double mPst05;
@@ -506,6 +540,11 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     private float mI05Average = -1f;
 
     private double mPMech = -1.;
+
+    private boolean mVEHATResponding;
+    private float mV;
+
+    private float mUTurn;
 
 
     @Override
@@ -609,12 +648,9 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
 
     public void setExperimentStart(boolean experimentStart) {
         mExperimentStart = experimentStart;
-        if (!experimentStart) {
-            mStatus.setText("В ожидании начала испытания");
-        }
     }
 
-    private class ExperimentTask extends AsyncTask<Void, Void, Void> {
+    private class ExperimentTask extends AsyncTask<Void, Void, Integer> {
 
         @Override
         protected void onPreExecute() {
@@ -622,12 +658,21 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
             clearCells();
             setExperimentStart(true);
             mCurrentStage = 10;
+            mUTurn = 0;
+            setFRA800ObjectReady(false);
+            mMainLayout.setBackgroundColor(getResources().getColor(R.color.white));
+            mCause = "";
+            setBeckhoffResponding(true);
+            setVEHATResponding(true);
+            setFRA800ObjectResponding(true);
+            setPM130Responding(true);
+            setIKASResponding(true);
         }
 
         @Override
-        protected Void doInBackground(Void... voids) {
+        protected Integer doInBackground(Void... voids) {
             changeTextOfView(mStatus, "Испытание началось");
-            mDevicesController.initDevices8Group();
+            mDevicesController.initDevices7Group();
             while (isExperimentStart() && !isBeckhoffResponding()) {
                 changeTextOfView(mStatus, "Нет связи с ПЛК");
                 sleep(1000);
@@ -641,7 +686,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
             changeTextOfView(mStatus, "Инициализация...");
             mDevicesController.initDevices7Group();
             while (isExperimentStart() && !isFirstDevicesResponding() && mStartState) {
-                changeTextOfView(mStatus, "Нет связи с устройствами");
+                changeTextOfView(mStatus, getNotRespondingFirstDevicesString("Нет связи с устройствами"));
                 sleep(100);
             }
             mDevicesController.onKMsFrom4And7And13Group();
@@ -651,7 +696,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
 
             mDevicesController.startObject();
             sleep(2000);
-            while (isExperimentStart() && !mFRA800ObjectReady && mStartState) {
+            while (isExperimentStart() && !mFRA800ObjectReady && mStartState && isFirstDevicesResponding()) {
                 sleep(100);
                 changeTextOfView(mStatus, "Ожидаем, пока частотный преобразователь выйдет к заданным характеристикам");
             }
@@ -661,7 +706,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
             pickUpState();
 
             int experimentTime = mSpecifiedT1;
-            while (isExperimentStart() && (experimentTime > 0) && mStartState) {
+            while (isExperimentStart() && (experimentTime > 0) && mStartState && isFirstDevicesResponding()) {
                 experimentTime--;
                 sleep(1000);
                 changeTextOfView(mStatus, "Ждём заданное время в ХХ. Осталось: " + experimentTime);
@@ -669,17 +714,17 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
             }
 
             if (mNumOfStages > 1) {
-                if (isExperimentStart() && mStartState) {
+                if (isExperimentStart() && mStartState && isFirstDevicesResponding()) {
                     stateToBack();
                 }
 
-                if (isExperimentStart() && mStartState) {
+                if (isExperimentStart() && mStartState && isFirstDevicesResponding()) {
                     sleep(5000);
                 }
 
                 mCurrentStage = 13;
 
-                if (isExperimentStart() && mStartState) {
+                if (isExperimentStart() && mStartState && isFirstDevicesResponding()) {
                     stateToBack();
                 }
 
@@ -687,7 +732,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
 
                 mCurrentStage = 12;
 
-                if (isExperimentStart() && mStartState) {
+                if (isExperimentStart() && mStartState && isFirstDevicesResponding()) {
                     stateToBack();
                 }
 
@@ -695,7 +740,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
 
                 mCurrentStage = 11;
 
-                if (isExperimentStart() && mStartState) {
+                if (isExperimentStart() && mStartState && isFirstDevicesResponding()) {
                     stateToBack();
                 }
 
@@ -703,7 +748,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
 
                 mCurrentStage = 10;
 
-                if (isExperimentStart() && mStartState) {
+                if (isExperimentStart() && mStartState && isFirstDevicesResponding()) {
                     stateToBack();
                 }
 
@@ -711,7 +756,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
 
                 mCurrentStage = 9;
 
-                if (isExperimentStart() && mStartState) {
+                if (isExperimentStart() && mStartState && isFirstDevicesResponding()) {
                     stateToBack();
                 }
 
@@ -719,7 +764,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
 
                 mCurrentStage = 8;
 
-                if (isExperimentStart() && mStartState) {
+                if (isExperimentStart() && mStartState && isFirstDevicesResponding()) {
                     stateToBack();
                 }
 
@@ -727,7 +772,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
 
                 mCurrentStage = 7;
 
-                if (isExperimentStart() && mStartState) {
+                if (isExperimentStart() && mStartState && isFirstDevicesResponding()) {
                     stateToBack();
                 }
 
@@ -735,7 +780,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
 
                 mCurrentStage = 6;
 
-                if (isExperimentStart() && mStartState) {
+                if (isExperimentStart() && mStartState && isFirstDevicesResponding()) {
                     stateToBack();
                 }
 
@@ -743,61 +788,72 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
 
                 mCurrentStage = 5;
 
-                if (isExperimentStart() && mStartState) {
+                if (isExperimentStart() && mStartState && isFirstDevicesResponding()) {
                     stateToBack();
                 }
 
                 lastLevel = startStage(lastLevel, mSpecifiedU05);
 
                 mCurrentStage = 4;
+            } else {
+                mCurrentStage = 4;
             }
-
-            if (isExperimentStart() && mStartState) {
+            Logger.withTag("IDLE").log("Начало опускания");
+            if (isExperimentStart() && mStartState && isFirstDevicesResponding()) {
                 for (int i = lastLevel; i > 0; i -= 40) {
-                    if (i > 0) {
-                        mDevicesController.setObjectUMax(i);
-                    }
+                    mDevicesController.setObjectUMax(i);
                 }
                 mDevicesController.setObjectUMax(0);
             }
+            Logger.withTag("IDLE").log("Конец опускания");
 
             mDevicesController.stopObject();
+            Logger.withTag("IDLE").log("Остановили");
             sleep(5000);
             mDevicesController.offKMsFrom4And7And13Group();
+            Logger.withTag("IDLE").log("Оффнули");
             m200to5State = false;
             m40to5State = false;
             m5to5State = false;
 
+            if (!isFirstDevicesResponding()) {
+                return 1;
+            }
+
             if (mNumOfStages > 1) {
+                Logger.withTag("IDLE").log("Начало ИКАСа");
                 mDevicesController.diversifyDevices();
-                mDevicesController.initBeckhoff();
-                mDevicesController.initIKAS();
-                while (isExperimentStart() && !isSecondDevicesResponding() && mStartState) {
-                    changeTextOfView(mStatus, "Нет связи с устройствами");
+                if (isExperimentStart()) {
+                    mDevicesController.initBeckhoff();
+                    mDevicesController.initIKAS();
+                }
+                while (isExperimentStart() && !isSecondDevicesResponding()) {
+                    changeTextOfView(mStatus, getNotRespondingSecondDevicesString("Нет связи с устройствами"));
                     sleep(100);
                 }
 
-                if (isExperimentStart() && mStartState) {
+                if (isExperimentStart() && mStartState && isSecondDevicesResponding()) {
                     changeTextOfView(mStatus, "Инициализация...");
+                    Logger.withTag("IDLE").log("Сбор схемы ИКАСа");
                     mDevicesController.onKMsFrom5And17Group();
                 }
 
-                while (isExperimentStart() && (mIKASReady != 0f) && (mIKASReady != 1f) && (mIKASReady != 101f) && mStartState) {
+                while (isExperimentStart() && (mIKASReady != 0f) && (mIKASReady != 1f) && (mIKASReady != 101f) && mStartState && isSecondDevicesResponding()) {
                     sleep(100);
                     changeTextOfView(mStatus, "Ожидаем, пока ИКАС подготовится");
                 }
 
-                if (isExperimentStart() && mStartState) {
+                if (isExperimentStart() && mStartState && isSecondDevicesResponding()) {
                     startMeasuring();
                     sleep(2000);
                 }
 
-                while (isExperimentStart() && (mIKASReady != 0f) && (mIKASReady != 101f) && mStartState) {
+                while (isExperimentStart() && (mIKASReady != 0f) && (mIKASReady != 101f) && mStartState && isSecondDevicesResponding()) {
                     sleep(100);
                     changeTextOfView(mStatus, "Ожидаем, пока измерение ИКАСа закончится");
                 }
 
-                if (isExperimentStart() && mStartState) {
+                if (isExperimentStart() && mStartState && isSecondDevicesResponding()) {
                     setR(mMeasurable);
 
                     setPCop13((float) (3 * mI13Average * mI13Average * (mR / 2.0) / 1000.));
@@ -820,27 +876,27 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
                     setPmPst06(mP06 - mPCop06);
                     setPmPst05(mP05 - mPCop05);
 
-//                    setPMech(((0 - mU06Average * mU06Average) * (0 - mU07Average * mU07Average)) / ((mU05Average * mU05Average - mU06Average * mU06Average) * (mU05Average * mU05Average - mU07Average * mU07Average)) * mPmPst05 +
-//                            ((0 - mU05Average * mU05Average) * (0 - mU07Average * mU07Average)) / ((mU06Average * mU06Average - mU05Average * mU05Average) * (mU06Average * mU06Average - mU07Average * mU07Average)) * mPmPst06 +
-//                            ((0 - mU05Average * mU05Average) * (0 - mU06Average * mU06Average)) / ((mU07Average * mU07Average - mU05Average * mU05Average) * (mU07Average * mU07Average - mU06Average * mU06Average)) * mPmPst07);
-
                     setPMech((mU05Average * mU05Average * mPmPst05 + mPmPst05 * mU06Average * mU06Average - mPmPst05 * mU05Average * mU05Average - mU05Average * mU05Average * mPmPst06) / (mU06Average * mU06Average - mU05Average * mU05Average));
 
-                    setPst13((float)(mPmPst13 - mPMech));
-                    setPst12((float)(mPmPst12 - mPMech));
-                    setPst11((float)(mPmPst11 - mPMech));
+                    setPst13((float) (mPmPst13 - mPMech));
+                    setPst12((float) (mPmPst12 - mPMech));
+                    setPst11((float) (mPmPst11 - mPMech));
                     setPst10(mPmPst10 - mPMech);
-                    setPst09((float)(mPmPst09 - mPMech));
-                    setPst08((float)(mPmPst08 - mPMech));
-                    setPst07((float)(mPmPst07 - mPMech));
-                    setPst06((float)(mPmPst06 - mPMech));
-                    setPst05((float)(mPmPst05 - mPMech));
+                    setPst09((float) (mPmPst09 - mPMech));
+                    setPst08((float) (mPmPst08 - mPMech));
+                    setPst07((float) (mPmPst07 - mPMech));
+                    setPst06((float) (mPmPst06 - mPMech));
+                    setPst05((float) (mPmPst05 - mPMech));
                 }
 
                 mDevicesController.offKMsFrom5And17Group();
+
+                if (!isSecondDevicesResponding()) {
+                    return 2;
+                }
             }
 
-            return null;
+            return 0;
         }
 
         private void startMeasuring() {
@@ -853,25 +909,50 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
             }
         }
 
+        private String getNotRespondingFirstDevicesString(String mainText) {
+            return String.format("%s %s%s%s%s",
+                    mainText,
+                    isBeckhoffResponding() ? "" : "БСУ, ",
+                    isFRA800ObjectResponding() ? "" : "ЧП ОИ, ",
+                    isPM130Responding() ? "" : "PM130, ",
+                    isVEHATResponding() ? "" : "ВЕХА-Т");
+        }
+
+        private String getNotRespondingSecondDevicesString(String mainText) {
+            return String.format("%s %s%s",
+                    mainText,
+                    isBeckhoffResponding() ? "" : "БСУ, ",
+                    isIKASResponding() ? "" : "ИКАС");
+        }
+
         @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
+        protected void onPostExecute(Integer result) {
             mDevicesController.diversifyDevices();
             mExperimentSwitch.setChecked(false);
-            mStatus.setText("Испытание закончено");
-            mCurrentStage = 10;
+            if (!mCause.equals("")) {
+                mStatus.setText(String.format("Испытание прервано по причине: %s", mCause));
+                mMainLayout.setBackgroundColor(getResources().getColor(R.color.red));
+            } else if (result == 1) {
+                changeTextOfView(mStatus, getNotRespondingFirstDevicesString("Потеряна связь с устройствами"));
+                mMainLayout.setBackgroundColor(getResources().getColor(R.color.red));
+            } else if (result == 2) {
+                changeTextOfView(mStatus, getNotRespondingSecondDevicesString("Потеряна связь с устройствами"));
+                mMainLayout.setBackgroundColor(getResources().getColor(R.color.red));
+            } else {
+                mStatus.setText("Испытание закончено");
+            }
         }
     }
 
     private int startStage(int lastLevel, float u) {
         lastLevel = regulation(lastLevel, 3 * 10, 3, u, 0.05, 1, 400, 1050);
 
-        if (isExperimentStart() && mStartState) {
+        if (isExperimentStart() && mStartState && isFirstDevicesResponding()) {
             pickUpState();
         }
 
         int experimentTime = mSpecifiedT2;
-        while (isExperimentStart() && (experimentTime > 0) && mStartState) {
+        while (isExperimentStart() && (experimentTime > 0) && mStartState && isFirstDevicesResponding()) {
             experimentTime--;
             sleep(1000);
             changeTextOfView(mStatus, "Ждём заданное на ступень время. Осталось: " + experimentTime);
@@ -917,7 +998,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     private int regulation(int start, int coarseStep, int fineStep, float end, double coarseLimit, double fineLimit, int coarseSleep, int fineSleep) {
         double coarseMinLimit = 1 - coarseLimit;
         double coarseMaxLimit = 1 + coarseLimit;
-        while (isExperimentStart() && ((mPM130V1 < end * coarseMinLimit) || (mPM130V1 > end * coarseMaxLimit)) && mStartState) {
+        while (isExperimentStart() && ((mPM130V1 < end * coarseMinLimit) || (mPM130V1 > end * coarseMaxLimit)) && mStartState && isFirstDevicesResponding()) {
             Logger.withTag(Logger.DEBUG_TAG).log("end:" + end + " compared:" + mPM130V1);
             if (mPM130V1 < end * coarseMinLimit) {
                 mDevicesController.setObjectUMax(start += coarseStep);
@@ -927,7 +1008,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
             sleep(coarseSleep);
             changeTextOfView(mStatus, "Выводим напряжение для получения заданного значения грубо");
         }
-        while (isExperimentStart() && ((mPM130V1 < end - fineLimit) || (mPM130V1 > end + fineLimit)) && mStartState) {
+        while (isExperimentStart() && ((mPM130V1 < end - fineLimit) || (mPM130V1 > end + fineLimit)) && mStartState && isFirstDevicesResponding()) {
             Logger.withTag(Logger.DEBUG_TAG).log("end:" + end + " compared:" + mPM130V1);
             if (mPM130V1 < end - fineLimit) {
                 mDevicesController.setObjectUMax(start += fineStep);
@@ -945,11 +1026,14 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
             mDevicesController.on40To5();
             m40to5State = true;
             m200to5State = false;
-            sleep(3000);
+            m5to5State = false;
+            sleep(3 * 1000);
             if (mPM130I1 < 6) {
                 mDevicesController.on5To5();
                 m5to5State = true;
                 m40to5State = false;
+                m200to5State = false;
+                sleep(3 * 1000);
             }
         }
     }
@@ -968,7 +1052,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     }
 
     private boolean isFirstDevicesResponding() {
-        return isBeckhoffResponding() && isFRA800ObjectResponding() && isPM130Responding();
+        return isBeckhoffResponding() && isFRA800ObjectResponding() && isPM130Responding() && isVEHATResponding();
     }
 
     private boolean isSecondDevicesResponding() {
@@ -991,15 +1075,35 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
                     case BeckhoffModel.START_PARAM:
                         setStartState((boolean) value);
                         break;
-                    case BeckhoffModel.DOOR_S_PARAM:
+                    case BeckhoffModel.DOOR_S_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "открылась дверь шкафа";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.I_PROTECTION_OBJECT_PARAM:
+                    case BeckhoffModel.I_PROTECTION_OBJECT_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "сработала токовая защита объекта испытания";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.I_PROTECTION_VIU_PARAM:
+                    case BeckhoffModel.I_PROTECTION_VIU_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "сработала токовая защита ВИУ";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.I_PROTECTION_IN_PARAM:
+                    case BeckhoffModel.I_PROTECTION_IN_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "сработала токовая защита по входу";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.DOOR_Z_PARAM:
+                    case BeckhoffModel.DOOR_Z_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "открылась дверь зоны";
+                            setExperimentStart(false);
+                        }
                         break;
                 }
                 break;
@@ -1073,6 +1177,16 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
                         break;
                     case PM130Model.COS_PARAM:
                         setPM130Cos((float) value);
+                        break;
+                }
+                break;
+            case VEHA_T_ID:
+                switch (param) {
+                    case VEHATModel.RESPONDING_PARAM:
+                        setVEHATResponding((boolean) value);
+                        break;
+                    case VEHATModel.ROTATION_FREQUENCY_PARAM:
+                        setV((float) value);
                         break;
                 }
                 break;
@@ -1409,6 +1523,51 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         }
     }
 
+    public boolean isVEHATResponding() {
+        return mVEHATResponding;
+    }
+
+    public void setVEHATResponding(boolean VEHATResponding) {
+        mVEHATResponding = VEHATResponding;
+    }
+
+    public void setV(float v) {
+        if (mUTurn == 0 && v > 0) {
+            mUTurn = mPM130V1;
+//            changeTextOfView(mV13Cell, formatRealNumber(mUTurn));
+        }
+        mV = v;
+        switch (mCurrentStage) {
+            case 13:
+                setV13(v);
+                break;
+            case 12:
+                setV12(v);
+                break;
+            case 11:
+                setV11(v);
+                break;
+            case 10:
+                setV10(v);
+                break;
+            case 9:
+                setV09(v);
+                break;
+            case 8:
+                setV08(v);
+                break;
+            case 7:
+                setV07(v);
+                break;
+            case 6:
+                setV06(v);
+                break;
+            case 5:
+                setV05(v);
+                break;
+        }
+    }
+
     public void setU13A(float u13A) {
         mU13A = u13A;
         changeTextOfView(mU13ACell, formatRealNumber(u13A));
@@ -1437,6 +1596,11 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     public void setCos13(float cos13) {
         mCos13 = cos13;
         changeTextOfView(mCos13Cell, formatRealNumber(cos13));
+    }
+
+    public void setV13(float v13) {
+        mV13 = v13;
+        changeTextOfView(mV13Cell, formatRealNumber(v13));
     }
 
     public void setPCop13(float PCop13) {
@@ -1510,6 +1674,11 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mCos12Cell, formatRealNumber(cos12));
     }
 
+    public void setV12(float v12) {
+        mV12 = v12;
+        changeTextOfView(mV12Cell, formatRealNumber(v12));
+    }
+
     public void setPCop12(float PCop12) {
         mPCop12 = PCop12;
         changeTextOfView(mPCop12Cell, formatRealNumber(PCop12));
@@ -1579,6 +1748,11 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     public void setCos11(float cos11) {
         mCos11 = cos11;
         changeTextOfView(mCos11Cell, formatRealNumber(cos11));
+    }
+
+    public void setV11(float v11) {
+        mV11 = v11;
+        changeTextOfView(mV11Cell, formatRealNumber(v11));
     }
 
     public void setPCop11(float PCop11) {
@@ -1652,6 +1826,11 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mCos10Cell, formatRealNumber(cos10));
     }
 
+    public void setV10(float v10) {
+        mV10 = v10;
+        changeTextOfView(mV10Cell, formatRealNumber(v10));
+    }
+
     public void setPCop10(float PCop10) {
         mPCop10 = PCop10;
         changeTextOfView(mPCop10Cell, formatRealNumber(PCop10));
@@ -1721,6 +1900,11 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     public void setCos09(float cos09) {
         mCos09 = cos09;
         changeTextOfView(mCos09Cell, formatRealNumber(cos09));
+    }
+
+    public void setV09(float v09) {
+        mV09 = v09;
+        changeTextOfView(mV09Cell, formatRealNumber(v09));
     }
 
     public void setPCop09(float PCop09) {
@@ -1794,6 +1978,11 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mCos08Cell, formatRealNumber(cos08));
     }
 
+    public void setV08(float v08) {
+        mV08 = v08;
+        changeTextOfView(mV08Cell, formatRealNumber(v08));
+    }
+
     public void setPCop08(float PCop08) {
         mPCop08 = PCop08;
         changeTextOfView(mPCop08Cell, formatRealNumber(PCop08));
@@ -1863,6 +2052,11 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     public void setCos07(float cos07) {
         mCos07 = cos07;
         changeTextOfView(mCos07Cell, formatRealNumber(cos07));
+    }
+
+    public void setV07(float v07) {
+        mV07 = v07;
+        changeTextOfView(mV07Cell, formatRealNumber(v07));
     }
 
     public void setPCop07(float PCop07) {
@@ -1936,6 +2130,11 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mCos06Cell, formatRealNumber(cos06));
     }
 
+    public void setV06(float v06) {
+        mV06 = v06;
+        changeTextOfView(mV06Cell, formatRealNumber(v06));
+    }
+
     public void setPCop06(float PCop06) {
         mPCop06 = PCop06;
         changeTextOfView(mPCop06Cell, formatRealNumber(PCop06));
@@ -2005,6 +2204,11 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
     public void setCos05(float cos05) {
         mCos05 = cos05;
         changeTextOfView(mCos05Cell, formatRealNumber(cos05));
+    }
+
+    public void setV05(float v05) {
+        mV05 = v05;
+        changeTextOfView(mV05Cell, formatRealNumber(v05));
     }
 
     public void setPCop05(float PCop05) {
@@ -2082,6 +2286,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mI13BCell, "");
         changeTextOfView(mP13Cell, "");
         changeTextOfView(mCos13Cell, "");
+        changeTextOfView(mV13Cell, "");
         changeTextOfView(mPCop13Cell, "");
         changeTextOfView(mPmPst13Cell, "");
         changeTextOfView(mPst13Cell, "");
@@ -2097,6 +2302,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mI12BCell, "");
         changeTextOfView(mP12Cell, "");
         changeTextOfView(mCos12Cell, "");
+        changeTextOfView(mV12Cell, "");
         changeTextOfView(mPCop12Cell, "");
         changeTextOfView(mPmPst12Cell, "");
         changeTextOfView(mPst12Cell, "");
@@ -2112,6 +2318,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mI11BCell, "");
         changeTextOfView(mP11Cell, "");
         changeTextOfView(mCos11Cell, "");
+        changeTextOfView(mV11Cell, "");
         changeTextOfView(mPCop11Cell, "");
         changeTextOfView(mPmPst11Cell, "");
         changeTextOfView(mPst11Cell, "");
@@ -2127,6 +2334,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mI10BCell, "");
         changeTextOfView(mP10Cell, "");
         changeTextOfView(mCos10Cell, "");
+        changeTextOfView(mV10Cell, "");
         changeTextOfView(mPCop10Cell, "");
         changeTextOfView(mPmPst10Cell, "");
         changeTextOfView(mPst10Cell, "");
@@ -2142,6 +2350,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mI09BCell, "");
         changeTextOfView(mP09Cell, "");
         changeTextOfView(mCos09Cell, "");
+        changeTextOfView(mV09Cell, "");
         changeTextOfView(mPCop09Cell, "");
         changeTextOfView(mPmPst09Cell, "");
         changeTextOfView(mPst09Cell, "");
@@ -2157,6 +2366,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mI08BCell, "");
         changeTextOfView(mP08Cell, "");
         changeTextOfView(mCos08Cell, "");
+        changeTextOfView(mV08Cell, "");
         changeTextOfView(mPCop08Cell, "");
         changeTextOfView(mPmPst08Cell, "");
         changeTextOfView(mPst08Cell, "");
@@ -2172,6 +2382,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mI07BCell, "");
         changeTextOfView(mP07Cell, "");
         changeTextOfView(mCos07Cell, "");
+        changeTextOfView(mV07Cell, "");
         changeTextOfView(mPCop07Cell, "");
         changeTextOfView(mPmPst07Cell, "");
         changeTextOfView(mPst07Cell, "");
@@ -2187,6 +2398,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mI06BCell, "");
         changeTextOfView(mP06Cell, "");
         changeTextOfView(mCos06Cell, "");
+        changeTextOfView(mV06Cell, "");
         changeTextOfView(mPCop06Cell, "");
         changeTextOfView(mPmPst06Cell, "");
         changeTextOfView(mPst06Cell, "");
@@ -2202,6 +2414,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         changeTextOfView(mI05BCell, "");
         changeTextOfView(mP05Cell, "");
         changeTextOfView(mCos05Cell, "");
+        changeTextOfView(mV05Cell, "");
         changeTextOfView(mPCop05Cell, "");
         changeTextOfView(mPmPst05Cell, "");
         changeTextOfView(mPst05Cell, "");
@@ -2245,6 +2458,7 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
         data.putExtra(MainActivity.INPUT_PARAMETER.U05_IDLE_R, mU05Average);
         data.putExtra(MainActivity.INPUT_PARAMETER.P_ST_R, mPst10);
         data.putExtra(MainActivity.INPUT_PARAMETER.P_MECH_R, mPMech);
+        data.putExtra(MainActivity.INPUT_PARAMETER.U_TURN_R, mUTurn);
         setResult(RESULT_OK, data);
     }
 

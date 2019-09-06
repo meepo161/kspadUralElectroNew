@@ -23,13 +23,13 @@
 
                 <TextView
                     android:background="@drawable/border_padding"
-                    android:text="Сигнал от кнопки ПУСК"
+                    android:text="Состояние связи БСУ"
                     android:textSize="28sp"/>
 
                 <TextView
-                    android:id="@+id/start_button"
+                    android:id="@+id/responding"
                     android:background="@drawable/border_padding"
-                    android:text="OK"
+                    android:text="Неизвестно"
                     android:textSize="28sp"/>
             </TableRow>
 
@@ -43,7 +43,7 @@
                 <TextView
                     android:id="@+id/cabinet_door"
                     android:background="@drawable/border_padding"
-                    android:text="OK"
+                    android:text="Неизвестно"
                     android:textSize="28sp"/>
             </TableRow>
 
@@ -57,7 +57,7 @@
                 <TextView
                     android:id="@+id/current_protection_subject"
                     android:background="@drawable/border_padding"
-                    android:text="OK"
+                    android:text="Неизвестно"
                     android:textSize="28sp"/>
             </TableRow>
 
@@ -71,7 +71,7 @@
                 <TextView
                     android:id="@+id/current_protection_viu"
                     android:background="@drawable/border_padding"
-                    android:text="OK"
+                    android:text="Неизвестно"
                     android:textSize="28sp"/>
             </TableRow>
 
@@ -85,7 +85,7 @@
                 <TextView
                     android:id="@+id/current_protection_entry"
                     android:background="@drawable/border_padding"
-                    android:text="OK"
+                    android:text="Неизвестно"
                     android:textSize="28sp"/>
             </TableRow>
 
@@ -99,7 +99,7 @@
                 <TextView
                     android:id="@+id/zone_door"
                     android:background="@drawable/border_padding"
-                    android:text="OK"
+                    android:text="Неизвестно"
                     android:textSize="28sp"/>
             </TableRow>
         </TableLayout>

@@ -2,13 +2,13 @@ package ru.avem.kspad.communication.protocol.modbus;
 
 import java.nio.ByteBuffer;
 
+import ru.avem.kspad.communication.connection_protocols.Connection;
 import ru.avem.kspad.communication.protocol.modbus.utils.CRC16;
-import ru.avem.kspad.communication.serial.SerialConnection;
 
 public class RTUController implements ModbusController {
-    private SerialConnection mConnection;
+    private Connection mConnection;
 
-    public RTUController(SerialConnection connection) {
+    public RTUController(Connection connection) {
         mConnection = connection;
     }
 

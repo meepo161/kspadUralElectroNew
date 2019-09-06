@@ -8,7 +8,7 @@ import ru.avem.kspad.communication.protocol.modbus.ModbusController;
 
 public class VEHATController implements DeviceController {
     private static final byte MODBUS_ADDRESS = 0x03;
-    private static final short ROTATION_FREQUENCY_REGISTER = 1;
+    private static final short ROTATION_FREQUENCY_REGISTER = 1; // это конфигурация TH01 0x29
 
     private static final int NUM_OF_WORDS_IN_REGISTER = 2;
     private static final short NUM_OF_REGISTERS = 1 * NUM_OF_WORDS_IN_REGISTER;
@@ -29,11 +29,13 @@ public class VEHATController implements DeviceController {
         if (thereAreAttempts()) {
             mAttempt--;
             ModbusController.RequestStatus status = mModbusController.readInputRegisters(
+//            ModbusController.RequestStatus status = mModbusController.readMultipleHoldingRegisters( это конфигурация TH01
                     MODBUS_ADDRESS, ROTATION_FREQUENCY_REGISTER, NUM_OF_REGISTERS, inputBuffer);
             if (status.equals(ModbusController.RequestStatus.FRAME_RECEIVED)) {
                 mModel.setResponding(true);
                 resetAttempts();
                 mModel.setRotationFrequency(convertToMidLittleEndian(inputBuffer.getFloat()));
+//                mModel.setRotationFrequency(inputBuffer.getInt()); это конфигурация TH01
             } else {
                 read(args);
             }

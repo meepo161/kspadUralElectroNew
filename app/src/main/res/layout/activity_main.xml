@@ -34,7 +34,9 @@
 
                 <include layout="@layout/tab_object"/>
 
-                <include layout="@layout/tab_experiments"/>
+                <include layout="@layout/tab_pi_experiments"/>
+
+                <include layout="@layout/tab_psi_experiments"/>
 
                 <include layout="@layout/tab_results"/>
 

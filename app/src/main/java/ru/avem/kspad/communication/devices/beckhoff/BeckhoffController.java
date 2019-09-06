@@ -12,6 +12,7 @@ public class BeckhoffController implements DeviceController {
     public static final short MOD_1_REGISTER = 16405;
     public static final short MOD_2_REGISTER = 16406;
     public static final short MOD_3_REGISTER = 16407;
+    public static final short TRIGGERS_REGISTER = 16408;
     public static final short RESET_TRIGGERS_REGISTER = 16409;
     public static final short LIGHT_REGISTER = 16410;
     public static final short SOUND_REGISTER = 16411;
@@ -33,6 +34,27 @@ public class BeckhoffController implements DeviceController {
 
     @Override
     public void read(Object... args) {
+//        ByteBuffer inputBuffer = ByteBuffer.allocate(INPUT_BUFFER_SIZE);
+//        if (thereAreAttempts()) {
+//            mAttempt--;
+//            ModbusController.RequestStatus status = mModbusProtocol.readInputRegisters(
+//                    MODBUS_ADDRESS, STATUS_REGISTER, NUM_OF_REGISTERS, inputBuffer);
+//            if (status.equals(ModbusController.RequestStatus.FRAME_RECEIVED)) {
+//                mModel.setResponding(true);
+//                resetAttempts();
+//                mModel.setStatus(inputBuffer.getShort());
+//            } else {
+//                read(args);
+//            }
+//        } else {
+//            mModel.setResponding(false);
+//            mModel.setStatus((short) 0);
+//        }
+        readStatus();
+        readTriggers();
+    }
+
+    private void readStatus() {
         ByteBuffer inputBuffer = ByteBuffer.allocate(INPUT_BUFFER_SIZE);
         if (thereAreAttempts()) {
             mAttempt--;
@@ -43,11 +65,28 @@ public class BeckhoffController implements DeviceController {
                 resetAttempts();
                 mModel.setStatus(inputBuffer.getShort());
             } else {
-                read(args);
+                readStatus();
             }
         } else {
             mModel.setResponding(false);
-            mModel.setStatus((short) 0);
+        }
+    }
+
+    private void readTriggers() {
+        ByteBuffer inputBuffer = ByteBuffer.allocate(INPUT_BUFFER_SIZE);
+        if (thereAreAttempts()) {
+            mAttempt--;
+            ModbusController.RequestStatus status = mModbusProtocol.readInputRegisters(
+                    MODBUS_ADDRESS, TRIGGERS_REGISTER, NUM_OF_REGISTERS, inputBuffer);
+            if (status.equals(ModbusController.RequestStatus.FRAME_RECEIVED)) {
+                mModel.setResponding(true);
+                resetAttempts();
+                mModel.setTriggers(inputBuffer.getShort());
+            } else {
+                readTriggers();
+            }
+        } else {
+            mModel.setResponding(false);
         }
     }
 

@@ -5,7 +5,6 @@ import java.nio.ByteOrder;
 import java.util.zip.Checksum;
 
 public class CRC16 implements Checksum {
-    private static final CRC16 ourInstance = new CRC16();
     private static final int[] TABLE = {
             0x0000, 0xc0c1, 0xc181, 0x0140, 0xc301, 0x03c0, 0x0280, 0xc241,
             0xc601, 0x06c0, 0x0780, 0xc741, 0x0500, 0xc5c1, 0xc481, 0x0440,
@@ -66,7 +65,7 @@ public class CRC16 implements Checksum {
     }
 
     public static void sign(ByteBuffer b) {
-        CRC16 instance = getInstance();
+        CRC16 instance = new CRC16();
         instance.reset();
         instance.update(b.array(), 0, b.position());
         b.order(ByteOrder.LITTLE_ENDIAN);
@@ -74,15 +73,11 @@ public class CRC16 implements Checksum {
         b.order(ByteOrder.BIG_ENDIAN);
     }
 
-    public static CRC16 getInstance() {
-        return ourInstance;
-    }
-
     private CRC16() {
     }
 
     public static boolean check(byte[] inputArray, int length) {
-        CRC16 instance = getInstance();
+        CRC16 instance = new CRC16();
         instance.reset();
         instance.update(inputArray, 0, length - 2);
         short correctSum = (short) instance.getValue();
@@ -95,7 +90,7 @@ public class CRC16 implements Checksum {
     }
 
     public static void signReversWithSlice(ByteBuffer b) {
-        CRC16 instance = getInstance();
+        CRC16 instance = new CRC16();
         instance.reset();
         instance.update(b.array(), 2, b.position() - 2);
         b.putShort((short) (instance.getValue()));

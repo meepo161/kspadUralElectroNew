@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.CompoundButton;
 import android.widget.TextView;
@@ -46,6 +47,8 @@ public class Experiment4Activity extends AppCompatActivity implements Observer {
     //endregion
 
     //region Виджеты
+    @BindView(R.id.main_layout)
+    ConstraintLayout mMainLayout;
     @BindView(R.id.status)
     TextView mStatus;
     @BindView(R.id.experiment_switch)
@@ -211,7 +214,7 @@ public class Experiment4Activity extends AppCompatActivity implements Observer {
         mExperimentStart = experimentStart;
     }
 
-    private class ExperimentTask extends AsyncTask<Void, Void, Integer> {
+    private class ExperimentTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -219,10 +222,16 @@ public class Experiment4Activity extends AppCompatActivity implements Observer {
             mCurrentStage = 1;
             setExperimentStart(true);
             mThreadOn = true;
+            setFRA800ObjectReady(false);
+            mMainLayout.setBackgroundColor(getResources().getColor(R.color.white));
+            mCause = "";
+            setBeckhoffResponding(true);
+            setFRA800ObjectResponding(true);
+            setPM130Responding(true);
         }
 
         @Override
-        protected Integer doInBackground(Void... voids) {
+        protected Void doInBackground(Void... voids) {
             if (isExperimentStart()) {
                 changeTextOfView(mStatus, "Испытание началось");
                 mDevicesController.initDevicesFrom4Group();
@@ -239,11 +248,11 @@ public class Experiment4Activity extends AppCompatActivity implements Observer {
                 mDevicesController.initDevicesFrom4Group();
             }
             while (isExperimentStart() && !isDevicesResponding() && mStartState) {
-                changeTextOfView(mStatus, "Нет связи с устройствами");
+                changeTextOfView(mStatus, getNotRespondingDevicesString("Нет связи с устройствами"));
                 sleep(100);
             }
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 changeTextOfView(mStatus, "Инициализация...");
                 mDevicesController.onKMsFrom4And7And13Group();
                 m200to5State = true;
@@ -251,24 +260,24 @@ public class Experiment4Activity extends AppCompatActivity implements Observer {
                 mDevicesController.setObjectParams(10 * 10, mIntSpecifiedFrequencyK100, mIntSpecifiedFrequencyK100);
                 mDevicesController.startObject();
             }
-            while (isExperimentStart() && !mFRA800ObjectReady && mStartState) {
+            while (isExperimentStart() && !mFRA800ObjectReady && mStartState && isDevicesResponding()) {
                 sleep(100);
                 changeTextOfView(mStatus, "Ожидаем, пока частотный преобразователь ОИ выйдет к заданным характеристикам");
             }
             int t = 5;
-            while (isExperimentStart() && (--t > 0) && mStartState) {
+            while (isExperimentStart() && (--t > 0) && mStartState && isDevicesResponding()) {
                 sleep(1000);
             }
 
             int lastLevel = regulation(10 * 10, 20, 5, 380, 0.15, 2, 100, 200);
             int level380 = lastLevel;
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 pickUpState();
                 sleep(5000);
             }
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 mCurrentStage = 2;
                 stateToBack();
             }
@@ -276,14 +285,14 @@ public class Experiment4Activity extends AppCompatActivity implements Observer {
             lastLevel = regulation(lastLevel, 20, 5, 500, 0.15, 2, 100, 200);
 
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 pickUpState();
                 sleep(5000);
             }
 
             float lastI = mIAverage;
             int experimentTime = mExperimentTime;
-            while (isExperimentStart() && (experimentTime > 0) && mStartState) {
+            while (isExperimentStart() && (experimentTime > 0) && mStartState && isDevicesResponding()) {
                 experimentTime--;
                 sleep(1000);
                 changeTextOfView(mStatus, "Ждём заданное время. Осталось: " + experimentTime);
@@ -301,7 +310,7 @@ public class Experiment4Activity extends AppCompatActivity implements Observer {
                 }
             }
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 mCurrentStage = 3;
                 stateToBack();
 
@@ -311,21 +320,21 @@ public class Experiment4Activity extends AppCompatActivity implements Observer {
                 mDevicesController.setObjectUMax(level380);
             }
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 sleep(5000);
             }
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 pickUpState();
                 sleep(5000);
             }
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 mCurrentStage = 4;
                 stateToBack();
             }
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 for (int i = level380; i > 0; i -= 40) {
                     if (i > 0) {
                         mDevicesController.setObjectUMax(i);
@@ -334,7 +343,7 @@ public class Experiment4Activity extends AppCompatActivity implements Observer {
                 mDevicesController.setObjectUMax(0);
             }
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 compareAmperage();
             }
 
@@ -347,15 +356,27 @@ public class Experiment4Activity extends AppCompatActivity implements Observer {
             return null;
         }
 
+        private String getNotRespondingDevicesString(String mainText) {
+            return String.format("%s %s%s%s",
+                    mainText,
+                    isBeckhoffResponding() ? "" : "БСУ, ",
+                    isFRA800ObjectResponding() ? "" : "ЧП ОИ, ",
+                    isPM130Responding() ? "" : "PM130");
+        }
+
         @Override
-        protected void onPostExecute(Integer result) {
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
             mDevicesController.diversifyDevices();
             mExperimentSwitch.setChecked(false);
-            if (mCause.isEmpty()) {
-                mStatus.setText("Испытание закончено");
+            if (!mCause.equals("")) {
+                mStatus.setText(String.format("Испытание прервано по причине: %s", mCause));
+                mMainLayout.setBackgroundColor(getResources().getColor(R.color.red));
+            } else if (!isDevicesResponding()) {
+                changeTextOfView(mStatus, getNotRespondingDevicesString("Потеряна связь с устройствами"));
+                mMainLayout.setBackgroundColor(getResources().getColor(R.color.red));
             } else {
-                mStatus.setText(mCause);
-                mCause = "";
+                mStatus.setText("Испытание закончено");
             }
             mThreadOn = false;
         }
@@ -364,7 +385,7 @@ public class Experiment4Activity extends AppCompatActivity implements Observer {
     private int regulation(int start, int coarseStep, int fineStep, int end, double coarseLimit, double fineLimit, int coarseSleep, int fineSleep) {
         double coarseMinLimit = 1 - coarseLimit;
         double coarseMaxLimit = 1 + coarseLimit;
-        while (isExperimentStart() && ((mUA < end * coarseMinLimit) || (mUA > end * coarseMaxLimit)) && mStartState) {
+        while (isExperimentStart() && ((mUA < end * coarseMinLimit) || (mUA > end * coarseMaxLimit)) && mStartState && isDevicesResponding()) {
             Logger.withTag(Logger.DEBUG_TAG).log("end:" + end + " compared:" + mUA);
             if (mUA < end * coarseMinLimit) {
                 mDevicesController.setObjectUMax(start += coarseStep);
@@ -374,7 +395,7 @@ public class Experiment4Activity extends AppCompatActivity implements Observer {
             sleep(coarseSleep);
             changeTextOfView(mStatus, "Выводим напряжение для получения заданного значения грубо");
         }
-        while (isExperimentStart() && ((mUA < end - fineLimit) || (mUA > end + fineLimit)) && mStartState) {
+        while (isExperimentStart() && ((mUA < end - fineLimit) || (mUA > end + fineLimit)) && mStartState && isDevicesResponding()) {
             Logger.withTag(Logger.DEBUG_TAG).log("end:" + end + " compared:" + mUA);
             if (mUA < end - fineLimit) {
                 mDevicesController.setObjectUMax(start += fineStep);
@@ -397,15 +418,17 @@ public class Experiment4Activity extends AppCompatActivity implements Observer {
     }
 
     private void pickUpState() {
-        if (mIAverage < 45) {
+        if (mIA < 45) {
             mDevicesController.on40To5();
             m40to5State = true;
             m200to5State = false;
+            m5to5State = false;
             sleep(3 * 1000);
-            if (mIAverage < 6) {
+            if (mIA < 6) {
                 mDevicesController.on5To5();
                 m5to5State = true;
                 m40to5State = false;
+                m200to5State = false;
                 sleep(3 * 1000);
             }
         }
@@ -452,15 +475,35 @@ public class Experiment4Activity extends AppCompatActivity implements Observer {
                     case BeckhoffModel.START_PARAM:
                         setStartState((boolean) value);
                         break;
-                    case BeckhoffModel.DOOR_S_PARAM:
+                    case BeckhoffModel.DOOR_S_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "открылась дверь шкафа";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.I_PROTECTION_OBJECT_PARAM:
+                    case BeckhoffModel.I_PROTECTION_OBJECT_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "сработала токовая защита объекта испытания";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.I_PROTECTION_VIU_PARAM:
+                    case BeckhoffModel.I_PROTECTION_VIU_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "сработала токовая защита ВИУ";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.I_PROTECTION_IN_PARAM:
+                    case BeckhoffModel.I_PROTECTION_IN_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "сработала токовая защита по входу";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.DOOR_Z_PARAM:
+                    case BeckhoffModel.DOOR_Z_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "открылась дверь зоны";
+                            setExperimentStart(false);
+                        }
                         break;
                 }
                 break;

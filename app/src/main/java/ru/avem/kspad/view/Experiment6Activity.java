@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.CompoundButton;
 import android.widget.TextView;
@@ -39,6 +40,8 @@ import static ru.avem.kspad.utils.Visibility.onFullscreenMode;
 public class Experiment6Activity extends AppCompatActivity implements Observer {
     private static final String EXPERIMENT_NAME = "Опыт ВИУ";
 
+    @BindView(R.id.main_layout)
+    ConstraintLayout mMainLayout;
     @BindView(R.id.status)
     TextView mStatus;
     @BindView(R.id.experiment_switch)
@@ -64,6 +67,7 @@ public class Experiment6Activity extends AppCompatActivity implements Observer {
     private BroadcastReceiver mBroadcastReceiver;
 
     private boolean mExperimentStart;
+    private String mCause = "";
 
     private boolean mBeckhoffResponding;
     private boolean mStartState;
@@ -164,9 +168,6 @@ public class Experiment6Activity extends AppCompatActivity implements Observer {
 
     public void setExperimentStart(boolean experimentStart) {
         mExperimentStart = experimentStart;
-        if (!experimentStart) {
-            mStatus.setText("В ожидании начала испытания");
-        }
     }
 
     private class ExperimentTask extends AsyncTask<Void, Void, Integer> {
@@ -177,6 +178,14 @@ public class Experiment6Activity extends AppCompatActivity implements Observer {
             clearCells();
             mNeedToRefresh = true;
             setExperimentStart(true);
+            setFRA800ObjectReady(false);
+            mIsOverI = false;
+            mMainLayout.setBackgroundColor(getResources().getColor(R.color.white));
+            mCause = "";
+            setBeckhoffResponding(true);
+            setFRA800ObjectResponding(true);
+            setPM130Responding(true);
+            setVoltmeterResponding(true);
         }
 
         @Override
@@ -194,22 +203,22 @@ public class Experiment6Activity extends AppCompatActivity implements Observer {
             }
             mDevicesController.initDevicesFrom6Group();
             while (isExperimentStart() && !isDevicesResponding() && mStartState) {
-                changeTextOfView(mStatus, "Нет связи с устройствами");
+                changeTextOfView(mStatus, getNotRespondingDevicesString("Нет связи с устройствами"));
                 sleep(100);
             }
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 changeTextOfView(mStatus, "Инициализация...");
                 mDevicesController.onKMsFrom6Group();
                 sleep(500);
                 mDevicesController.setObjectParams(10 * 10, mIntSpecifiedFrequencyK100, mIntSpecifiedFrequencyK100);
             }
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 mDevicesController.startObject();
                 sleep(2000);
             }
-            while (isExperimentStart() && !mFRA800ObjectReady && mStartState) {
+            while (isExperimentStart() && !mFRA800ObjectReady && mStartState && isDevicesResponding()) {
                 sleep(100);
                 changeTextOfView(mStatus, "Ожидаем, пока частотный преобразователь выйдет к заданным характеристикам");
             }
@@ -217,7 +226,7 @@ public class Experiment6Activity extends AppCompatActivity implements Observer {
             int lastLevel = regulation(10 * 10, 40, 10, mSpecifiedU, 0.15, 5, 50, 100);
 
             int experimentTime = mExperimentTime;
-            while (isExperimentStart() && (experimentTime > 0) && mProtectionVIU && mStartState) {
+            while (isExperimentStart() && (experimentTime > 0) && !mProtectionVIU && mStartState && !mIsOverI && isDevicesResponding()) {
                 experimentTime--;
                 sleep(1000);
                 changeTextOfView(mStatus, "Ждём заданное время испытания. Осталось: " + experimentTime);
@@ -227,12 +236,12 @@ public class Experiment6Activity extends AppCompatActivity implements Observer {
                     break;
                 }
             }
-            if (!mProtectionVIU || mIsOverI) {
+            if (mProtectionVIU || mIsOverI) {
                 result = 1;
             }
             mNeedToRefresh = false;
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 sleep(1000);
 
                 for (int i = lastLevel; i > 0; i -= 40) {
@@ -241,22 +250,31 @@ public class Experiment6Activity extends AppCompatActivity implements Observer {
                     }
                 }
                 mDevicesController.setObjectUMax(0);
+                mDevicesController.stopObject();
+                sleep(1000);
+                mDevicesController.offGround();
             }
 
-            mDevicesController.offGround();
-
             experimentTime = 60;
-            while (isExperimentStart() && (experimentTime > 0) && mStartState) {
+            while (isExperimentStart() && (experimentTime > 0) && mStartState && isDevicesResponding()) {
                 experimentTime--;
                 sleep(1000);
                 changeTextOfView(mStatus, "Ждём заданное время разряда. Осталось: " + experimentTime);
                 changeTextOfView(mTCell, "" + experimentTime);
             }
 
-            mDevicesController.stopObject();
             mDevicesController.offKMsFrom6Group();
 
             return result;
+        }
+
+        private String getNotRespondingDevicesString(String mainText) {
+            return String.format("%s %s%s%s%s",
+                    mainText,
+                    isBeckhoffResponding() ? "" : "БСУ, ",
+                    isFRA800ObjectResponding() ? "" : "ЧП ОИ, ",
+                    isPM130Responding() ? "" : "PM130, ",
+                    isVoltmeterResponding() ? "" : "Вольтметр АВЭМ");
         }
 
         @Override
@@ -264,20 +282,28 @@ public class Experiment6Activity extends AppCompatActivity implements Observer {
             super.onPostExecute(result);
             mDevicesController.diversifyDevices();
             mExperimentSwitch.setChecked(false);
-            if (result == 0) {
-                mResultCell.setText("Выдержал");
-            } else if (result == 1) {
-                mResultCell.setText("Не выдержал");
+            if (!mCause.equals("")) {
+                mStatus.setText(String.format("Испытание прервано по причине: %s", mCause));
+                mMainLayout.setBackgroundColor(getResources().getColor(R.color.red));
+                mResultCell.setText("Ошибка");
+            } else if (!isDevicesResponding()) {
+                changeTextOfView(mStatus, getNotRespondingDevicesString("Потеряна связь с устройствами"));
+                mMainLayout.setBackgroundColor(getResources().getColor(R.color.red));
+            } else {
+                if (result == 0) {
+                    mResultCell.setText("Выдержал");
+                } else if (result == 1) {
+                    mResultCell.setText("Не выдержал");
+                }
+                mStatus.setText("Испытание закончено");
             }
-            mIsOverI = false;
-            mStatus.setText("Испытание закончено");
         }
     }
 
     private int regulation(int start, int coarseStep, int fineStep, int end, double coarseLimit, double fineLimit, int coarseSleep, int fineSleep) {
         double coarseMinLimit = 1 - coarseLimit;
         double coarseMaxLimit = 1 + coarseLimit;
-        while (isExperimentStart() && ((mVoltmeterU < end * coarseMinLimit) || (mVoltmeterU > end * coarseMaxLimit)) && mStartState) {
+        while (isExperimentStart() && ((mVoltmeterU < end * coarseMinLimit) || (mVoltmeterU > end * coarseMaxLimit)) && mStartState && !mProtectionVIU && isDevicesResponding()) {
             Logger.withTag(Logger.DEBUG_TAG).log("end:" + end + " compared:" + mVoltmeterU);
             if (mVoltmeterU < end * coarseMinLimit) {
                 mDevicesController.setObjectUMax(start += coarseStep);
@@ -286,8 +312,12 @@ public class Experiment6Activity extends AppCompatActivity implements Observer {
             }
             sleep(coarseSleep);
             changeTextOfView(mStatus, "Выводим напряжение для получения заданного значения грубо");
+            if (mI > mSpecifiedI) {
+                mIsOverI = true;
+                break;
+            }
         }
-        while (isExperimentStart() && ((mVoltmeterU < end - fineLimit) || (mVoltmeterU > end + fineLimit)) && mStartState) {
+        while (isExperimentStart() && ((mVoltmeterU < end - fineLimit) || (mVoltmeterU > end + fineLimit)) && mStartState && !mIsOverI && !mProtectionVIU && isDevicesResponding()) {
             Logger.withTag(Logger.DEBUG_TAG).log("end:" + end + " compared:" + mVoltmeterU);
             if (mVoltmeterU < end - fineLimit) {
                 mDevicesController.setObjectUMax(start += fineStep);
@@ -296,6 +326,10 @@ public class Experiment6Activity extends AppCompatActivity implements Observer {
             }
             sleep(fineSleep);
             changeTextOfView(mStatus, "Выводим напряжение для получения заданного значения точно");
+            if (mI > mSpecifiedI) {
+                mIsOverI = true;
+                break;
+            }
         }
         return start;
     }
@@ -320,16 +354,35 @@ public class Experiment6Activity extends AppCompatActivity implements Observer {
                     case BeckhoffModel.START_PARAM:
                         setStartState((boolean) value);
                         break;
-                    case BeckhoffModel.DOOR_S_PARAM:
+                    case BeckhoffModel.DOOR_S_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "открылась дверь шкафа";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.I_PROTECTION_OBJECT_PARAM:
+                    case BeckhoffModel.I_PROTECTION_OBJECT_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "сработала токовая защита объекта испытания";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.I_PROTECTION_VIU_PARAM:
-                        setProtectionVIU((boolean) value);
+                    case BeckhoffModel.I_PROTECTION_VIU_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "сработала токовая защита ВИУ";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.I_PROTECTION_IN_PARAM:
+                    case BeckhoffModel.I_PROTECTION_IN_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "сработала токовая защита по входу";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.DOOR_Z_PARAM:
+                    case BeckhoffModel.DOOR_Z_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "открылась дверь зоны";
+                            setExperimentStart(false);
+                        }
                         break;
                 }
                 break;

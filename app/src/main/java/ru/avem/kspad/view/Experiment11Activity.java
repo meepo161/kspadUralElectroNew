@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.CompoundButton;
 import android.widget.TextView;
@@ -33,6 +34,10 @@ import static ru.avem.kspad.utils.Visibility.onFullscreenMode;
 
 public class Experiment11Activity extends AppCompatActivity implements Observer {
     private static final String EXPERIMENT_NAME = "Определение сопротивления изоляции обмоток относительно корпуса машины и между обмотками";
+    private static final float K_NOM = 1.3f;
+
+    @BindView(R.id.main_layout)
+    ConstraintLayout mMainLayout;
 
     @BindView(R.id.status)
     TextView mStatus;
@@ -63,6 +68,7 @@ public class Experiment11Activity extends AppCompatActivity implements Observer 
     private BroadcastReceiver mBroadcastReceiver;
 
     private boolean mExperimentStart;
+    private String mCause = "";
 
     private boolean mBeckhoffResponding;
     private boolean mStartState;
@@ -123,6 +129,7 @@ public class Experiment11Activity extends AppCompatActivity implements Observer 
         if (compoundButton.isChecked()) {
             initExperiment();
         } else {
+            mDevicesController.setCS02021ExperimentRun(false);
             setExperimentStart(false);
         }
     }
@@ -137,9 +144,6 @@ public class Experiment11Activity extends AppCompatActivity implements Observer 
 
     public void setExperimentStart(boolean experimentStart) {
         mExperimentStart = experimentStart;
-        if (!experimentStart) {
-            mStatus.setText("В ожидании начала испытания");
-        }
     }
 
     private class ExperimentTask extends AsyncTask<Integer, Void, Void> {
@@ -148,44 +152,61 @@ public class Experiment11Activity extends AppCompatActivity implements Observer 
             super.onPreExecute();
             clearCells();
             setExperimentStart(true);
+            mR60 = -1f;
+            setBeckhoffResponding(false);
+            setTRM201Responding(false);
+            mMainLayout.setBackgroundColor(getResources().getColor(R.color.white));
+            mCause = "";
+            setBeckhoffResponding(true);
+            setTRM201Responding(true);
         }
 
         @Override
         protected Void doInBackground(Integer... params) {
             changeTextOfView(mStatus, "Испытание началось");
+            mDevicesController.resetMegger();
             mDevicesController.initDevicesFrom11Group();
             while (isExperimentStart() && !isBeckhoffResponding()) {
                 changeTextOfView(mStatus, "Нет связи с ПЛК");
                 sleep(100);
             }
+
+            if (isExperimentStart()) {
+                if (!mDevicesController.isCS02021Responding()) {
+                    mCause = "Нет связи с меггером";
+                    setExperimentStart(false);
+                }
+            }
+
             while (isExperimentStart() && !mStartState) {
                 sleep(100);
                 changeTextOfView(mStatus, "Включите кнопочный пост");
             }
-            changeTextOfView(mStatus, "Инициализация");
+
+            changeTextOfView(mStatus, "Инициализация...");
             mDevicesController.initDevicesFrom11Group();
             while (isExperimentStart() && !isDevicesResponding() && mStartState) {
-                changeTextOfView(mStatus, "Нет связи с устройствами");
+                changeTextOfView(mStatus, getNotRespondingDevicesString("Нет связи с устройствами"));
                 sleep(100);
             }
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 changeTextOfView(mStatus, "Инициализация...");
                 mDevicesController.onKMsFrom11Group();
             }
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 changeTextOfView(mStatus, "Измерение началось");
                 mDevicesController.setUMgr(mSpecifiedU);
             }
 
-            int experimentTime = 80;
-            while (isExperimentStart() && (experimentTime-- > 0) && mStartState) {
+            int experimentTime = 90;
+            while (isExperimentStart() && (experimentTime-- > 0) && mStartState && isDevicesResponding()) {
                 sleep(1000);
                 changeTextOfView(mStatus, "Ждём, пока измерение закончится. Осталось: " + experimentTime);
             }
 
-            if (isExperimentStart() && mStartState) {
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 float[] data = mDevicesController.readDataMgr();
                 setUr(data[1]);
                 setR15(data[3]);
@@ -196,16 +217,23 @@ public class Experiment11Activity extends AppCompatActivity implements Observer 
             mDevicesController.offKMsFrom11Group();
 
             experimentTime = 15;
-            while (isExperimentStart() && (experimentTime-- > 0) && mStartState) {
+            while (isExperimentStart() && (experimentTime-- > 0) && mStartState && isDevicesResponding()) {
                 sleep(1000);
                 changeTextOfView(mStatus, "Ждём, пока разрядится. Осталось: " + experimentTime);
             }
 
-            if (isExperimentStart() && mStartState) {
-                setExperimentResult(mK > 1.3f);
+            if (isExperimentStart() && mStartState && isDevicesResponding()) {
+                setExperimentResult(mK > K_NOM);
             }
 
             return null;
+        }
+
+        private String getNotRespondingDevicesString(String mainText) {
+            return String.format("%s %s%s",
+                    mainText,
+                    isBeckhoffResponding() ? "" : "БСУ ",
+                    isTRM201Responding() ? "" : "ТРМ");
         }
 
         @Override
@@ -213,7 +241,15 @@ public class Experiment11Activity extends AppCompatActivity implements Observer 
             super.onPostExecute(aVoid);
             mDevicesController.diversifyDevices();
             mExperimentSwitch.setChecked(false);
-            mStatus.setText("Испытание закончено");
+            if (!mCause.equals("")) {
+                mStatus.setText(String.format("Испытание прервано по причине: %s", mCause));
+                mMainLayout.setBackgroundColor(getResources().getColor(R.color.red));
+            } else if (!isDevicesResponding()) {
+                changeTextOfView(mStatus, getNotRespondingDevicesString("Потеряна связь с устройствами"));
+                mMainLayout.setBackgroundColor(getResources().getColor(R.color.red));
+            } else {
+                mStatus.setText("Испытание закончено");
+            }
         }
     }
 
@@ -245,15 +281,35 @@ public class Experiment11Activity extends AppCompatActivity implements Observer 
                     case BeckhoffModel.START_PARAM:
                         setStartState((boolean) value);
                         break;
-                    case BeckhoffModel.DOOR_S_PARAM:
+                    case BeckhoffModel.DOOR_S_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "открылась дверь шкафа";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.I_PROTECTION_OBJECT_PARAM:
+                    case BeckhoffModel.I_PROTECTION_OBJECT_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "сработала токовая защита объекта испытания";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.I_PROTECTION_VIU_PARAM:
+                    case BeckhoffModel.I_PROTECTION_VIU_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "сработала токовая защита ВИУ";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.I_PROTECTION_IN_PARAM:
+                    case BeckhoffModel.I_PROTECTION_IN_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "сработала токовая защита по входу";
+                            setExperimentStart(false);
+                        }
                         break;
-                    case BeckhoffModel.DOOR_Z_PARAM:
+                    case BeckhoffModel.DOOR_Z_TRIGGER_PARAM:
+                        if ((boolean) value) {
+                            mCause = "открылась дверь зоны";
+                            setExperimentStart(false);
+                        }
                         break;
                 }
                 break;

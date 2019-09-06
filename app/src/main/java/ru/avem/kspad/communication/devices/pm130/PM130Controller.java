@@ -93,7 +93,7 @@ public class PM130Controller implements DeviceController {
                 MODBUS_ADDRESS, I1_REGISTER, NUM_OF_REGISTERS, inputBuffer);
         if (statusI.equals(ModbusController.RequestStatus.FRAME_RECEIVED)) {
             mModel.setResponding(true);
-            try {// TODO: 12.12.2017 сделать нормально
+            try {
                 mModel.setI1(convertUINTtoINT(inputBuffer.getInt()) * I_MULTIPLIER / I_DIVIDER / 1000);
                 mModel.setI2(convertUINTtoINT(inputBuffer.getInt()) * I_MULTIPLIER / I_DIVIDER / 1000);
                 mModel.setI3(convertUINTtoINT(inputBuffer.getInt()) * I_MULTIPLIER / I_DIVIDER / 1000);
@@ -110,7 +110,7 @@ public class PM130Controller implements DeviceController {
                 MODBUS_ADDRESS, VL1_REGISTER, NUM_OF_REGISTERS, inputBuffer);
         if (statusV.equals(ModbusController.RequestStatus.FRAME_RECEIVED)) {
             mModel.setResponding(true);
-            try {// TODO: 12.12.2017 сделать нормально
+            try {
                 mModel.setV1(convertUINTtoINT(inputBuffer.getInt()) * U_MULTIPLIER / U_DIVIDER);
                 mModel.setV2(convertUINTtoINT(inputBuffer.getInt()) * U_MULTIPLIER / U_DIVIDER);
                 mModel.setV3(convertUINTtoINT(inputBuffer.getInt()) * U_MULTIPLIER / U_DIVIDER);
@@ -127,7 +127,7 @@ public class PM130Controller implements DeviceController {
                 MODBUS_ADDRESS, P_REGISTER, (short) 8, inputBuffer);
         if (statusP.equals(ModbusController.RequestStatus.FRAME_RECEIVED)) {
             mModel.setResponding(true);
-            try {// TODO: 12.12.2017 сделать нормально
+            try {
                 mModel.setP1(convertMidEndianINTtoINT(inputBuffer.getInt()) / 1000.0f);
                 inputBuffer.getInt();
                 mModel.setS1(convertUINTtoINT(inputBuffer.getInt()) / 1000.0f);
@@ -145,7 +145,7 @@ public class PM130Controller implements DeviceController {
                 MODBUS_ADDRESS, F_REGISTER, (short) 2, inputBuffer);
         if (statusF.equals(ModbusController.RequestStatus.FRAME_RECEIVED)) {
             mModel.setResponding(true);
-            try {// TODO: 12.12.2017 сделать нормально
+            try {
                 mModel.setF(convertUINTtoINT(inputBuffer.getInt()) / 100.0f);
             } catch (Exception ignored) {
             }

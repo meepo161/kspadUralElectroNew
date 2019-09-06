@@ -94,6 +94,7 @@ public class Protocol extends RealmObject {
     private float mU05IdleR = -1f;
     private double mPStR = -1.;
     private double mPMechR = -1.;
+    private float mUTurnR = -1f;
 
     private float mI10SCR = -1f;
     private float mP10SCR = -1f;
@@ -129,6 +130,14 @@ public class Protocol extends RealmObject {
     private float mSpecifiedIOverloadR = -1f;
     private float mIOverloadR = -1f;
 
+    private float mNoiseR = -1f;
+    private float mX1R = -1f;
+    private float mY1R = -1f;
+    private float mZ1R = -1f;
+    private float mX2R = -1f;
+    private float mY2R = -1f;
+    private float mZ2R = -1f;
+
 
     private String mPosition1;
     private String mPosition1Number;
@@ -158,10 +167,11 @@ public class Protocol extends RealmObject {
                 -1f, -1f, -1f, -1f, -1f, -1f,
                 -1f, -1f, -1f, -1f, -1f, -1f,
                 -1f, -1f, -1f, -1f, -1f, -1f,
-                -1f, -1., -1., -1f, -1f, -1f, -1f, -1f,
+                -1f, -1., -1., -1f, -1f, -1f, -1f, -1f, -1f,
                 -1f, -1f, -1f, -1f, -1f, -1f,
                 -1f, -1f, -1f, 1, -1f, -1f, -1f,
                 -1f, -1f, -1f, -1f, -1f, -1f, -1f, -1f,
+                -1f, -1f, -1f, -1f, -1f, -1f, -1f,
 
                 null, null, null,
                 null, null, null,
@@ -185,7 +195,7 @@ public class Protocol extends RealmObject {
                      float I13IdleR, float P13IdleR, float I12IdleR, float P12IdleR, float I11IdleR,
                      float P11IdleR, float I10IdleR, float P10IdleR, float I09IdleR, float P09IdleR,
                      float I08IdleR, float P08IdleR, float I07IdleR, float P07IdleR, float U07IdleR, float I06IdleR,
-                     float P06IdleR, float U06IdleR, float I05IdleR, float P05IdleR, float U05IdleR, double PStR, double PMechR,
+                     float P06IdleR, float U06IdleR, float I05IdleR, float P05IdleR, float U05IdleR, double PStR, double PMechR, float UTurnR,
                      float I10SCR, float P10SCR, float I09SCR, float P09SCR, float I08SCR,
                      float P08SCR, float I07SCR, float P07SCR, float I06SCR, float P06SCR,
                      float TempEngineR, float TempAmbientR,
@@ -193,6 +203,8 @@ public class Protocol extends RealmObject {
                      float MgrR, float I1MVZR, float I2MVZR,
                      float I3MVZR, float UViuR, float TViuR, float VOverloadR, float TOverloadR,
                      float SpecifiedIOverloadR, float IOverloadR,
+
+                     float NoiseR, float X1R, float Y1R, float Z1R, float X2R, float Y2R, float Z2R,
 
                      String position1, String position1Number, String position1FullName,
                      String position2, String position2Number, String position2FullName,
@@ -280,6 +292,7 @@ public class Protocol extends RealmObject {
         mU05IdleR = U05IdleR;
         mPStR = PStR;
         mPMechR = PMechR;
+        mUTurnR = UTurnR;
 
         mI10SCR = I10SCR;
         mP10SCR = P10SCR;
@@ -310,6 +323,14 @@ public class Protocol extends RealmObject {
 
         mSpecifiedIOverloadR = SpecifiedIOverloadR;
         mIOverloadR = IOverloadR;
+
+        mNoiseR = NoiseR;
+        mX1R = X1R;
+        mY1R = Y1R;
+        mZ1R = Z1R;
+        mIOverloadR = X2R;
+        mIOverloadR = Y2R;
+        mIOverloadR = Z2R;
 
 
         mPosition1 = position1;
@@ -392,6 +413,7 @@ public class Protocol extends RealmObject {
         mU05IdleR = protocol.getU05IdleR();
         mPStR = protocol.getPStR();
         mPMechR = protocol.getPMechR();
+        mUTurnR = protocol.getUTurnR();
         mI10SCR = protocol.getI10SCR();
         mP10SCR = protocol.getP10SCR();
         mI09SCR = protocol.getI09SCR();
@@ -902,6 +924,14 @@ public class Protocol extends RealmObject {
         mPMechR = PMechR;
     }
 
+    public float getUTurnR() {
+        return mUTurnR;
+    }
+
+    public void setUTurnR(float UTurnR) {
+        mUTurnR = UTurnR;
+    }
+
     public float getI10SCR() {
         return mI10SCR;
     }
@@ -1110,6 +1140,62 @@ public class Protocol extends RealmObject {
         mIOverloadR = IOverloadR;
     }
 
+    public float getNoiseR() {
+        return mNoiseR;
+    }
+
+    public void setNoiseR(float noiseR) {
+        mNoiseR = noiseR;
+    }
+
+    public float getX1R() {
+        return mX1R;
+    }
+
+    public void setX1R(float x1R) {
+        mX1R = x1R;
+    }
+
+    public float getY1R() {
+        return mY1R;
+    }
+
+    public void setY1R(float y1R) {
+        mY1R = y1R;
+    }
+
+    public float getZ1R() {
+        return mZ1R;
+    }
+
+    public void setZ1R(float z1R) {
+        mZ1R = z1R;
+    }
+
+    public float getX2R() {
+        return mX2R;
+    }
+
+    public void setX2R(float x2R) {
+        mX2R = x2R;
+    }
+
+    public float getY2R() {
+        return mY2R;
+    }
+
+    public void setY2R(float y2R) {
+        mY2R = y2R;
+    }
+
+    public float getZ2R() {
+        return mZ2R;
+    }
+
+    public void setZ2R(float z2R) {
+        mZ2R = z2R;
+    }
+
     public String getPosition1() {
         return mPosition1;
     }
@@ -1164,6 +1250,14 @@ public class Protocol extends RealmObject {
 
     public void setDate(long date) {
         mDate = date;
+    }
+
+    public boolean isPI() {
+        return mP2R != -1 || mSpecifiedIOverloadR != -1 || mVOverloadR != -1 || mMMaxR != -1 || mTempEngineR != -1 || mMMinR != -1 || mMStartR != -1 || mNoiseR != -1 || mIkasRHotR != -1;
+    }
+
+    public boolean isPSI() {
+        return mP2R == -1 && mSpecifiedIOverloadR == -1 && mVOverloadR == -1 && mMMaxR == -1 && mTempEngineR == -1 && mMMinR == -1 && mMStartR == -1 && mNoiseR == -1 && mIkasRHotR == -1;
     }
 
     @Override

@@ -41,6 +41,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import io.realm.Realm;
 import ru.avem.kspad.R;
@@ -177,7 +180,7 @@ public class Logging {
 
     private static ByteArrayOutputStream convertProtocolToWorkbook(Protocol protocol, Context context) throws IOException {
         Resources res = context.getResources();
-        InputStream inputStream = res.openRawResource(R.raw.template_kspad);
+        InputStream inputStream = protocol.isPSI() ? res.openRawResource(R.raw.template_kspad_psi) : res.openRawResource(R.raw.template_kspad_pi);
         Workbook wb = new XSSFWorkbook(inputStream);
         try {
             Sheet sheet = wb.getSheetAt(0);
@@ -424,6 +427,21 @@ public class Logging {
                                 case "$R46":
                                     setNumberCellValue(cell, protocol.getP06SCR() * 1000);
                                     break;
+                                case "$R47":
+                                    List<Float> vibrations = new ArrayList<>();
+                                    vibrations.add(protocol.getX1R());
+                                    vibrations.add(protocol.getY1R());
+                                    vibrations.add(protocol.getZ1R());
+                                    vibrations.add(protocol.getX2R());
+                                    vibrations.add(protocol.getY2R());
+                                    vibrations.add(protocol.getZ2R());
+                                    Collections.sort(vibrations);
+                                    Collections.reverse(vibrations);
+                                    setNumberCellValue(cell, vibrations.get(0));
+                                    break;
+                                case "$R48":
+                                    setNumberCellValue(cell, protocol.getNoiseR());
+                                    break;
                                 case "$R49":
                                     Logger.withTag("R49").log(String.format("R горячее: %f, R20: %f", protocol.getIkasRHotR(), protocol.getIkasR20R()));
                                     if ((protocol.getIkasRHotR() > 0) && (protocol.getIkasR20R() > 0)) {
@@ -457,6 +475,9 @@ public class Logging {
                                     break;
                                 case "$R57":
                                     calculatePsum(protocol, cell);
+                                    break;
+                                case "$R58":
+                                    setNumberCellValue(cell, protocol.getUTurnR());
                                     break;
                                 case "$R60":
                                     setNumberCellValue(cell, protocol.getI1MVZR());

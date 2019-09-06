@@ -108,4 +108,16 @@ public class IKASController implements DeviceController {
     public void setNeedToRead(boolean needToRead) {
         mNeedToReed = needToRead;
     }
+
+    public static int getRangeType(float supposedValue) {
+        int rangeType = 1;
+        if (supposedValue < 8) {
+            rangeType = RANGE_TYPE_LESS_8;
+        } else if (supposedValue > 8 && supposedValue < 200) {
+            rangeType = RANGE_TYPE_MORE_8_LESS_200;
+        } else if (supposedValue > 200) {
+            rangeType = RANGE_TYPE_MORE_200;
+        }
+        return rangeType;
+    }
 }

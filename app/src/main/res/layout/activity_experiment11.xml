@@ -1,117 +1,117 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:app="http://schemas.android.com/apk/res-auto"
-xmlns:tools="http://schemas.android.com/tools"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-tools:context="ru.avem.kspad.view.Experiment11Activity">
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="ru.avem.kspad.view.Experiment11Activity">
 
-<TextView
-    android:id="@+id/status"
-    android:textSize="24sp"
-    android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    app:layout_constraintBottom_toBottomOf="parent"/>
+    <TextView
+        android:id="@+id/status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
-<TextView
-    android:id="@+id/name_of_experiment"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:gravity="center"
-    android:text="@string/experiment11"
-    android:textSize="48sp"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintLeft_toLeftOf="parent"
-    app:layout_constraintRight_toRightOf="parent"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintVertical_bias="0"/>
+    <TextView
+        android:id="@+id/name_of_experiment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/experiment11"
+        android:textSize="48sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0" />
 
-<ToggleButton
-    android:id="@+id/experiment_switch"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="8dp"
-    android:textOff="Запустить испытание"
-    android:textOn="Остановить испытание"
-    app:layout_constraintLeft_toLeftOf="parent"
-    app:layout_constraintRight_toRightOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/name_of_experiment"/>
+    <ToggleButton
+        android:id="@+id/experiment_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textOff="Запустить испытание"
+        android:textOn="Остановить испытание"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/name_of_experiment" />
 
-<TableLayout
-    android:id="@+id/table"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    app:layout_constraintLeft_toLeftOf="parent"
-    app:layout_constraintRight_toRightOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/experiment_switch">
+    <TableLayout
+        android:id="@+id/table"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/experiment_switch">
 
-    <TableRow>
+        <TableRow>
 
-        <TextView
-            android:text="Ur, В"
-            android:background="@drawable/border_padding_gray"
-            android:textSize="28sp"/>
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="Ur, В"
+                android:textSize="28sp" />
 
-        <TextView
-            android:text="R15, МΩ"
-            android:background="@drawable/border_padding_gray"
-            android:textSize="28sp"/>
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="R15, МΩ"
+                android:textSize="28sp" />
 
-        <TextView
-            android:text="R60, МΩ"
-            android:background="@drawable/border_padding_gray"
-            android:textSize="28sp"/>
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="R60, МΩ"
+                android:textSize="28sp" />
 
-        <TextView
-            android:text="K"
-            android:background="@drawable/border_padding_gray"
-            android:textSize="28sp"/>
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="K"
+                android:textSize="28sp" />
 
-        <TextView
-            android:text="t, °C"
-            android:background="@drawable/border_padding_gray"
-            android:textSize="28sp"/>
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="t, °C"
+                android:textSize="28sp" />
 
-        <TextView
-            android:text="Результат"
-            android:background="@drawable/border_padding_gray"
-            android:textSize="28sp"/>
-    </TableRow>
+            <TextView
+                android:background="@drawable/border_padding_gray"
+                android:text="Результат"
+                android:textSize="28sp" />
+        </TableRow>
 
-    <TableRow>
+        <TableRow>
 
-        <TextView
-            android:id="@+id/u_r"
-            android:background="@drawable/border_padding"
-            android:textSize="28sp"/>
+            <TextView
+                android:id="@+id/u_r"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp" />
 
-        <TextView
-            android:id="@+id/r15"
-            android:background="@drawable/border_padding"
-            android:textSize="28sp"/>
+            <TextView
+                android:id="@+id/r15"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp" />
 
-        <TextView
-            android:id="@+id/r60"
-            android:background="@drawable/border_padding"
-            android:textSize="28sp"/>
+            <TextView
+                android:id="@+id/r60"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp" />
 
-        <TextView
-            android:id="@+id/k"
-            android:background="@drawable/border_padding"
-            android:textSize="28sp"/>
+            <TextView
+                android:id="@+id/k"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp" />
 
-        <TextView
-            android:id="@+id/temp"
-            android:background="@drawable/border_padding"
-            android:textSize="28sp"/>
+            <TextView
+                android:id="@+id/temp"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp" />
 
-        <TextView
-            android:id="@+id/result"
-            android:background="@drawable/border_padding"
-            android:textSize="28sp"/>
-    </TableRow>
-</TableLayout>
+            <TextView
+                android:id="@+id/result"
+                android:background="@drawable/border_padding"
+                android:textSize="28sp" />
+        </TableRow>
+    </TableLayout>
 
 </android.support.constraint.ConstraintLayout>
