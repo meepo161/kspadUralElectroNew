@@ -826,7 +826,7 @@ public class Experiment3Activity extends AppCompatActivity implements Observer {
                         setM40Responding((boolean) value);
                         break;
                     case M40Model.TORQUE_PARAM:
-                        setM((float) value);
+                        setM(Math.abs((float) value));
                         break;
                 }
                 break;

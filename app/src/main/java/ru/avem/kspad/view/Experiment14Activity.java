@@ -1,11 +1,14 @@
 package ru.avem.kspad.view;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.CompoundButton;
 import android.widget.TextView;
@@ -88,7 +91,6 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
     private int mIntSpecifiedFrequencyK100;
     private int mSpecifiedU;
     private int mSpecifiedUK10;
-    private float initialP;
     private boolean mPlatformOneSelected;
 
     private boolean mBeckhoffResponding;
@@ -97,8 +99,8 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
     private boolean mM40Responding;
     private float mM;
 
-    private boolean mIsNeedToFixMMax;
-    private float mMMax;
+    private boolean mIsNeedToFixMMin;
+    private float mMMin;
 
     private boolean mVEHATResponding;
     private float mV;
@@ -108,10 +110,12 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
 
     private boolean mFRA800GeneratorResponding;
     private boolean mFRA800GeneratorReady;
-    private float mMDiff;
 
     private boolean mPM130Responding;
-    private float pm130Power;
+    private int result = NEOPREDELENNO;
+    private float rotationFreq = 0f;
+    private boolean misNeedToFixRotationFreq = false;
+    private boolean isButtonClicked = false;
     //endregion
 
     @Override
@@ -230,26 +234,31 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
                 changeTextOfView(mStatus, getNotRespondingDevicesString("Нет связи с устройствами"));
                 sleep(100);
             }
-            if (isExperimentStart() && mStartState) {
-                getNominalP();
-            }
             changeTextOfView(mStatus, "Инициализация...");
             mDevicesController.setObjectParams(mSpecifiedUK10, mIntSpecifiedFrequencyK100, mIntSpecifiedFrequencyK100);
             mDevicesController.setGeneratorParams(1 * 10, mIntSpecifiedFrequencyK100, mIntSpecifiedFrequencyK100);
 
-            int result = NEOPREDELENNO;
+            result = NEOPREDELENNO;
             int minU = 0;
             int maxU = 380;
             int attempts = 9;
+            int u = minU + (maxU - minU) / 2;
             do {
-                int u = minU + (maxU - minU) / 2;
-                mMMax = 0;
-                if (result == MALO) {
-                    minU = u;
-                } else if (result == MNOGO) {
+                mMMin = 0;
+                if (result == MNOGO) {
                     maxU = u;
+                } else if (result == MALO) {
+                    minU = u;
                 }
+                u = (minU + maxU) / 2;
                 result = startNextIteration(u);
+                while (!isButtonClicked) {
+                    sleep(100);
+                    if (result == FOUND) {
+                        break;
+                    }
+                }
+                isButtonClicked = false;
             } while (isExperimentStart() && (result != FOUND) && mStartState && isDevicesResponding() && (attempts-- > 0));
 
 
@@ -281,36 +290,10 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
             } else {
                 mStatus.setText("Испытание закончено");
             }
-            changeTextOfView(mMCell, formatRealNumber(mMMax));
-            mM = mMMax;
+            mM = mMMin;
+            changeTextOfView(mMCell, formatRealNumber(mMMin));
             mThreadOn = false;
         }
-    }
-
-    private void getNominalP() {
-        if (isExperimentStart() && mStartState && isDevicesResponding()) {
-            mDevicesController.onKMsFrom14GroupObject();
-            sleep(500);
-            mDevicesController.startObject();
-        }
-
-        while (isExperimentStart() && !mFRA800ObjectReady && mStartState && isDevicesResponding()) {
-            sleep(100);
-            changeTextOfView(mStatus, "Ожидаем, пока частотный преобразователь ОИ выйдет к заданным характеристикам");
-        }
-
-        int t = 5;
-        while (isExperimentStart() && (--t > 0) && mStartState && isDevicesResponding()) {
-            changeTextOfView(mStatus, "Ждём 5 секунд. Осталось: " + t);
-            sleep(1000);
-        }
-
-        initialP = pm130Power;
-        changeTextOfView(mStatus, "Считываем P");
-
-        sleep(500);
-        mDevicesController.stopObject();
-        mDevicesController.offAllKMs();
     }
 
     private int startNextIteration(int u) {
@@ -357,23 +340,21 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
             mDevicesController.onObject();
         }
 
-        t = 10;
+        t = 5;
         while (isExperimentStart() && (--t > 0) && mStartState && isDevicesResponding()) {
-            changeTextOfView(mStatus, "Ждём 10 секунд. Осталось: " + t);
+            changeTextOfView(mStatus, "Ждём 5 секунд. Осталось: " + t);
             sleep(1000);
             if (t == 3) {
-                mIsNeedToFixMMax = true;
+                mIsNeedToFixMMin = true;
+                misNeedToFixRotationFreq = true;
             }
         }
-        mIsNeedToFixMMax = false;
+        mIsNeedToFixMMin = false;
+        misNeedToFixRotationFreq = false;
 
         changeTextOfView(mStatus, "Сравниваем V");
-        if ((mV > (mV1 * 0.2)) && (mV < (mV1 * 0.9))) {
+        if ((rotationFreq > (mV1 * 0.2)) && (rotationFreq < (mV1 * 0.9))) {
             result = FOUND;
-        } else if (pm130Power > initialP) {
-            result = MALO;
-        } else if (pm130Power < initialP) {
-            result = MNOGO;
         }
 
         changeTextOfView(mStatus, "Ожидаем");
@@ -386,6 +367,10 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
         while (isExperimentStart() && (--t > 0) && mStartState && isDevicesResponding()) {
             changeTextOfView(mStatus, "Ждём 6 секунд. Осталось: " + t);
             sleep(1000);
+        }
+
+        if (isExperimentStart() && mStartState && isDevicesResponding() && result != FOUND) {
+            checkRotation();
         }
 
         return result;
@@ -405,6 +390,7 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
                 isFRA800GeneratorResponding() && isVEHATResponding() && mPM130Responding;
     }
 
+    @SuppressLint("DefaultLocale")
     @Override
     public void update(Observable o, Object values) {
         int modelId = (int) (((Object[]) values)[0]);
@@ -489,6 +475,9 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
                         break;
                     case VEHATModel.ROTATION_FREQUENCY_PARAM:
                         setV((float) value);
+                        if (misNeedToFixRotationFreq) {
+                            rotationFreq = (float) value;
+                        }
                         break;
                 }
                 break;
@@ -496,9 +485,6 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
                 switch (param) {
                     case PM130Model.RESPONDING_PARAM:
                         mPM130Responding = ((boolean) value);
-                        break;
-                    case PM130Model.P_PARAM:
-                        pm130Power = (float) value * STATE_200_TO_5_MULTIPLIER; //TODO какую ступень
                         break;
                 }
                 break;
@@ -526,13 +512,10 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
     }
 
     public void setM(float M) {
-        if (mMDiff == 0) {
-            mMDiff = M;
-        }
-        mM = M - mMDiff;
+        mM = M / mSpecifiedTorque;
         changeTextOfView(mMCell, formatRealNumber(mM));
-        if ((mM > mMMax) && mIsNeedToFixMMax) {
-            mMMax = mM;
+        if (mIsNeedToFixMMin) {
+            mMMin = mM;
         }
     }
 
@@ -600,5 +583,34 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
         experiments.setE14V(mVCell.getText().toString());
         realm.commitTransaction();
         realm.close();
+    }
+
+    public void checkRotation() {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                new AlertDialog.Builder(Experiment14Activity.this)
+                        .setTitle("")
+                        .setMessage("Вращение происходит в сторону двигателя?")
+                        .setIcon(R.drawable.ic_warning_black_48dp)
+                        .setPositiveButton("Да", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                result = MALO;
+                                isButtonClicked = true;
+                            }
+                        })
+                        .setNegativeButton("Нет", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                result = MNOGO;
+                                isButtonClicked = true;
+                            }
+                        })
+                        .create()
+                        .show();
+
+            }
+        });
     }
 }

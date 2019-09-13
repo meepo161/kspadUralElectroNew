@@ -39,8 +39,11 @@ import com.joaquimley.faboptions.FabOptions;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -61,6 +64,7 @@ import ru.avem.kspad.presenter.MainPresenter;
 import ru.avem.kspad.presenter.MainPresenterView;
 
 import static android.text.TextUtils.isEmpty;
+import static ru.avem.kspad.utils.Utils.RU_LOCALE;
 import static ru.avem.kspad.utils.Utils.setListViewAdapterFromResources;
 import static ru.avem.kspad.utils.Utils.setSpinnerAdapter;
 import static ru.avem.kspad.utils.Utils.setSpinnerAdapterFromResources;
@@ -1357,8 +1361,8 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     @BindView(R.id.review_layout)
     GridLayout mReviewLayout;
 
-    @BindView(R.id.select_date)
-    Button mSelectDate;
+    @BindView(R.id.et_filter)
+    EditText mETFilter;
     @BindView(R.id.protocols)
     Spinner mProtocols;
 
@@ -1399,7 +1403,7 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     private MainModel mModel;
     private MainPresenter mMainPresenter;
     private BroadcastReceiver mBroadcastReceiver;
-    private Locale mRuLocale =  new Locale("ru");
+    private Locale mRuLocale = new Locale("ru");
     private final SimpleDateFormat mDateFormat = new SimpleDateFormat("dd.MM.yyyy", mRuLocale);
     private final SimpleDateFormat mTimeFormat = new SimpleDateFormat("HH:mm:ss", mRuLocale);
 
@@ -1547,8 +1551,7 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
                         refillResults();
                         break;
                     case PROTOCOL_TAB_TAG:
-                        mMainPresenter.protocolTabSelected(MainActivity.this, mProtocols,
-                                getStartDate(mSelectDate.getText().toString()), getEndDate(mSelectDate.getText().toString()));
+                        mMainPresenter.protocolTabSelected(MainActivity.this, mProtocols);
                         break;
                 }
             }
@@ -2186,9 +2189,7 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
                             mPosition2FullName.getText().toString());
                     mMainPresenter.setNeedToSave(false);
                     Toast.makeText(this, "Сохранено", Toast.LENGTH_LONG).show();
-                    mMainPresenter.protocolTabSelected(MainActivity.this, mProtocols,
-                            getStartDate(mSelectDate.getText().toString()),
-                            getEndDate(mSelectDate.getText().toString()));
+                    mMainPresenter.protocolTabSelected(MainActivity.this, mProtocols);
                     mMainPresenter.subjectCancel();
                     uncheckSerialNumberEnter();
                     switchTabState(mTabs, SUBJECT_TAB_INDEX, true, mTabHost);
@@ -2298,30 +2299,47 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
     }
 
     private void initializeDateButton() {
-        mSelectDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DialogFragment newFragment = DatePickerFragment.newInstance(mSelectDate.getText().toString());
-                newFragment.show(getSupportFragmentManager(), "datePicker");
-            }
-        });
-        mSelectDate.addTextChangedListener(new TextWatcher() {
+        mETFilter.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                setSpinnerAdapter(MainActivity.this, mProtocols,
-                        mModel.getProtocolsByDateFromDB(getStartDate(mSelectDate.getText().toString()),
-                                getEndDate(mSelectDate.getText().toString())));
+            public void onTextChanged(CharSequence newValue, int start, int before, int count) {
+                List<Protocol> allProtocols = mModel.getAllProtocols();
+
+                String lowerCaseFilter = newValue.toString().toLowerCase();
+
+                List<Protocol> filteredProtocols = new ArrayList<>();
+                for (Protocol protocol : allProtocols) {
+                    String date = new SimpleDateFormat("dd.MM.yy", RU_LOCALE).format(protocol.getDate());
+                    String time = new SimpleDateFormat("HH:mm:ss", RU_LOCALE).format(protocol.getDate());
+
+                    if (String.valueOf(protocol.getId()).contains(lowerCaseFilter)) {
+                        filteredProtocols.add(protocol);
+                    } else if (protocol.getSerialNumber().toLowerCase().contains(lowerCaseFilter)) {
+                        filteredProtocols.add(protocol);
+                    } else if (date.contains(lowerCaseFilter)) {
+                        filteredProtocols.add(protocol);
+                    } else if (time.contains(lowerCaseFilter)) {
+                        filteredProtocols.add(protocol);
+                    } else if (protocol.getPosition1FullName().toLowerCase().contains(lowerCaseFilter)) {
+                        filteredProtocols.add(protocol);
+                    } else if (protocol.getPosition2FullName().toLowerCase().contains(lowerCaseFilter)) {
+                        filteredProtocols.add(protocol);
+                    } else if (protocol.getPosition1Number().toLowerCase().contains(lowerCaseFilter)) {
+                        filteredProtocols.add(protocol);
+                    } else if (protocol.getPosition2Number().toLowerCase().contains(lowerCaseFilter)) {
+                        filteredProtocols.add(protocol);
+                    }
+                }
+                setSpinnerAdapter(MainActivity.this, mProtocols, filteredProtocols);
             }
 
             @Override
             public void afterTextChanged(Editable s) {
             }
         });
-        mSelectDate.setText(mDateFormat.format(System.currentTimeMillis()));
     }
 
     private void initializeExperimentsList() {
@@ -2331,39 +2349,6 @@ public class MainActivity extends AppCompatActivity implements MainPresenterView
 
     private void changeTabToProtocol() {
         mTabHost.setCurrentTab(PROTOCOL_TAB_INDEX);
-    }
-
-    public static class DatePickerFragment extends DialogFragment
-            implements DatePickerDialog.OnDateSetListener {
-
-        public static DatePickerFragment newInstance(String date) {
-            DatePickerFragment f = new DatePickerFragment();
-            Bundle args = new Bundle();
-            args.putString("date", date);
-            f.setArguments(args);
-            return f;
-        }
-
-        @NonNull
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            Calendar c = Calendar.getInstance();
-            try {
-                c.setTime(new SimpleDateFormat("dd.MM.yyyy", new Locale("ru")).parse(getArguments().getString("date")));
-            } catch (ParseException ignored) {
-            }
-            int year = c.get(Calendar.YEAR);
-            int month = c.get(Calendar.MONTH);
-            int day = c.get(Calendar.DAY_OF_MONTH);
-
-            return new DatePickerDialog(getActivity(), this, year, month, day);
-        }
-
-        @Override
-        public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-            String date = (dayOfMonth < 10 ? "0" + dayOfMonth : dayOfMonth) + "." + (++month < 10 ? "0" + month : month) + "." + year;
-            ((MainActivity) getActivity()).mSelectDate.setText(date);
-        }
     }
 
     @Override

@@ -86,11 +86,11 @@ public class MainPresenter extends Observable {
         }
     }
 
-    public void protocolTabSelected(Context context, Spinner protocols, long startDate, long endDate) {
+    public void protocolTabSelected(Context context, Spinner protocols) {
         if (isNeedToSave()) {
             mView.showSaveLayout();
         } else {
-            fillSpinnerFromDB(context, protocols, startDate, endDate);
+            fillSpinnerFromDB(context, protocols);
             mView.showReviewLayout();
         }
     }
@@ -103,11 +103,11 @@ public class MainPresenter extends Observable {
         mNeedToSave = needToSave;
     }
 
-    private void fillSpinnerFromDB(Context context, Spinner spinner, long startDate, long endDate) {
+    private void fillSpinnerFromDB(Context context, Spinner spinner) {
         ArrayAdapter<Protocol> protocolArrayAdapter =
                 new ArrayAdapter<>(context,
                         R.layout.spinner_layout,
-                        mModel.getProtocolsByDateFromDB(startDate, endDate));
+                        mModel.getAllProtocols());
         spinner.setAdapter(protocolArrayAdapter);
     }
 

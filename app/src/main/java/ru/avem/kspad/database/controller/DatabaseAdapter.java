@@ -72,9 +72,6 @@ public class DatabaseAdapter {
         return mRealm.where(Protocol.class).findAll();
     }
 
-    public List<Protocol> getProtocolsByDate(long startDate, long endDate) {
-        return mRealm.where(Protocol.class).between("mDate", startDate, endDate).sort("mDate", Sort.DESCENDING).findAll();
-    }
 
     public void updateProtocol(Protocol protocol) {
         mRealm.insertOrUpdate(protocol);

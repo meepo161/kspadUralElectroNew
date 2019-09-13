@@ -26,6 +26,13 @@ public class MainModel {
         return protocol;
     }
 
+    public List<Protocol> getAllProtocols() {
+        mDatabaseAdapter.open();
+        List<Protocol> protocol = mDatabaseAdapter.getProtocols();
+        mDatabaseAdapter.close();
+        return protocol;
+    }
+
     public void setProtocol(Protocol protocol) {
         mProtocol = new Protocol(protocol);
         mDatabaseAdapter.open();
@@ -49,14 +56,6 @@ public class MainModel {
     public void destructProtocol() {
         mProtocol = null;
         ExperimentsHolder.setExperiments(null);
-    }
-
-    public List<Protocol> getProtocolsByDateFromDB(long startDate, long endDate) {
-        List<Protocol> protocols;
-        mDatabaseAdapter.open();
-        protocols = mDatabaseAdapter.getProtocolsByDate(startDate, endDate);
-        mDatabaseAdapter.close();
-        return protocols;
     }
 
     public void saveProtocolInDB(String position1, String position1Number, String position1FullName,
