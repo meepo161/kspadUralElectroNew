@@ -101,6 +101,7 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
 
     private boolean mIsNeedToFixMMin;
     private float mMMin;
+    private float mMDiff;
 
     private boolean mVEHATResponding;
     private float mV;
@@ -512,9 +513,12 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
     }
 
     public void setM(float M) {
-        mM = M / mSpecifiedTorque;
+        if (mMDiff == 0) {
+            mMDiff = M;
+        }
+        mM = M - mMDiff;
         changeTextOfView(mMCell, formatRealNumber(mM));
-        if (mIsNeedToFixMMin) {
+        if ((mM > mMMin) && mIsNeedToFixMMin) {
             mMMin = mM;
         }
     }
@@ -571,7 +575,7 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
 
     private void returnValues() {
         Intent data = new Intent();
-        data.putExtra(MainActivity.INPUT_PARAMETER.M_MIN_R, mM);
+        data.putExtra(MainActivity.INPUT_PARAMETER.M_MIN_R, mMMin);
         setResult(RESULT_OK, data);
     }
 
