@@ -19,7 +19,7 @@ public class M40Model extends Observable {
     }
 
     void setTorque(float torque) {
-        notice(TORQUE_PARAM, torque);
+        notice(TORQUE_PARAM, Math.abs(torque));
     }
 
 //    void setRotationFrequency(float rotationFrequency) {

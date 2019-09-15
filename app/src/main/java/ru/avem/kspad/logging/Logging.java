@@ -316,22 +316,23 @@ public class Logging {
                                 case "$R14":
                                     float MMaxR = protocol.getMMaxR();
                                     float MR14 = protocol.getMR();
-                                    if ((MMaxR != -1) && (MR14 != -1)) {
-                                        float MMaxToMR = MMaxR / MR14;
-                                        setNumberCellValue(cell, MMaxToMR);
-                                    } else {
-                                        cell.setCellValue("");
-                                    }
+//                                    if ((MMaxR != -1) && (MR14 != -1)) {
+//                                        float MMaxToMR = MMaxR / MR14;
+//                                    } else {
+//                                        cell.setCellValue("");
+//                                    }
+                                    setNumberCellValue(cell, MMaxR / MR14);
                                     break;
                                 case "$R15":
                                     float MMinR = protocol.getMMinR();
                                     float MR15 = protocol.getMR();
-                                    if ((MMinR != -1) && (MR15 != -1)) {
-                                        float MMinRToMR = MMinR / MR15;
-                                        setNumberCellValue(cell, MMinRToMR);
-                                    } else {
-                                        cell.setCellValue("");
-                                    }
+//                                    if ((MMinR != -1) && (MR15 != -1)) {
+//                                        float MMinRToMR = MMinR / MR15;
+//                                        setNumberCellValue(cell, MMinRToMR);
+//                                    } else {
+//                                        cell.setCellValue("");f4r
+//                                    }
+                                    setNumberCellValue(cell, MMinR / MR15);
                                     break;
                                 case "$R16":
                                     float IStartR = protocol.getIStartR();

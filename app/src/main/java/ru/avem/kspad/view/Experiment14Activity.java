@@ -216,6 +216,7 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
 
         @Override
         protected Void doInBackground(Void... voids) {
+            mExperimentStart = true; //не баг, а фича
             if (isExperimentStart()) {
                 changeTextOfView(mStatus, "Испытание началось");
                 mDevicesController.initDevicesFrom14Group();
@@ -513,12 +514,9 @@ public class Experiment14Activity extends AppCompatActivity implements Observer 
     }
 
     public void setM(float M) {
-        if (mMDiff == 0) {
-            mMDiff = M;
-        }
-        mM = M - mMDiff;
+        mM = M;
         changeTextOfView(mMCell, formatRealNumber(mM));
-        if ((mM > mMMin) && mIsNeedToFixMMin) {
+        if (mIsNeedToFixMMin) {
             mMMin = mM;
         }
     }
