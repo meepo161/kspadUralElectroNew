@@ -50,9 +50,7 @@ import static ru.avem.kspad.communication.devices.ikas.IKASController.MEASURABLE
 import static ru.avem.kspad.communication.devices.ikas.IKASController.MEASURABLE_TYPE_AC;
 import static ru.avem.kspad.communication.devices.ikas.IKASController.MEASURABLE_TYPE_BC;
 import static ru.avem.kspad.communication.devices.ikas.IKASController.MEASURABLE_TYPE_REGISTER;
-import static ru.avem.kspad.communication.devices.ikas.IKASController.RANGE_R_REGISTER;
 import static ru.avem.kspad.communication.devices.ikas.IKASController.START_MEASURABLE_REGISTER;
-import static ru.avem.kspad.communication.devices.ikas.IKASController.TYPE_OF_RANGE_R_REGISTER;
 import static ru.avem.kspad.communication.devices.m40.M40Controller.AVERAGING_REGISTER;
 
 public class DevicesController extends Observable implements Runnable {
@@ -500,10 +498,8 @@ public class DevicesController extends Observable implements Runnable {
         }
     }
 
-    public void startMeasuringAB(float supposedValue) {
+    public void startMeasuringAB() {
         mIKASController.write(MEASURABLE_TYPE_REGISTER, MEASURABLE_TYPE_AB);
-        mIKASController.write(TYPE_OF_RANGE_R_REGISTER, getRangeType(supposedValue));
-        mIKASController.write(RANGE_R_REGISTER, supposedValue);
         try {
             Thread.sleep(1000);
         } catch (InterruptedException ignored) {
@@ -511,14 +507,8 @@ public class DevicesController extends Observable implements Runnable {
         mIKASController.write(START_MEASURABLE_REGISTER, 0x01);
     }
 
-    private int getRangeType(float supposedValue) {
-        return IKASController.getRangeType(supposedValue);
-    }
-
-    public void startMeasuringBC(float supposedValue) {
+    public void startMeasuringBC() {
         mIKASController.write(MEASURABLE_TYPE_REGISTER, MEASURABLE_TYPE_BC);
-        mIKASController.write(TYPE_OF_RANGE_R_REGISTER, getRangeType(supposedValue));
-        mIKASController.write(RANGE_R_REGISTER, supposedValue);
         try {
             Thread.sleep(1000);
         } catch (InterruptedException ignored) {
@@ -526,10 +516,8 @@ public class DevicesController extends Observable implements Runnable {
         mIKASController.write(START_MEASURABLE_REGISTER, 0x01);
     }
 
-    public void startMeasuringAC(float supposedValue) {
+    public void startMeasuringAC() {
         mIKASController.write(MEASURABLE_TYPE_REGISTER, MEASURABLE_TYPE_AC);
-        mIKASController.write(TYPE_OF_RANGE_R_REGISTER, getRangeType(supposedValue));
-        mIKASController.write(RANGE_R_REGISTER, supposedValue);
         try {
             Thread.sleep(1000);
         } catch (InterruptedException ignored) {

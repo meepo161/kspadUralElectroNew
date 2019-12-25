@@ -270,13 +270,13 @@ public class Experiment17Activity extends AppCompatActivity implements Observer 
         private void startMeasuring() {
             if (mSpecifiedRType == 1) {
                 Logger.withTag("currentTime").log("AB");
-                mDevicesController.startMeasuringAB(mSpecifiedAverageR);
+                mDevicesController.startMeasuringAB();
             } else if (mSpecifiedRType == 2) {
                 Logger.withTag("currentTime").log("BC");
-                mDevicesController.startMeasuringBC(mSpecifiedAverageR);
+                mDevicesController.startMeasuringBC();
             } else {
                 Logger.withTag("currentTime").log("AC");
-                mDevicesController.startMeasuringAC(mSpecifiedAverageR);
+                mDevicesController.startMeasuringAC();
             }
         }
 

@@ -901,11 +901,11 @@ public class Experiment7Activity extends AppCompatActivity implements Observer {
 
         private void startMeasuring() {
             if (mSpecifiedRType == 1) {
-                mDevicesController.startMeasuringAB(mSpecifiedAverageR);
+                mDevicesController.startMeasuringAB();
             } else if (mSpecifiedRType == 2) {
-                mDevicesController.startMeasuringBC(mSpecifiedAverageR);
+                mDevicesController.startMeasuringBC();
             } else {
-                mDevicesController.startMeasuringAC(mSpecifiedAverageR);
+                mDevicesController.startMeasuringAC();
             }
         }
 

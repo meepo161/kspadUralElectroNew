@@ -204,7 +204,7 @@ public class Experiment5Activity extends AppCompatActivity implements Observer {
             if (isExperimentStart() && mStartState && isDevicesResponding()) {
                 mFirstTime = System.currentTimeMillis();
                 showCurrentTime("Начало AB");
-                mDevicesController.startMeasuringAB(mSpecifiedAverageR);
+                mDevicesController.startMeasuringAB();
                 sleep(2000);
             }
 
@@ -219,7 +219,7 @@ public class Experiment5Activity extends AppCompatActivity implements Observer {
                 setAB(mMeasurable);
 
                 showCurrentTime("Начало BC");
-                mDevicesController.startMeasuringBC(mSpecifiedAverageR);
+                mDevicesController.startMeasuringBC();
                 sleep(2000);
             }
 
@@ -234,7 +234,7 @@ public class Experiment5Activity extends AppCompatActivity implements Observer {
                 setBC(mMeasurable);
 
                 showCurrentTime("Начало AC");
-                mDevicesController.startMeasuringAC(mSpecifiedAverageR);
+                mDevicesController.startMeasuringAC();
                 sleep(2000);
             }
 
