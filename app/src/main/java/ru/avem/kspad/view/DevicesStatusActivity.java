@@ -22,15 +22,15 @@ import ru.avem.kspad.communication.devices.trm201.TRM201Model;
 import ru.avem.kspad.communication.devices.veha_t.VEHATModel;
 import ru.avem.kspad.communication.devices.voltmeter.VoltmeterModel;
 
-import static ru.avem.kspad.communication.devices.DeviceController.BECKHOFF_CONTROL_ID;
-import static ru.avem.kspad.communication.devices.DeviceController.FR_A800_GENERATOR_ID;
-import static ru.avem.kspad.communication.devices.DeviceController.FR_A800_OBJECT_ID;
-import static ru.avem.kspad.communication.devices.DeviceController.IKAS_ID;
-import static ru.avem.kspad.communication.devices.DeviceController.M40_ID;
-import static ru.avem.kspad.communication.devices.DeviceController.PM130_ID;
-import static ru.avem.kspad.communication.devices.DeviceController.TRM201_ID;
-import static ru.avem.kspad.communication.devices.DeviceController.VEHA_T_ID;
-import static ru.avem.kspad.communication.devices.DeviceController.VOLTMETER_ID;
+import static ru.avem.kspad.communication.devices.Device.BECKHOFF_CONTROL_ID;
+import static ru.avem.kspad.communication.devices.Device.FR_A800_GENERATOR_ID;
+import static ru.avem.kspad.communication.devices.Device.FR_A800_OBJECT_ID;
+import static ru.avem.kspad.communication.devices.Device.IKAS_ID;
+import static ru.avem.kspad.communication.devices.Device.M40_ID;
+import static ru.avem.kspad.communication.devices.Device.PM130_ID;
+import static ru.avem.kspad.communication.devices.Device.TRM201_ID;
+import static ru.avem.kspad.communication.devices.Device.VEHA_T_ID;
+import static ru.avem.kspad.communication.devices.Device.VOLTMETER_ID;
 
 public class DevicesStatusActivity extends AppCompatActivity implements Observer {
     @BindView(R.id.control_unit)

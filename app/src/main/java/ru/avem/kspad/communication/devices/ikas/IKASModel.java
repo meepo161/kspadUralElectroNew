@@ -3,19 +3,20 @@ package ru.avem.kspad.communication.devices.ikas;
 import java.util.Observable;
 import java.util.Observer;
 
-import static ru.avem.kspad.communication.devices.DeviceController.IKAS_ID;
+import ru.avem.kspad.communication.devices.DeviceModel;
 
-public class IKASModel extends Observable {
+public class IKASModel extends Observable implements DeviceModel {
     public static final int RESPONDING_PARAM = 0;
     public static final int READY_PARAM = 1;
     public static final int MEASURABLE_PARAM = 2;
 
-    IKASModel(Observer observer) {
-        addObserver(observer);
-    }
+    private boolean readResponding = true;
+    private boolean writeResponding = true;
+    private final int deviceID;
 
-    public void setResponding(boolean responding) {
-        notice(RESPONDING_PARAM, responding);
+    IKASModel(Observer observer, int id) {
+        deviceID = id;
+        addObserver(observer);
     }
 
     public void setReady(float ready) {
@@ -28,6 +29,28 @@ public class IKASModel extends Observable {
 
     private void notice(int param, Object value) {
         setChanged();
-        notifyObservers(new Object[]{IKAS_ID, param, value});
+        notifyObservers(new Object[]{deviceID, param, value});
+    }
+
+    @Override
+    public void resetResponding() {
+        readResponding = true;
+        writeResponding = true;
+    }
+
+    @Override
+    public void setReadResponding(boolean readResponding) {
+        this.readResponding = readResponding;
+        setResponding();
+    }
+
+    @Override
+    public void setWriteResponding(boolean writeResponding) {
+        this.writeResponding = writeResponding;
+        setResponding();
+    }
+
+    private void setResponding() {
+        notice(RESPONDING_PARAM, readResponding && writeResponding);
     }
 }

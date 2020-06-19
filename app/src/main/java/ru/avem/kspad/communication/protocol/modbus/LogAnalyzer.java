@@ -1,21 +1,28 @@
 package ru.avem.kspad.communication.protocol.modbus;
 
-import java.util.Locale;
+import android.util.Log;
 
-import ru.avem.kspad.utils.Logger;
+public class LogAnalyzer {
+    private final String TAG = LogAnalyzer.class.getSimpleName();
 
-class LogAnalyzer {
-    private static int sWrite;
-    private static int sSuccess;
+    private final String name;
 
-    static void addWrite() {
-        sWrite++;
+    private int all;
+    private int correct;
+
+    public LogAnalyzer(String name) {
+        this.name = name;
     }
 
-    static void addSuccess() {
-        sSuccess++;
-        Logger.withTag("LogAnalyzer").log(String.format(Locale.getDefault(),
-                "Записано: %d, Удач: %d, Разница: %d, Процент: %.4f",
-                sWrite, sSuccess, sWrite - sSuccess, (sWrite - sSuccess) / (float) sWrite));
+    public void addWrite() {
+        all++;
+    }
+
+    public void addSuccess() {
+        correct++;
+        float failure = all - correct;
+        Log.d(TAG, String.format(
+                "[%s] All: %d, Correct: %d, Failure: %.0f, Failure Percent: %.4f\n",
+                name, all, correct, failure, failure / all));
     }
 }

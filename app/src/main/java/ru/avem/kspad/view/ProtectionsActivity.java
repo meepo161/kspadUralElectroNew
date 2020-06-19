@@ -15,7 +15,7 @@ import ru.avem.kspad.R;
 import ru.avem.kspad.communication.devices.DevicesController;
 import ru.avem.kspad.communication.devices.beckhoff.BeckhoffModel;
 
-import static ru.avem.kspad.communication.devices.DeviceController.BECKHOFF_CONTROL_ID;
+import static ru.avem.kspad.communication.devices.Device.BECKHOFF_CONTROL_ID;
 
 public class ProtectionsActivity extends AppCompatActivity implements Observer {
     public static final String OK = "Норма";

@@ -3,9 +3,9 @@ package ru.avem.kspad.communication.devices.beckhoff;
 import java.util.Observable;
 import java.util.Observer;
 
-import static ru.avem.kspad.communication.devices.DeviceController.BECKHOFF_CONTROL_ID;
+import ru.avem.kspad.communication.devices.DeviceModel;
 
-public class BeckhoffModel extends Observable {
+public class BeckhoffModel extends Observable implements DeviceModel {
     public static final int RESPONDING_PARAM = 0;
     public static final int START_PARAM = 1;
     public static final int DOOR_S_PARAM = 2;
@@ -21,13 +21,15 @@ public class BeckhoffModel extends Observable {
     public static final int I_PROTECTION_IN_TRIGGER_PARAM = 11;
     public static final int DOOR_Z_TRIGGER_PARAM = 12;
 
-    BeckhoffModel(Observer observer) {
+    private boolean readResponding = true;
+    private boolean writeResponding = true;
+    private final int deviceID;
+
+    BeckhoffModel(Observer observer, int id) {
+        deviceID = id;
         addObserver(observer);
     }
 
-    void setResponding(boolean responding) {
-        notice(RESPONDING_PARAM, responding);
-    }
 
     void setStatus(short status) {
         notice(START_PARAM, (status & 0b1) > 0);
@@ -49,6 +51,28 @@ public class BeckhoffModel extends Observable {
 
     private void notice(int param, Object value) {
         setChanged();
-        notifyObservers(new Object[]{BECKHOFF_CONTROL_ID, param, value});
+        notifyObservers(new Object[]{deviceID, param, value});
+    }
+
+    @Override
+    public void resetResponding() {
+        readResponding = true;
+        writeResponding = true;
+    }
+
+    @Override
+    public void setReadResponding(boolean readResponding) {
+        this.readResponding = readResponding;
+        setResponding();
+    }
+
+    @Override
+    public void setWriteResponding(boolean writeResponding) {
+        this.writeResponding = writeResponding;
+        setResponding();
+    }
+
+    private void setResponding() {
+        notice(RESPONDING_PARAM, readResponding && writeResponding);
     }
 }

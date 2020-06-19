@@ -5,12 +5,10 @@ import android.support.annotation.NonNull;
 import java.nio.ByteBuffer;
 import java.util.Observer;
 
-import ru.avem.kspad.communication.devices.DeviceController;
+import ru.avem.kspad.communication.devices.BaseDevice;
 import ru.avem.kspad.communication.protocol.modbus.ModbusController;
 
-public class PM130Controller implements DeviceController {
-    private static final byte MODBUS_ADDRESS = 0x1E;
-
+public class PM130Controller extends BaseDevice {
 //    private static final short I1_REGISTER = 13318; мгновенные
 //    private static final short VL1_REGISTER = 13372;
 //    private static final short P_REGISTER = 13696;
@@ -28,75 +26,77 @@ public class PM130Controller implements DeviceController {
     private static final int NUM_OF_WORDS_IN_REGISTER = 2;
     private static final short NUM_OF_REGISTERS = 3 * NUM_OF_WORDS_IN_REGISTER;
 
-    private PM130Model mModel;
-    private ModbusController mModbusController;
-    private byte mAttempt = NUMBER_OF_ATTEMPTS;
-    private boolean mNeedToReed;
-
-    public PM130Controller(Observer observer, ModbusController modbusController) {
-        mModel = new PM130Model(observer);
-        mModbusController = modbusController;
+    public PM130Controller(int modbusAddress, Observer observer, ModbusController controller) {
+        address = (byte) modbusAddress;
+        model = new PM130Model(observer, address);
+        modbusController = controller;
     }
 
     public void read(Object... args) {
-        if (thereAreAttempts()) {
-            mAttempt--;
+        if (isThereAreReadAttempts()) {
+            if (readAttempt >= 0) readAttempt--;
             switch ((Integer) args[0]) {
                 case 1:
                     if (!getI().equals(ModbusController.RequestStatus.FRAME_RECEIVED)) {
                         read(args);
                     } else {
-                        resetAttempts();
+                        resetReadAttempts();
                     }
                     break;
                 case 2:
                     if (!getU().equals(ModbusController.RequestStatus.FRAME_RECEIVED)) {
                         read(args);
                     } else {
-                        resetAttempts();
+                        resetReadAttempts();
                     }
                     break;
                 case 3:
                     if (!getP().equals(ModbusController.RequestStatus.FRAME_RECEIVED)) {
                         read(args);
                     } else {
-                        resetAttempts();
+                        resetReadAttempts();
                     }
                     break;
                 case 4:
                     if (!getF().equals(ModbusController.RequestStatus.FRAME_RECEIVED)) {
                         read(args);
                     } else {
-                        resetAttempts();
+                        resetReadAttempts();
                     }
                     break;
             }
         } else {
-            mModel.setResponding(false);
-            mModel.setV1(0);
-            mModel.setV2(0);
-            mModel.setV3(0);
-            mModel.setI1(0);
-            mModel.setI2(0);
-            mModel.setI3(0);
-            mModel.setP1(0);
-            mModel.setS1(0);
-            mModel.setCos(0);
-            mModel.setF(0);
+            if (readAttemptOfAttempt >= 0) readAttemptOfAttempt--;
+            if (readAttemptOfAttempt <= 0) {
+                model.setReadResponding(false);
+                ((PM130Model) model).setV1(0);
+                ((PM130Model) model).setV2(0);
+                ((PM130Model) model).setV3(0);
+                ((PM130Model) model).setI1(0);
+                ((PM130Model) model).setI2(0);
+                ((PM130Model) model).setI3(0);
+                ((PM130Model) model).setP1(0);
+                ((PM130Model) model).setS1(0);
+                ((PM130Model) model).setCos(0);
+                ((PM130Model) model).setF(0);
+            } else {
+                resetReadAttempts();
+            }
         }
     }
+
 
     @NonNull
     private ModbusController.RequestStatus getI() {
         ByteBuffer inputBuffer = ByteBuffer.allocate(INPUT_BUFFER_SIZE);
-        ModbusController.RequestStatus statusI = mModbusController.readInputRegisters(
-                MODBUS_ADDRESS, I1_REGISTER, NUM_OF_REGISTERS, inputBuffer);
+        ModbusController.RequestStatus statusI = modbusController.readInputRegisters(
+                address, I1_REGISTER, NUM_OF_REGISTERS, inputBuffer);
         if (statusI.equals(ModbusController.RequestStatus.FRAME_RECEIVED)) {
-            mModel.setResponding(true);
+            model.setReadResponding(true);
             try {
-                mModel.setI1(convertUINTtoINT(inputBuffer.getInt()) * I_MULTIPLIER / I_DIVIDER / 1000);
-                mModel.setI2(convertUINTtoINT(inputBuffer.getInt()) * I_MULTIPLIER / I_DIVIDER / 1000);
-                mModel.setI3(convertUINTtoINT(inputBuffer.getInt()) * I_MULTIPLIER / I_DIVIDER / 1000);
+                ((PM130Model) model).setI1(convertUINTtoINT(inputBuffer.getInt()) * I_MULTIPLIER / I_DIVIDER / 1000);
+                ((PM130Model) model).setI2(convertUINTtoINT(inputBuffer.getInt()) * I_MULTIPLIER / I_DIVIDER / 1000);
+                ((PM130Model) model).setI3(convertUINTtoINT(inputBuffer.getInt()) * I_MULTIPLIER / I_DIVIDER / 1000);
             } catch (Exception ignored) {
             }
         }
@@ -106,14 +106,14 @@ public class PM130Controller implements DeviceController {
     @NonNull
     private ModbusController.RequestStatus getU() {
         ByteBuffer inputBuffer = ByteBuffer.allocate(INPUT_BUFFER_SIZE);
-        ModbusController.RequestStatus statusV = mModbusController.readInputRegisters(
-                MODBUS_ADDRESS, VL1_REGISTER, NUM_OF_REGISTERS, inputBuffer);
+        ModbusController.RequestStatus statusV = modbusController.readInputRegisters(
+                address, VL1_REGISTER, NUM_OF_REGISTERS, inputBuffer);
         if (statusV.equals(ModbusController.RequestStatus.FRAME_RECEIVED)) {
-            mModel.setResponding(true);
+            model.setReadResponding(true);
             try {
-                mModel.setV1(convertUINTtoINT(inputBuffer.getInt()) * U_MULTIPLIER / U_DIVIDER);
-                mModel.setV2(convertUINTtoINT(inputBuffer.getInt()) * U_MULTIPLIER / U_DIVIDER);
-                mModel.setV3(convertUINTtoINT(inputBuffer.getInt()) * U_MULTIPLIER / U_DIVIDER);
+                ((PM130Model) model).setV1(convertUINTtoINT(inputBuffer.getInt()) * U_MULTIPLIER / U_DIVIDER);
+                ((PM130Model) model).setV2(convertUINTtoINT(inputBuffer.getInt()) * U_MULTIPLIER / U_DIVIDER);
+                ((PM130Model) model).setV3(convertUINTtoINT(inputBuffer.getInt()) * U_MULTIPLIER / U_DIVIDER);
             } catch (Exception ignored) {
             }
         }
@@ -123,15 +123,15 @@ public class PM130Controller implements DeviceController {
     @NonNull
     private ModbusController.RequestStatus getP() {
         ByteBuffer inputBuffer = ByteBuffer.allocate(INPUT_BUFFER_SIZE);
-        ModbusController.RequestStatus statusP = mModbusController.readInputRegisters(
-                MODBUS_ADDRESS, P_REGISTER, (short) 8, inputBuffer);
+        ModbusController.RequestStatus statusP = modbusController.readInputRegisters(
+                address, P_REGISTER, (short) 8, inputBuffer);
         if (statusP.equals(ModbusController.RequestStatus.FRAME_RECEIVED)) {
-            mModel.setResponding(true);
+            model.setReadResponding(true);
             try {
-                mModel.setP1(convertMidEndianINTtoINT(inputBuffer.getInt()) / 1000.0f);
+                ((PM130Model) model).setP1(convertMidEndianINTtoINT(inputBuffer.getInt()) / 1000.0f);
                 inputBuffer.getInt();
-                mModel.setS1(convertUINTtoINT(inputBuffer.getInt()) / 1000.0f);
-                mModel.setCos(convertMidEndianINTtoINT(inputBuffer.getInt()) / 1000.0f);
+                ((PM130Model) model).setS1(convertUINTtoINT(inputBuffer.getInt()) / 1000.0f);
+                ((PM130Model) model).setCos(convertMidEndianINTtoINT(inputBuffer.getInt()) / 1000.0f);
             } catch (Exception ignored) {
             }
         }
@@ -141,30 +141,16 @@ public class PM130Controller implements DeviceController {
     @NonNull
     private ModbusController.RequestStatus getF() {
         ByteBuffer inputBuffer = ByteBuffer.allocate(INPUT_BUFFER_SIZE);
-        ModbusController.RequestStatus statusF = mModbusController.readInputRegisters(
-                MODBUS_ADDRESS, F_REGISTER, (short) 2, inputBuffer);
+        ModbusController.RequestStatus statusF = modbusController.readInputRegisters(
+                address, F_REGISTER, (short) 2, inputBuffer);
         if (statusF.equals(ModbusController.RequestStatus.FRAME_RECEIVED)) {
-            mModel.setResponding(true);
+            model.setReadResponding(true);
             try {
-                mModel.setF(convertUINTtoINT(inputBuffer.getInt()) / 100.0f);
+                ((PM130Model) model).setF(convertUINTtoINT(inputBuffer.getInt()) / 100.0f);
             } catch (Exception ignored) {
             }
         }
         return statusF;
-    }
-
-    @Override
-    public void write(Object... args) {
-    }
-
-    @Override
-    public void resetAttempts() {
-        mAttempt = NUMBER_OF_ATTEMPTS;
-    }
-
-    @Override
-    public boolean thereAreAttempts() {
-        return mAttempt > 0;
     }
 
     private long convertUINTtoINT(int i) {
@@ -194,15 +180,5 @@ public class PM130Controller implements DeviceController {
         convertBuffer.putShort(rightSide);
         convertBuffer.flip();
         return convertBuffer.getInt();
-    }
-
-    @Override
-    public boolean needToRead() {
-        return mNeedToReed;
-    }
-
-    @Override
-    public void setNeedToRead(boolean needToRead) {
-        mNeedToReed = needToRead;
     }
 }

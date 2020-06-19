@@ -7,9 +7,11 @@ import ru.avem.kspad.communication.protocol.modbus.utils.CRC16;
 
 public class RTUController implements ModbusController {
     private Connection mConnection;
+    private final LogAnalyzer logAnalyzer;
 
     public RTUController(Connection connection) {
         mConnection = connection;
+        logAnalyzer = new LogAnalyzer(connection.getName());
     }
 
     public RequestStatus reportSlaveID(byte deviceAddress, byte identifier, byte versionSoftware,
@@ -91,7 +93,7 @@ public class RTUController implements ModbusController {
             int frameSize;
             byte inputArray[] = new byte[256];
             do {
-                LogAnalyzer.addWrite();
+                logAnalyzer.addWrite();
                 mConnection.write(outputBuffer.array());
 
                 if (deviceAddress != (byte) 1) {
@@ -108,7 +110,7 @@ public class RTUController implements ModbusController {
                     ((command == inputArray[1]) || ((command & 0x80) == inputArray[1]))) {
                 if (CRC16.check(inputArray, frameSize)) {
                     if ((inputArray[1] & 0x80) == 0) {
-                        LogAnalyzer.addSuccess();
+                        logAnalyzer.addSuccess();
                         status = RequestStatus.FRAME_RECEIVED;
                         ((ByteBuffer) inputBuffer.clear()).put(inputArray, 0, frameSize).flip()
                                 .position(3);

@@ -3,11 +3,10 @@ package ru.avem.kspad.communication.devices.ikas;
 import java.nio.ByteBuffer;
 import java.util.Observer;
 
-import ru.avem.kspad.communication.devices.DeviceController;
+import ru.avem.kspad.communication.devices.BaseDevice;
 import ru.avem.kspad.communication.protocol.modbus.ModbusController;
 
-public class IKASController implements DeviceController {
-    private static final byte MODBUS_ADDRESS = 0x25;
+public class IKASController extends BaseDevice {
     private static final short STATUS_REGISTER = 0;
     public static final short MEASURABLE_TYPE_REGISTER = 0x65;
     public static final short START_MEASURABLE_REGISTER = 0x64;
@@ -18,57 +17,64 @@ public class IKASController implements DeviceController {
     private static final int NUM_OF_WORDS_IN_REGISTER = 1;
     private static final short NUM_OF_REGISTERS = 2 * NUM_OF_WORDS_IN_REGISTER;
 
-    private IKASModel mModel;
-    private ModbusController mModbusController;
-    private byte mAttempt = NUMBER_OF_ATTEMPTS;
-    private boolean mNeedToReed;
 
-    public IKASController(Observer observer, ModbusController controller) {
-        mModel = new IKASModel(observer);
-        mModbusController = controller;
+    public IKASController(int modbusAddress, Observer observer, ModbusController controller) {
+        address = (byte) modbusAddress;
+        model = new IKASModel(observer, address);
+        modbusController = controller;
     }
 
     @Override
     public void read(Object... args) {
         ByteBuffer inputBuffer = ByteBuffer.allocate(INPUT_BUFFER_SIZE);
-        if (thereAreAttempts()) {
-            mAttempt--;
-            ModbusController.RequestStatus status = mModbusController.readInputRegisters(
-                    MODBUS_ADDRESS, STATUS_REGISTER, NUM_OF_REGISTERS, inputBuffer);
+        if (isThereAreReadAttempts()) {
+            if (readAttempt >= 0) readAttempt--;
+            ModbusController.RequestStatus status = modbusController.readInputRegisters(
+                    address, STATUS_REGISTER, NUM_OF_REGISTERS, inputBuffer);
             if (status.equals(ModbusController.RequestStatus.FRAME_RECEIVED)) {
-                mModel.setResponding(true);
-                resetAttempts();
-                mModel.setReady(inputBuffer.getFloat());
-                mModel.setMeasurable(inputBuffer.getFloat());
+                model.setReadResponding(true);
+                resetReadAttempts();
+                ((IKASModel) model).setReady(inputBuffer.getFloat());
+                ((IKASModel) model).setMeasurable(inputBuffer.getFloat());
             } else {
                 read(args);
             }
         } else {
-            mModel.setResponding(false);
+            if (readAttemptOfAttempt >= 0) readAttemptOfAttempt--;
+            if (readAttemptOfAttempt <= 0) {
+                model.setReadResponding(false);
+            } else {
+                resetReadAttempts();
+            }
         }
     }
 
     @Override
     public void write(Object... args) {
         ByteBuffer inputBuffer = ByteBuffer.allocate(INPUT_BUFFER_SIZE);
-        if (thereAreAttempts()) {
-            mAttempt--;
+        if (isThereAreWriteAttempts()) {
+            if (writeAttempt >= 0) writeAttempt--;
             byte[] value = new byte[1];
             if (args[1] instanceof Integer) {
                 value = intToByteArray((int) args[1]);
             } else if (args[1] instanceof Float) {
                 value = floatToByteArray((float) args[1]);
             }
-            ModbusController.RequestStatus status = mModbusController.writeSingleHoldingRegister(MODBUS_ADDRESS,
+            ModbusController.RequestStatus status = modbusController.writeSingleHoldingRegister(address,
                     (short) args[0], value, inputBuffer);
             if (status.equals(ModbusController.RequestStatus.FRAME_RECEIVED)) {
-                mModel.setResponding(true);
-                resetAttempts();
+                model.setWriteResponding(true);
+                resetWriteAttempts();
             } else {
                 write(args);
             }
         } else {
-            mModel.setResponding(false);
+            if (writeAttemptOfAttempt >= 0) writeAttemptOfAttempt--;
+            if (writeAttemptOfAttempt <= 0) {
+                model.setWriteResponding(false);
+            } else {
+                resetWriteAttempts();
+            }
         }
     }
 
@@ -83,25 +89,4 @@ public class IKASController implements DeviceController {
         convertBuffer.clear();
         return convertBuffer.putFloat(f).array();
     }
-
-    @Override
-    public void resetAttempts() {
-        mAttempt = NUMBER_OF_ATTEMPTS;
-    }
-
-    @Override
-    public boolean thereAreAttempts() {
-        return mAttempt > 0;
-    }
-
-    @Override
-    public boolean needToRead() {
-        return mNeedToReed;
-    }
-
-    @Override
-    public void setNeedToRead(boolean needToRead) {
-        mNeedToReed = needToRead;
-    }
-
 }

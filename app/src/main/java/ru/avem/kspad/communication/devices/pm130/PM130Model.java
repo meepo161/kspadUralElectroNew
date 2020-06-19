@@ -3,9 +3,11 @@ package ru.avem.kspad.communication.devices.pm130;
 import java.util.Observable;
 import java.util.Observer;
 
-import static ru.avem.kspad.communication.devices.DeviceController.PM130_ID;
+import ru.avem.kspad.communication.devices.DeviceModel;
 
-public class PM130Model extends Observable {
+import static ru.avem.kspad.communication.devices.Device.PM130_ID;
+
+public class PM130Model extends Observable implements DeviceModel {
     public static final int RESPONDING_PARAM = 0;
     public static final int V1_PARAM = 1;
     public static final int V2_PARAM = 2;
@@ -18,12 +20,13 @@ public class PM130Model extends Observable {
     public static final int COS_PARAM = 9;
     public static final int F_PARAM = 10;
 
-    PM130Model(Observer observer) {
-        addObserver(observer);
-    }
+    private boolean readResponding = true;
+    private boolean writeResponding = true;
+    private final int deviceID;
 
-    void setResponding(boolean responding) {
-        notice(RESPONDING_PARAM, responding);
+    PM130Model(Observer observer, int id) {
+        deviceID = id;
+        addObserver(observer);
     }
 
     void setV1(float v1) {
@@ -80,6 +83,28 @@ public class PM130Model extends Observable {
 
     private void notice(int param, Object value) {
         setChanged();
-        notifyObservers(new Object[]{PM130_ID, param, value});
+        notifyObservers(new Object[]{deviceID, param, value});
+    }
+
+    @Override
+    public void resetResponding() {
+        readResponding = true;
+        writeResponding = true;
+    }
+
+    @Override
+    public void setReadResponding(boolean readResponding) {
+        this.readResponding = readResponding;
+        setResponding();
+    }
+
+    @Override
+    public void setWriteResponding(boolean writeResponding) {
+        this.writeResponding = writeResponding;
+        setResponding();
+    }
+
+    private void setResponding() {
+        notice(RESPONDING_PARAM, readResponding && writeResponding);
     }
 }

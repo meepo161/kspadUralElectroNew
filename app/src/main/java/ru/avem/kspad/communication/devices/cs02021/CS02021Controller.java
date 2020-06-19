@@ -11,11 +11,12 @@ import java.util.Observer;
 
 import ru.avem.kspad.communication.connection_protocols.Connection;
 import ru.avem.kspad.communication.connection_protocols.SerialConnection;
-import ru.avem.kspad.communication.devices.DeviceController;
+import ru.avem.kspad.communication.devices.BaseDevice;
+import ru.avem.kspad.communication.devices.Device;
 import ru.avem.kspad.communication.protocol.modbus.utils.CRC16;
 import ru.avem.kspad.utils.Logger;
 
-public class CS02021Controller implements DeviceController {
+public class CS02021Controller extends BaseDevice {
     private static final String TAG = "CS02021Controller";
     private static final int WRITE_TIMEOUT = 100;
     private static final int READ_TIMEOUT = 100;
@@ -25,9 +26,6 @@ public class CS02021Controller implements DeviceController {
     private byte mAddress;
     private boolean mExperimentRun;
 
-    private CS020201Model mModel;
-    private boolean mNeedToReed;
-
     public CS02021Controller(Context context, byte address, Observer observer) {
         mConnection = new SerialConnection(context, "CP2103 USB to Megger", BAUD_RATE,
                 UsbSerialPort.DATABITS_8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE,
@@ -35,7 +33,7 @@ public class CS02021Controller implements DeviceController {
         mAddress = address;
         initSerialPort();
 
-        mModel = new CS020201Model(observer);
+        model = new CS020201Model(observer);
     }
 
     public CS02021Controller(byte address, Observer observer, Connection connection) {
@@ -43,7 +41,7 @@ public class CS02021Controller implements DeviceController {
         mAddress = address;
         initSerialPort();
 
-        mModel = new CS020201Model(observer);
+        model = new CS020201Model(observer);
     }
 
     public void initSerialPort() {
@@ -170,31 +168,6 @@ public class CS02021Controller implements DeviceController {
 
     @Override
     public void read(Object... args) {
-        mModel.setResponding(isResponding());
-    }
 
-    @Override
-    public void write(Object... args) {
-
-    }
-
-    @Override
-    public void resetAttempts() {
-
-    }
-
-    @Override
-    public boolean thereAreAttempts() {
-        return false;
-    }
-
-    @Override
-    public boolean needToRead() {
-        return mNeedToReed;
-    }
-
-    @Override
-    public void setNeedToRead(boolean needToRead) {
-        mNeedToReed = needToRead;
     }
 }

@@ -30,9 +30,9 @@ import ru.avem.kspad.database.model.Experiments;
 import ru.avem.kspad.model.ExperimentsHolder;
 import ru.avem.kspad.utils.Logger;
 
-import static ru.avem.kspad.communication.devices.DeviceController.BECKHOFF_CONTROL_ID;
-import static ru.avem.kspad.communication.devices.DeviceController.FR_A800_OBJECT_ID;
-import static ru.avem.kspad.communication.devices.DeviceController.PM130_ID;
+import static ru.avem.kspad.communication.devices.Device.BECKHOFF_CONTROL_ID;
+import static ru.avem.kspad.communication.devices.Device.FR_A800_OBJECT_ID;
+import static ru.avem.kspad.communication.devices.Device.PM130_ID;
 import static ru.avem.kspad.utils.Utils.formatRealNumber;
 import static ru.avem.kspad.utils.Utils.setNextValueAndReturnAverage;
 import static ru.avem.kspad.utils.Utils.sleep;

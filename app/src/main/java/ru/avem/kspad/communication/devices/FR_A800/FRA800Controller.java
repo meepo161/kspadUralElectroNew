@@ -3,10 +3,10 @@ package ru.avem.kspad.communication.devices.FR_A800;
 import java.nio.ByteBuffer;
 import java.util.Observer;
 
-import ru.avem.kspad.communication.devices.DeviceController;
+import ru.avem.kspad.communication.devices.BaseDevice;
 import ru.avem.kspad.communication.protocol.modbus.ModbusController;
 
-public class FRA800Controller implements DeviceController {
+public class FRA800Controller extends BaseDevice {
     public static final short CONTROL_REGISTER = 8;
     public static final short CURRENT_FREQUENCY_REGISTER = 14;
     public static final short MAX_FREQUENCY_REGISTER = 1002;
@@ -15,31 +15,33 @@ public class FRA800Controller implements DeviceController {
     private static final int NUM_OF_WORDS_IN_REGISTER = 1;
     private static final short NUM_OF_REGISTERS = 1 * NUM_OF_WORDS_IN_REGISTER;
 
-    private FRA800Model mModel;
-    private byte mModbusAddress;
-    private ModbusController mModbusProtocol;
-    private byte mAttempt = NUMBER_OF_ATTEMPTS;
-    private boolean mNeedToReed;
 
-    public FRA800Controller(int modbusAddress, Observer observer, ModbusController controller, int id) {
-        mModbusAddress = (byte) modbusAddress;
-        mModel = new FRA800Model(observer, id);
-        mModbusProtocol = controller;
+    public FRA800Controller(int modbusAddress, Observer observer, ModbusController controller) {
+        address = (byte) modbusAddress;
+        model = new FRA800Model(observer, address);
+        modbusController = controller;
     }
 
     @Override
     public void read(Object... args) {
         ByteBuffer inputBuffer = ByteBuffer.allocate(INPUT_BUFFER_SIZE);
-        if (thereAreAttempts()) {
-            mAttempt--;
-            ModbusController.RequestStatus status = mModbusProtocol.readMultipleHoldingRegisters(
-                    mModbusAddress, CONTROL_REGISTER, NUM_OF_REGISTERS, inputBuffer);
+        if (isThereAreReadAttempts()) {
+            if (readAttempt >= 0) readAttempt--;
+            ModbusController.RequestStatus status = modbusController.readMultipleHoldingRegisters(
+                    address, CONTROL_REGISTER, NUM_OF_REGISTERS, inputBuffer);
             if (status.equals(ModbusController.RequestStatus.FRAME_RECEIVED)) {
-                mModel.setResponding(true);
-                mModel.setControlState(inputBuffer.getShort());
-                resetAttempts();
+                model.setReadResponding(true);
+                ((FRA800Model) model).setControlState(inputBuffer.getShort());
+                resetReadAttempts();
             } else {
                 read(args);
+            }
+        } else {
+            if (readAttemptOfAttempt >= 0) readAttemptOfAttempt--;
+            if (readAttemptOfAttempt <= 0) {
+                model.setReadResponding(false);
+            } else {
+                resetReadAttempts();
             }
         }
     }
@@ -55,38 +57,23 @@ public class FRA800Controller implements DeviceController {
         }
         dataBuffer.flip();
 
-        if (thereAreAttempts()) {
-            mAttempt--;
-            ModbusController.RequestStatus status = mModbusProtocol.writeMultipleHoldingRegisters(
-                    mModbusAddress, register, (short) numOfRegisters, dataBuffer, inputBuffer);
+        if (isThereAreWriteAttempts()) {
+            if (writeAttempt >= 0) writeAttempt--;
+            ModbusController.RequestStatus status = modbusController.writeMultipleHoldingRegisters(
+                    address, register, (short) numOfRegisters, dataBuffer, inputBuffer);
             if (status.equals(ModbusController.RequestStatus.FRAME_RECEIVED)) {
-                mModel.setResponding(true);
-                resetAttempts();
+                model.setWriteResponding(true);
+                resetWriteAttempts();
             } else {
                 write(args);
             }
         } else {
-            mModel.setResponding(false);
+            if (writeAttemptOfAttempt >= 0) writeAttemptOfAttempt--;
+            if (writeAttemptOfAttempt <= 0) {
+                model.setWriteResponding(false);
+            } else {
+                resetWriteAttempts();
+            }
         }
-    }
-
-    @Override
-    public void resetAttempts() {
-        mAttempt = NUMBER_OF_ATTEMPTS;
-    }
-
-    @Override
-    public boolean thereAreAttempts() {
-        return mAttempt > 0;
-    }
-
-    @Override
-    public boolean needToRead() {
-        return mNeedToReed;
-    }
-
-    @Override
-    public void setNeedToRead(boolean needToRead) {
-        mNeedToReed = needToRead;
     }
 }

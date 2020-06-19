@@ -30,8 +30,15 @@ import ru.avem.kspad.communication.protocol.modbus.ModbusController;
 import ru.avem.kspad.communication.protocol.modbus.RTUController;
 import ru.avem.kspad.view.OnBroadcastCallback;
 
-import static ru.avem.kspad.communication.devices.DeviceController.FR_A800_GENERATOR_ID;
-import static ru.avem.kspad.communication.devices.DeviceController.FR_A800_OBJECT_ID;
+import static ru.avem.kspad.communication.devices.Device.BECKHOFF_CONTROL_ID;
+import static ru.avem.kspad.communication.devices.Device.FR_A800_GENERATOR_ID;
+import static ru.avem.kspad.communication.devices.Device.FR_A800_OBJECT_ID;
+import static ru.avem.kspad.communication.devices.Device.IKAS_ID;
+import static ru.avem.kspad.communication.devices.Device.M40_ID;
+import static ru.avem.kspad.communication.devices.Device.PM130_ID;
+import static ru.avem.kspad.communication.devices.Device.TRM201_ID;
+import static ru.avem.kspad.communication.devices.Device.VEHA_T_ID;
+import static ru.avem.kspad.communication.devices.Device.VOLTMETER_ID;
 
 public class DevicesControllerDiagnostic extends Observable {
     public static final String ACTION_USB_PERMISSION =
@@ -50,21 +57,26 @@ public class DevicesControllerDiagnostic extends Observable {
     private static final String MEGGER_DEVICE_NAME = "CP2103 USB to Megger";
     private static final int BAUD_RATE_MEGGER = 9600;
 
+    private static final String FI1_DEVICE_NAME = "CP2103 USB to FI1";
+    private static final String FI2_DEVICE_NAME = "CP2103 USB to FI2";
+
     private Connection mRS485Connection;
     private Connection mMeggerConnection;
+    private Connection mFI1Connection;
+    private Connection mFI2Connection;
 
-    private List<DeviceController> mDevicesControllers = new ArrayList<>();
-    private List<DeviceController> mDevicesControllersMegger = new ArrayList<>();
+    private List<Device> mDevicesControllers = new ArrayList<>();
+    private List<Device> mDevicesControllersMegger = new ArrayList<>();
 
-    private DeviceController mBeckhoffController;
-    private DeviceController mM40Controller;
-    private DeviceController mFRA800ObjectController;
-    private DeviceController mFRA800GeneratorController;
-    private DeviceController mPM130Controller;
-    private DeviceController mVoltmeterController;
-    private DeviceController mTRM201Controller;
-    private DeviceController mIKASController;
-    private DeviceController mVEHATController;
+    private Device mBeckhoffController;
+    private Device mM40Controller;
+    private Device mFRA800ObjectController;
+    private Device mFRA800GeneratorController;
+    private Device mPM130Controller;
+    private Device mVoltmeterController;
+    private Device mTRM201Controller;
+    private Device mIKASController;
+    private Device mVEHATController;
 
     private CS02021Controller mCS02021Controller;
 
@@ -78,34 +90,43 @@ public class DevicesControllerDiagnostic extends Observable {
         mMeggerConnection = new SerialConnection(context, MEGGER_DEVICE_NAME, BAUD_RATE_MEGGER,
                 UsbSerialPort.DATABITS_8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE,
                 WRITE_TIMEOUT, READ_TIMEOUT);
+        mFI1Connection = new SerialConnection(context, FI1_DEVICE_NAME, BAUD_RATE,
+                UsbSerialPort.DATABITS_8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE,
+                WRITE_TIMEOUT, READ_TIMEOUT);
+
+        mFI2Connection = new SerialConnection(context, FI2_DEVICE_NAME, BAUD_RATE,
+                UsbSerialPort.DATABITS_8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE,
+                WRITE_TIMEOUT, READ_TIMEOUT);
 
         ModbusController modbusController = new RTUController(mRS485Connection);
+        ModbusController fi1Controller = new RTUController(mFI1Connection);
+        ModbusController fi2Controller = new RTUController(mFI2Connection);
 
-        mBeckhoffController = new BeckhoffController(observer, modbusController);
+        mBeckhoffController = new BeckhoffController(BECKHOFF_CONTROL_ID, observer, modbusController);
         mDevicesControllers.add(mBeckhoffController);
 
-        mM40Controller = new M40Controller(observer, modbusController);
+        mM40Controller = new M40Controller(M40_ID, observer, modbusController);
         mDevicesControllers.add(mM40Controller);
 
-        mFRA800ObjectController = new FRA800Controller(0x0B, observer, modbusController, FR_A800_OBJECT_ID);
+        mFRA800ObjectController = new FRA800Controller(FR_A800_OBJECT_ID, observer, fi1Controller);
         mDevicesControllers.add(mFRA800ObjectController);
 
-        mFRA800GeneratorController = new FRA800Controller(0X0C, observer, modbusController, FR_A800_GENERATOR_ID);
+        mFRA800GeneratorController = new FRA800Controller(FR_A800_GENERATOR_ID, observer, fi2Controller);
         mDevicesControllers.add(mFRA800GeneratorController);
 
-        mPM130Controller = new PM130Controller(observer, modbusController);
+        mPM130Controller = new PM130Controller(PM130_ID, observer, modbusController);
         mDevicesControllers.add(mPM130Controller);
 
-        mVoltmeterController = new VoltmeterController(observer, modbusController);
+        mVoltmeterController = new VoltmeterController(VOLTMETER_ID, observer, modbusController);
         mDevicesControllers.add(mVoltmeterController);
 
-        mTRM201Controller = new TRM201Controller(observer, modbusController);
+        mTRM201Controller = new TRM201Controller(TRM201_ID, observer, modbusController);
         mDevicesControllers.add(mTRM201Controller);
 
-        mIKASController = new IKASController(observer, modbusController);
+        mIKASController = new IKASController(IKAS_ID, observer, modbusController);
         mDevicesControllers.add(mIKASController);
 
-        mVEHATController = new VEHATController(observer, modbusController);
+        mVEHATController = new VEHATController(VEHA_T_ID, observer, modbusController);
         mDevicesControllers.add(mVEHATController);
 
         mCS02021Controller = new CS02021Controller(context, (byte) 0x04, observer);
@@ -114,15 +135,15 @@ public class DevicesControllerDiagnostic extends Observable {
             @Override
             public void run() {
                 while (isNeededToRunThreads()) {
-                    for (DeviceController deviceController : mDevicesControllers) {
-                        if (deviceController.needToRead()) {
+                    for (Device deviceController : mDevicesControllers) {
+                        if (deviceController.isNeedToRead()) {
                             if (deviceController instanceof PM130Controller) {
                                 deviceController.read(1);
                             } else {
                                 deviceController.read();
                             }
                         }
-                        deviceController.resetAttempts();
+                        deviceController.resetAttemptsToOneAndStart();
                     }
                     try {
                         Thread.sleep(1);
@@ -137,11 +158,11 @@ public class DevicesControllerDiagnostic extends Observable {
             @Override
             public void run() {
                 while (isNeededToRunThreads()) {
-                    for (DeviceController deviceController : mDevicesControllersMegger) {
-                        if (deviceController.needToRead()) {
+                    for (Device deviceController : mDevicesControllersMegger) {
+                        if (deviceController.isNeedToRead()) {
                             deviceController.read();
                         }
-                        deviceController.resetAttempts();
+                        deviceController.resetAttemptsToOneAndStart();
                     }
                     try {
                         Thread.sleep(1);
@@ -162,19 +183,24 @@ public class DevicesControllerDiagnostic extends Observable {
                 if (ACTION_USB_PERMISSION.equals(action)) {
                     synchronized (this) {
                         if (device != null) {
-                            if (Objects.equals(device.getProductName(), RS485_DEVICE_NAME) ||
-                                    Objects.equals(device.getProductName(), MEGGER_DEVICE_NAME)) {
+                            if (Objects.equals(device.getProductName(), RS485_DEVICE_NAME)
+                                    || Objects.equals(device.getProductName(), MEGGER_DEVICE_NAME)
+                                            || (Objects.equals(device.getProductName(), FI1_DEVICE_NAME)
+                                            || (Objects.equals(device.getProductName(), FI2_DEVICE_NAME)))) {
                                 connectMainBus();
-                                connectTermodatBus();
+                                connectMeggerBus();
+                                connectFI1Bus();
+                                connectFI2Bus();
                             }
                         }
                     }
                 } else if (ACTION_USB_DETACHED.equals(action) || ACTION_USB_ATTACHED.equals(action)) {
                     synchronized (this) {
-                        disconnectMainBus();
-                        disconnectTermodatBus();
+                        disconnectAllBus();
                         connectMainBus();
-                        connectTermodatBus();
+                        connectFI1Bus();
+                        connectFI2Bus();
+                        connectMeggerBus();
                     }
                 }
             }
@@ -197,31 +223,43 @@ public class DevicesControllerDiagnostic extends Observable {
         }
     }
 
-    private void disconnectMainBus() {
-        mRS485Connection.closeConnection();
+    private void connectFI1Bus() {
+        if (!mFI1Connection.isInitiatedConnection()) {
+            mFI1Connection.initConnection();
+        }
     }
 
-    private void connectTermodatBus() {
+    private void connectFI2Bus() {
+        if (!mFI2Connection.isInitiatedConnection()) {
+            mFI2Connection.initConnection();
+        }
+    }
+
+    private void disconnectAllBus() {
+        mRS485Connection.closeConnection();
+        mMeggerConnection.closeConnection();
+        mFI1Connection.closeConnection();
+        mFI2Connection.closeConnection();
+    }
+
+    private void connectMeggerBus() {
         if (!mMeggerConnection.isInitiatedConnection()) {
             mMeggerConnection.initConnection();
         }
     }
 
-    private void disconnectTermodatBus() {
-        mMeggerConnection.closeConnection();
-    }
 
     public void initAllDevices() {
         connectMainBus();
-        connectTermodatBus();
-        mBeckhoffController.setNeedToRead(true);
-        mM40Controller.setNeedToRead(true);
-        mFRA800ObjectController.setNeedToRead(true);
-        mFRA800GeneratorController.setNeedToRead(true);
-        mPM130Controller.setNeedToRead(true);
-        mVoltmeterController.setNeedToRead(true);
-        mTRM201Controller.setNeedToRead(true);
-        mIKASController.setNeedToRead(true);
-        mVEHATController.setNeedToRead(true);
+        connectMeggerBus();
+        mBeckhoffController.resetAndStart();
+        mM40Controller.resetAndStart();
+        mFRA800ObjectController.resetAndStart();
+        mFRA800GeneratorController.resetAndStart();
+        mPM130Controller.resetAndStart();
+        mVoltmeterController.resetAndStart();
+        mTRM201Controller.resetAndStart();
+        mIKASController.resetAndStart();
+        mVEHATController.resetAndStart();
     }
 }

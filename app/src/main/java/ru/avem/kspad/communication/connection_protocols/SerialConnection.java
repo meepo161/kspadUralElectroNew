@@ -127,6 +127,11 @@ public class SerialConnection implements Connection {
     }
 
     @Override
+    public String getName() {
+        return mProductName;
+    }
+
+    @Override
     public int write(byte[] outputArray) {
         int numBytesWrite = 0;
         try {

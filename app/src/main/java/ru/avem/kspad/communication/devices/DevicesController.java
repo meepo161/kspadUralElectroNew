@@ -33,8 +33,15 @@ import ru.avem.kspad.communication.protocol.modbus.RTUController;
 import ru.avem.kspad.utils.Logger;
 import ru.avem.kspad.view.OnBroadcastCallback;
 
-import static ru.avem.kspad.communication.devices.DeviceController.FR_A800_GENERATOR_ID;
-import static ru.avem.kspad.communication.devices.DeviceController.FR_A800_OBJECT_ID;
+import static ru.avem.kspad.communication.devices.Device.BECKHOFF_CONTROL_ID;
+import static ru.avem.kspad.communication.devices.Device.FR_A800_GENERATOR_ID;
+import static ru.avem.kspad.communication.devices.Device.FR_A800_OBJECT_ID;
+import static ru.avem.kspad.communication.devices.Device.IKAS_ID;
+import static ru.avem.kspad.communication.devices.Device.M40_ID;
+import static ru.avem.kspad.communication.devices.Device.PM130_ID;
+import static ru.avem.kspad.communication.devices.Device.TRM201_ID;
+import static ru.avem.kspad.communication.devices.Device.VEHA_T_ID;
+import static ru.avem.kspad.communication.devices.Device.VOLTMETER_ID;
 import static ru.avem.kspad.communication.devices.FR_A800.FRA800Controller.CONTROL_REGISTER;
 import static ru.avem.kspad.communication.devices.FR_A800.FRA800Controller.CURRENT_FREQUENCY_REGISTER;
 import static ru.avem.kspad.communication.devices.FR_A800.FRA800Controller.MAX_FREQUENCY_REGISTER;
@@ -65,23 +72,27 @@ public class DevicesController extends Observable implements Runnable {
     private static final int READ_TIMEOUT = 100;
 
     private static final String RS485_DEVICE_NAME = "CP2103 USB to RS-485";
+    private static final String FI1_DEVICE_NAME = "CP2103 USB to FI1";
+    private static final String FI2_DEVICE_NAME = "CP2103 USB to FI2";
     private static final int BAUD_RATE = 38400;
 
     private Connection mRS485Connection;
+    private Connection mFI1Connection;
+    private Connection mFI2Connection;
 //    private Connection mEthernetConnection;
 
-    private List<DeviceController> mDevicesControllers = new ArrayList<>();
+    private List<Device> mDevicesControllers = new ArrayList<>();
 
-    private DeviceController mBeckhoffController;
-    private DeviceController mM40Controller;
-    private DeviceController mFRA800ObjectController;
-    private DeviceController mFRA800GeneratorController;
-    private DeviceController mPM130Controller;
-    private DeviceController mVoltmeterController;
-    private DeviceController mTRM201Controller;
-    private DeviceController mIKASController;
-    private DeviceController mVEHATController;
-    private DeviceController mPM130ControllerIA;
+    private Device mBeckhoffController;
+    private Device mM40Controller;
+    private Device mFRA800ObjectController;
+    private Device mFRA800GeneratorController;
+    private Device mPM130Controller;
+    private Device mVoltmeterController;
+    private Device mTRM201Controller;
+    private Device mIKASController;
+    private Device mVEHATController;
+    private Device mPM130ControllerIA;
 
     private CS02021Controller mCS02021Controller;
 
@@ -98,38 +109,49 @@ public class DevicesController extends Observable implements Runnable {
         mRS485Connection = new SerialConnection(context, RS485_DEVICE_NAME, BAUD_RATE,
                 UsbSerialPort.DATABITS_8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE,
                 WRITE_TIMEOUT, READ_TIMEOUT);
+
+        mFI1Connection = new SerialConnection(context, FI1_DEVICE_NAME, BAUD_RATE,
+                UsbSerialPort.DATABITS_8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE,
+                WRITE_TIMEOUT, READ_TIMEOUT);
+
+        mFI2Connection = new SerialConnection(context, FI2_DEVICE_NAME, BAUD_RATE,
+                UsbSerialPort.DATABITS_8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE,
+                WRITE_TIMEOUT, READ_TIMEOUT);
+
 //        mEthernetConnection = new EthernetConnection("10.10.100.254", 8899);
         ModbusController modbusController = new RTUController(mRS485Connection);
+        ModbusController fi1Controller = new RTUController(mFI1Connection);
+        ModbusController fi2Controller = new RTUController(mFI2Connection);
 //        ModbusController modbusController = new RTUController(mEthernetConnection);
 
-        mBeckhoffController = new BeckhoffController(observer, modbusController);
+        mBeckhoffController = new BeckhoffController(BECKHOFF_CONTROL_ID, observer, modbusController);
         mDevicesControllers.add(mBeckhoffController);
 
-        mM40Controller = new M40Controller(observer, modbusController);
+        mM40Controller = new M40Controller(M40_ID, observer, modbusController);
         mDevicesControllers.add(mM40Controller);
 
-        mFRA800ObjectController = new FRA800Controller(0x0B, observer, modbusController, FR_A800_OBJECT_ID);
+        mFRA800ObjectController = new FRA800Controller(FR_A800_OBJECT_ID, observer, fi1Controller);
         mDevicesControllers.add(mFRA800ObjectController);
 
-        mFRA800GeneratorController = new FRA800Controller(0X0C, observer, modbusController, FR_A800_GENERATOR_ID);
+        mFRA800GeneratorController = new FRA800Controller(FR_A800_GENERATOR_ID, observer, fi2Controller);
         mDevicesControllers.add(mFRA800GeneratorController);
 
-        mPM130Controller = new PM130Controller(observer, modbusController);
+        mPM130Controller = new PM130Controller(PM130_ID, observer, modbusController);
         mDevicesControllers.add(mPM130Controller);
 
-        mVoltmeterController = new VoltmeterController(observer, modbusController);
+        mVoltmeterController = new VoltmeterController(VOLTMETER_ID, observer, modbusController);
         mDevicesControllers.add(mVoltmeterController);
 
-        mTRM201Controller = new TRM201Controller(observer, modbusController);
+        mTRM201Controller = new TRM201Controller(TRM201_ID, observer, modbusController);
         mDevicesControllers.add(mTRM201Controller);
 
-        mIKASController = new IKASController(observer, modbusController);
+        mIKASController = new IKASController(IKAS_ID, observer, modbusController);
         mDevicesControllers.add(mIKASController);
 
-        mVEHATController = new VEHATController(observer, modbusController);
+        mVEHATController = new VEHATController(VEHA_T_ID, observer, modbusController);
         mDevicesControllers.add(mVEHATController);
 
-        mPM130ControllerIA = new PM130ControllerIA(observer, modbusController);
+        mPM130ControllerIA = new PM130ControllerIA(PM130_ID, observer, modbusController);
         mDevicesControllers.add(mPM130ControllerIA);
 
         mCS02021Controller = new CS02021Controller(context, (byte) 0x04, observer);
@@ -148,7 +170,9 @@ public class DevicesController extends Observable implements Runnable {
                     synchronized (this) {
                         if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
                             if (device != null) {
-                                if (Objects.equals(device.getProductName(), RS485_DEVICE_NAME)) {
+                                if (Objects.equals(device.getProductName(), RS485_DEVICE_NAME)
+                                        || (Objects.equals(device.getProductName(), FI1_DEVICE_NAME)
+                                        || (Objects.equals(device.getProductName(), FI2_DEVICE_NAME)))) {
                                     resetDevicesAttempts();
                                 }
                             }
@@ -157,13 +181,21 @@ public class DevicesController extends Observable implements Runnable {
                                 if (Objects.equals(device.getProductName(), RS485_DEVICE_NAME)) {
                                     connectMainBus();
                                 }
+                                if (Objects.equals(device.getProductName(), FI1_DEVICE_NAME)) {
+                                    connectFI1Bus();
+                                }
+                                if (Objects.equals(device.getProductName(), FI2_DEVICE_NAME)) {
+                                    connectFI2Bus();
+                                }
                             }
                         }
                     }
                 } else if (ACTION_USB_DETACHED.equals(action) || ACTION_USB_ATTACHED.equals(action)) {
                     synchronized (this) {
-                        disconnectMainBus();
+                        disconnectAllBus();
                         connectMainBus();
+                        connectFI1Bus();
+                        connectFI2Bus();
                     }
                 }
             }
@@ -184,8 +216,8 @@ public class DevicesController extends Observable implements Runnable {
     @Override
     public void run() {
         while (isNeededToRunThreads()) {
-            for (DeviceController deviceController : mDevicesControllers) {
-                if (deviceController.needToRead() && deviceController.thereAreAttempts()) {
+            for (Device deviceController : mDevicesControllers) {
+                if (deviceController.isNeedToRead()) {
                     if (deviceController instanceof PM130Controller) {
                         for (int i = 1; i < 5; i++) {
                             deviceController.read(i);
@@ -228,8 +260,8 @@ public class DevicesController extends Observable implements Runnable {
 
     public void diversifyDevices() {
         offLight();
-        for (DeviceController devicesController : mDevicesControllers) {
-            devicesController.setNeedToRead(false);
+        for (Device devicesController : mDevicesControllers) {
+            devicesController.finish();
         }
     }
 
@@ -253,6 +285,22 @@ public class DevicesController extends Observable implements Runnable {
         onLight();
     }
 
+    private void connectFI1Bus() {
+        Logger.withTag("DEBUG_TAG").log("connectMainBus");
+        if (!mFI1Connection.isInitiatedConnection()) {
+            Logger.withTag("DEBUG_TAG").log("!isInitiatedConnection");
+            mFI1Connection.initConnection();
+        }
+    }
+
+    private void connectFI2Bus() {
+        Logger.withTag("DEBUG_TAG").log("connectMainBus");
+        if (!mFI2Connection.isInitiatedConnection()) {
+            Logger.withTag("DEBUG_TAG").log("!isInitiatedConnection");
+            mFI2Connection.initConnection();
+        }
+    }
+
     private void resetTriggers() {
         mBeckhoffController.write(RESET_TRIGGERS_REGISTER, 1, 1);
         mBeckhoffController.write(RESET_TRIGGERS_REGISTER, 1, 0);
@@ -272,12 +320,14 @@ public class DevicesController extends Observable implements Runnable {
     }
 
     private void resetDevicesAttempts() {
-        mBeckhoffController.resetAttempts();
+        mBeckhoffController.resetAndStart();
+        //TODO все устройства мб
     }
 
-    private void disconnectMainBus() {
+    private void disconnectAllBus() {
         mRS485Connection.closeConnection();
-//        mEthernetConnection.closeConnection();
+        mFI1Connection.closeConnection();
+        mFI2Connection.closeConnection();
     }
 
     private void onRegisterInTheModule(int numberOfRegister, int module) {
@@ -317,24 +367,19 @@ public class DevicesController extends Observable implements Runnable {
     public void initDevicesFrom1To3And10And12Group() {
         initBeckhoff();
         mM40Controller.write(AVERAGING_REGISTER, (short) 2000);
-        mM40Controller.setNeedToRead(true);
-        mM40Controller.resetAttempts();
-        mFRA800ObjectController.setNeedToRead(true);
-        mFRA800ObjectController.resetAttempts();
-        mFRA800GeneratorController.setNeedToRead(true);
-        mFRA800GeneratorController.resetAttempts();
-        mPM130Controller.setNeedToRead(true);
-        mPM130Controller.resetAttempts();
-        mVEHATController.setNeedToRead(true);
-        mVEHATController.resetAttempts();
-        mTRM201Controller.setNeedToRead(true);
-        mTRM201Controller.resetAttempts();
+        mM40Controller.resetAndStart();
+        mFRA800ObjectController.resetAndStart();
+        mFRA800GeneratorController.resetAndStart();
+        mPM130Controller.resetAndStart();
+        mVEHATController.resetAndStart();
+        mTRM201Controller.resetAndStart();
     }
 
     public void initBeckhoff() {
         connectMainBus();
-        mBeckhoffController.setNeedToRead(true);
-        mBeckhoffController.resetAttempts();
+        connectFI1Bus();
+        connectFI2Bus();
+        mBeckhoffController.resetAndStart();
     }
 
     public void startObject() {
@@ -444,10 +489,8 @@ public class DevicesController extends Observable implements Runnable {
 
     public void initDevicesFrom4Group() {
         initBeckhoff();
-        mFRA800ObjectController.setNeedToRead(true);
-        mFRA800ObjectController.resetAttempts();
-        mPM130Controller.setNeedToRead(true);
-        mPM130Controller.resetAttempts();
+        mFRA800ObjectController.resetAndStart();
+        mPM130Controller.resetAndStart();
     }
 
     public void onKMsFrom4And7And13Group() {
@@ -481,13 +524,11 @@ public class DevicesController extends Observable implements Runnable {
     public void initDevicesFrom5And17Group() {
         initBeckhoff();
         initIKAS();
-        mTRM201Controller.setNeedToRead(true);
-        mTRM201Controller.resetAttempts();
+        mTRM201Controller.resetAndStart();
     }
 
     public void initIKAS() {
-        mIKASController.setNeedToRead(true);
-        mIKASController.resetAttempts();
+        mIKASController.resetAndStart();
     }
 
     public void onKMsFrom5And17Group() {
@@ -535,12 +576,9 @@ public class DevicesController extends Observable implements Runnable {
 
     public void initDevicesFrom6Group() {
         initBeckhoff();
-        mFRA800ObjectController.setNeedToRead(true);
-        mFRA800ObjectController.resetAttempts();
-        mPM130Controller.setNeedToRead(true);
-        mPM130Controller.resetAttempts();
-        mVoltmeterController.setNeedToRead(true);
-        mVoltmeterController.resetAttempts();
+        mFRA800ObjectController.resetAndStart();
+        mPM130Controller.resetAndStart();
+        mVoltmeterController.resetAndStart();
     }
 
     public void onKMsFrom6Group() {
@@ -562,24 +600,17 @@ public class DevicesController extends Observable implements Runnable {
 
     public void initDevices7Group() {
         initBeckhoff();
-        mFRA800ObjectController.setNeedToRead(true);
-        mFRA800ObjectController.resetAttempts();
-        mPM130Controller.setNeedToRead(true);
-        mPM130Controller.resetAttempts();
-        mVEHATController.setNeedToRead(true);
-        mVEHATController.resetAttempts();
+        mFRA800ObjectController.resetAndStart();
+        mPM130Controller.resetAndStart();
+        mVEHATController.resetAndStart();
     }
 
     public void initDevices8Group() {
         initBeckhoff();
-        mFRA800ObjectController.setNeedToRead(true);
-        mFRA800ObjectController.resetAttempts();
-        mPM130Controller.setNeedToRead(true);
-        mPM130Controller.resetAttempts();
-        mVEHATController.setNeedToRead(true);
-        mVEHATController.resetAttempts();
-        mTRM201Controller.setNeedToRead(true);
-        mTRM201Controller.resetAttempts();
+        mFRA800ObjectController.resetAndStart();
+        mPM130Controller.resetAndStart();
+        mVEHATController.resetAndStart();
+        mTRM201Controller.resetAndStart();
     }
 
     public void onKMsFrom8To9Group() {
@@ -606,18 +637,14 @@ public class DevicesController extends Observable implements Runnable {
 
     public void initDevicesFrom9Group() {
         initBeckhoff();
-        mFRA800ObjectController.setNeedToRead(true);
-        mFRA800ObjectController.resetAttempts();
-        mPM130Controller.setNeedToRead(true);
-        mPM130Controller.resetAttempts();
-        mTRM201Controller.setNeedToRead(true);
-        mTRM201Controller.resetAttempts();
+        mFRA800ObjectController.resetAndStart();
+        mPM130Controller.resetAndStart();
+        mTRM201Controller.resetAndStart();
     }
 
     public void initDevicesFrom11Group() {
         initBeckhoff();
-        mTRM201Controller.setNeedToRead(true);
-        mTRM201Controller.resetAttempts();
+        mTRM201Controller.resetAndStart();
     }
 
     public void onKMsFrom11Group() {
@@ -653,32 +680,22 @@ public class DevicesController extends Observable implements Runnable {
 
     public void initDevicesFrom13Group() {
         initBeckhoff();
-        mFRA800ObjectController.setNeedToRead(true);
-        mFRA800ObjectController.resetAttempts();
-        mPM130Controller.setNeedToRead(true);
-        mPM130Controller.resetAttempts();
+        mFRA800ObjectController.resetAndStart();
+        mPM130Controller.resetAndStart();
         set5000PointsM40();
-        mM40Controller.setNeedToRead(true);
-        mM40Controller.resetAttempts();
-        mTRM201Controller.setNeedToRead(true);
-        mTRM201Controller.resetAttempts();
-        mVEHATController.setNeedToRead(true);
-        mVEHATController.resetAttempts();
+        mM40Controller.resetAndStart();
+        mTRM201Controller.resetAndStart();
+        mVEHATController.resetAndStart();
     }
 
     public void initDevicesFrom14Group() {
         initBeckhoff();
         set5000PointsM40();
-        mM40Controller.setNeedToRead(true);
-        mM40Controller.resetAttempts();
-        mFRA800ObjectController.setNeedToRead(true);
-        mFRA800ObjectController.resetAttempts();
-        mFRA800GeneratorController.setNeedToRead(true);
-        mFRA800GeneratorController.resetAttempts();
-        mVEHATController.setNeedToRead(true);
-        mVEHATController.resetAttempts();
-        mPM130Controller.setNeedToRead(true);
-        mPM130Controller.resetAttempts();
+        mM40Controller.resetAndStart();
+        mFRA800ObjectController.resetAndStart();
+        mFRA800GeneratorController.resetAndStart();
+        mVEHATController.resetAndStart();
+        mPM130Controller.resetAndStart();
     }
 
     public void onKMsFrom14GroupLoad() {
@@ -737,13 +754,10 @@ public class DevicesController extends Observable implements Runnable {
 
     public void initDevicesFrom15Group() {
         initBeckhoff();
-        mFRA800ObjectController.setNeedToRead(true);
-        mFRA800ObjectController.resetAttempts();
-        mPM130ControllerIA.setNeedToRead(true);
-        mPM130ControllerIA.resetAttempts();
+        mFRA800ObjectController.resetAndStart();
+        mPM130ControllerIA.resetAndStart();
         set5000PointsM40();
-        mM40Controller.setNeedToRead(true);
-        mM40Controller.resetAttempts();
+        mM40Controller.resetAndStart();
     }
 
     public void onKMsFrom15Group() {
