@@ -4,10 +4,10 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/KSPAD.iml" filepath="$PROJECT_DIR$/KSPAD.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/kspadUralElectroNew.iml" filepath="$PROJECT_DIR$/kspadUralElectroNew.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/kspadUralElectroNew-app.iml" filepath="$PROJECT_DIR$/app/kspadUralElectroNew-app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/poishadow/kspadUralElectroNew-poishadow.iml" filepath="$PROJECT_DIR$/poishadow/kspadUralElectroNew-poishadow.iml" />
-      <module fileurl="file://$PROJECT_DIR$/usbSerialForAndroid/kspadUralElectroNew-usbSerialForAndroid.iml" filepath="$PROJECT_DIR$/usbSerialForAndroid/kspadUralElectroNew-usbSerialForAndroid.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/usbSerialForAndroid/com.hoho.android-usbSerialForAndroid.iml" filepath="$PROJECT_DIR$/.idea/modules/usbSerialForAndroid/com.hoho.android-usbSerialForAndroid.iml" group="kspadUralElectro/usbSerialForAndroid" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/kspadUralElectro.iml" filepath="$PROJECT_DIR$/.idea/modules/kspadUralElectro.iml" group="kspadUralElectro" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/kspadUralElectro-app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/kspadUralElectro-app.iml" group="kspadUralElectro/app" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/poishadow/kspadUralElectro-poishadow.iml" filepath="$PROJECT_DIR$/.idea/modules/poishadow/kspadUralElectro-poishadow.iml" group="kspadUralElectro/poishadow" />
       <module fileurl="file://$PROJECT_DIR$/poishadow/poishadow.iml" filepath="$PROJECT_DIR$/poishadow/poishadow.iml" />
       <module fileurl="file://$PROJECT_DIR$/usbSerialForAndroid/usbSerialForAndroid.iml" filepath="$PROJECT_DIR$/usbSerialForAndroid/usbSerialForAndroid.iml" />
     </modules>
